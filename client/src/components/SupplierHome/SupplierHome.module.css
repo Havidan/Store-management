@@ -1,0 +1,60 @@
+body,
+html {
+  padding: 0;
+  width: 100%;
+}
+
+body::before {
+  background-color: rgba(255, 255, 255, 0.7); 
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding-bottom: 50px;
+}
+
+.title {
+  font-family: "Arial", sans-serif;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+  margin-top: 9vh;
+}
+
+.logoutButton {
+  position: absolute;
+  top: 20px; 
+  right: 20px; 
+  padding: 10px 20px;
+  background-color: #ff6347; 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; 
+}
+
+.logoutButton:hover {
+  background-color: #ff4500; 
+}
+
+.editProductsButton {
+  background-color: #4caf50; 
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+
+.editProductsButton:hover {
+  background-color: #45a049;
+}

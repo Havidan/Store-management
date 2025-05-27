@@ -1,0 +1,136 @@
+.ordersSection {
+  margin-top: 20px;
+  padding: 0 20px;
+  width: 50%;
+}
+body::before {
+  background-color: rgba(255, 255, 255, 0.7); 
+}
+
+.orderList {
+  border-top: 2px solid #ddd;
+}
+
+.orderRow {
+  border-bottom: 1px solid #ddd;
+}
+
+.orderHeader {
+  display: grid;
+  grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 0.6fr auto;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s ease;
+  align-items: center;
+  text-align: right; 
+}
+
+.orderHeader:hover {
+  background-color: #eef;
+}
+
+.orderHeader span {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.orderDetails {
+  background-color: #fdfdfd;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  color: #444;
+  text-align: right;
+  padding-bottom: 25px;
+}
+
+.productsTable {
+  width: 100%;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.productsTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.productsTable th,
+.productsTable td {
+  padding: 8px 12px;
+  text-align: right; 
+  border: 1px solid #ddd;
+}
+
+.productsTable th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.productsTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.productsTable tr:hover {
+  background-color: #eef;
+}
+
+.chevron {
+  display: flex;
+  justify-content: center;
+}
+
+.orderAction {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+  height: 5vh;
+}
+
+.confirmButton {
+  background-color: #f12f2f; 
+  color: white;
+  border: none;
+  padding: 15px 15px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  height: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmButton:hover {
+  background-color: rgb(171, 33, 33); 
+}
+
+.confirmButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.orderHeaderRow {
+  display: grid;
+  grid-template-columns: 0.6fr 0.9fr 1fr 1.2fr 1.9fr;
+  gap: 10px;
+  padding: 10px;
+  font-weight: bold;
+  background-color: #f2f2f2;
+  border-bottom: 2px solid #ccc;
+  direction: rtl;
+  text-align: right;
+}
+
+.historyButton {
+  margin-left: 5px;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  font-size: large;
+  border-radius: 5px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
