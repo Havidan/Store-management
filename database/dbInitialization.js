@@ -1,6 +1,6 @@
 import mysql from "mysql2";  //for connecting to mySql
 import dotenv from "dotenv"; 
-dotenv.config(); //Load environment variables to proccess
+dotenv.config({ path: "../.env" }); //Load environment variables to proccess
 
 function initializeDatabase() {
   //create the base connection
