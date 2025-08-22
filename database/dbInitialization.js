@@ -39,16 +39,19 @@ function initializeDatabase() {
           console.log("Switched to my_store database!");
 
           const createUsersTable = `
-          CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(255) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            company_name VARCHAR(255) NULL,
-            contact_name VARCHAR(255) NULL,
-            phone VARCHAR(20) NULL,
-            userType ENUM('StoreOwner', 'Supplier') NOT NULL
-          );
-        `;
+            CREATE TABLE IF NOT EXISTS users (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              username VARCHAR(255) UNIQUE NOT NULL,
+              password VARCHAR(255) NOT NULL,
+              company_name VARCHAR(255) NULL,
+              contact_name VARCHAR(255) NULL,
+              phone VARCHAR(20) NULL,
+              address VARCHAR(255) NULL,          -- ← חדש
+              opening_hours VARCHAR(255) NULL,    -- ← חדש
+              userType ENUM('StoreOwner', 'Supplier') NOT NULL
+            ) ENGINE=InnoDB;
+          `;
+
 
           connection.query(createUsersTable, (err, results) => {
             if (err) {
@@ -70,14 +73,16 @@ function initializeDatabase() {
           `;
 
             const createOrdersTable = `
-            CREATE TABLE IF NOT EXISTS orders (
-              id INT AUTO_INCREMENT PRIMARY KEY,
-              status ENUM('בתהליך', 'הושלמה', 'בוצעה') NOT NULL,
-              supplier_id INT NOT NULL,
-              created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              FOREIGN KEY (supplier_id) REFERENCES users(id)
-            );
-          `;
+              CREATE TABLE IF NOT EXISTS orders (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                owner_id INT NOT NULL,
+                status ENUM('בתהליך', 'הושלמה', 'בוצעה') NOT NULL,
+                supplier_id INT NOT NULL,
+                created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (owner_id) REFERENCES users(id),
+                FOREIGN KEY (supplier_id) REFERENCES users(id)
+              ) ENGINE=InnoDB;
+            `;
 
             const createOrderedProductsTable = `
             CREATE TABLE IF NOT EXISTS order_items (
