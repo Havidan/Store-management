@@ -26,9 +26,7 @@ export async function checkUser(username, password) {
   }
 }
 
-
-
-
+// users.db.js (או היכן שaddUser נמצא)
 export async function addUser(
   username,
   password,
@@ -36,22 +34,27 @@ export async function addUser(
   contactName,
   phone,
   userType,
+  address = null,
+  opening_hours = null
 ) {
   try {
     const query = `
-      INSERT INTO users (username, password, company_name, contact_name, phone, userType)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO users
+        (username, password, company_name, contact_name, phone, address, opening_hours, userType)
+      VALUES
+        (?,       ?,        ?,            ?,            ?,     ?,        ?,              ?)
     `;
-    //will throw error if the user exist because username is unique value.
+    // יזרוק שגיאה אם username קיים (UNIQUE)
     const [results] = await pool.query(query, [
       username,
       password,
-      companyName,
+      companyName || null,
       contactName,
       phone,
+      address || null,
+      opening_hours || null,
       userType,
     ]);
-    //increments automaticlly
     return results.insertId;
   } catch (err) {
     throw new Error("Error adding user: " + err.message);

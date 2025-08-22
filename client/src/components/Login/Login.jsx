@@ -8,6 +8,8 @@ function Login() {
   localStorage.removeItem("userType");
   localStorage.removeItem("username");
   localStorage.removeItem("supplierId");
+  localStorage.removeItem("userId");  
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -63,8 +65,8 @@ function Login() {
           התחבר
         </button>
         {/*use link to avoid rendering the page*/}
-        <Link to="/SupplierSignUp" className={styles.link}>
-          רישום עבור ספק
+        <Link to="/SignUp" className={styles.link}>
+          רישום למערכת 
         </Link>
       </form>
     </div>
