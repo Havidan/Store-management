@@ -13,8 +13,9 @@ function OrderListForSupplier() {
   useEffect(() => {
     axios
     //get the supplier orders
-      .post("http://localhost:3000/order/by-supplier", {
-        supplier_id: supplierId,
+      .post("http://localhost:3000/order/by-id", {
+        id: supplierId,
+        userType: "supplier",
       })
       .then((res) => setOrders(res.data))
       .catch((err) => console.error("Failed to fetch orders", err));

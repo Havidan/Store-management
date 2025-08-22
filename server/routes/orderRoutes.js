@@ -2,18 +2,19 @@ import express from "express";
 import {
   addOrder,
   addOrderItem,
-  getAllOrders,
-  getOrdersBySupplier,
+  getOrdersById,
   updateStatusOrder,
 } from "../../database/orderDB.js";
 
 const router = express.Router();
 
 router.post("/add", async (req, res) => {
-  const { supplier_id, products_list } = req.body;
+    console.log("REQ BODY:", req.body);
+
+  const { supplier_id, owner_id, products_list } = req.body;
 
   try {
-    const orderId = await addOrder(supplier_id, "בוצעה", new Date());
+    const orderId = await addOrder(supplier_id, owner_id, "בוצעה", new Date());
     for (const product of products_list) {
       const { product_id, quantity } = product;
       if (quantity > 0) {
@@ -26,7 +27,7 @@ router.post("/add", async (req, res) => {
     res.status(500).json({ message: "Error adding order" });
   }
 });
-
+/*
 router.get("/all", async (req, res) => {
 
   try {
@@ -36,13 +37,13 @@ router.get("/all", async (req, res) => {
     console.error("Error retrieving orders:", error);
     res.status(500).json({ message: "Error retrieving orders" });
   }
-});
+});*/
 
-router.post("/by-supplier", async (req, res) => {
-  const { supplier_id } = req.body;
-
+router.post("/by-id", async (req, res) => {
+  const { id, userType } = req.body;
+console.log("In orderRoutes - received id:", id, "userType:", userType);
   try {
-    const orders = await getOrdersBySupplier(supplier_id);
+    const orders = await getOrdersById(id, userType);
     res.status(200).json(orders);
   } catch (error) {
     console.error("Error retrieving orders for supplier:", error);

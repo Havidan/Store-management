@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./SupplierProductList.module.css";
+import { use } from "react";
 
 function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
   const [products, setProducts] = useState([]);
   //quantities is object of pairs productName : amount
   const [quantities, setQuantities] = useState({});
+  const [userId, setUserId] = useState(localStorage.getItem("userId"));
 
   useEffect(() => {
     //get the product of specific supplier
@@ -48,6 +50,7 @@ function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
     //more detailes about the order
     const orderData = {
       supplier_id,
+      owner_id: userId,
       products_list: productsList,
     };
 
