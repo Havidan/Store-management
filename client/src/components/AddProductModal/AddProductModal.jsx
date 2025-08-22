@@ -5,12 +5,13 @@ function AddProductModal({ onCancel, onAdd }) {
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("");
 
   //when click to add a product
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!productName || !price || !stock) {
+    if (!productName || !price || !stock || !stockQuantity) {
       alert("Please fill in all fields");
       return;
     }
@@ -20,6 +21,7 @@ function AddProductModal({ onCancel, onAdd }) {
       product_name: productName,
       unit_price: parseFloat(price),
       min_quantity: parseInt(stock),
+      stock_quantity: parseInt(stockQuantity),
     };
 
     onAdd(productData);
@@ -66,6 +68,19 @@ function AddProductModal({ onCancel, onAdd }) {
               value={stock}
               onChange={(e) => setStock(e.target.value)}
               placeholder="לדוגמא: 50 (ביחידות)"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="stockQuantity">כמות במלאי</label>
+            <input
+              name="stockQuantity"
+              id="stockQuantity"
+              type="number"
+              value={stockQuantity}
+              onChange={(e) => setStockQuantity(e.target.value)}
+              placeholder="לדוגמא: 200 (ביחידות)"
               required
             />
           </div>

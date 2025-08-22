@@ -1,6 +1,6 @@
-import mysql from "mysql2";  //for connecting to mySql
-import dotenv from "dotenv"; 
-dotenv.config(); //Load environment variables to proccess
+import mysql from "mysql2";  // for connecting to MySQL
+import dotenv from "dotenv";
+dotenv.config(); // Load environment variables to process
 
 function initializeDatabase() {
   // create the base connection (server-level, no DB selected yet)
@@ -10,33 +10,29 @@ function initializeDatabase() {
     password: process.env.DB_PASSWORD,
   });
 
-  //connect by the connection
+  // connect
   connection.connect((err) => {
     if (err) {
       console.error("Error connecting to MySQL:", err);
       return;
     }
-
     console.log("Connected to MySQL!");
 
-    //execute queries
-    connection.query(
-      "CREATE DATABASE IF NOT EXISTS my_store",
-      (err, results) => {
+    // create DB
+    connection.query("CREATE DATABASE IF NOT EXISTS my_store", (err) => {
+      if (err) {
+        console.error("Error creating database:", err);
+        return;
+      }
+      console.log("Database created or already exists!");
+
+      // switch DB
+      connection.changeUser({ database: "my_store" }, (err) => {
         if (err) {
-          console.error("Error creating database:", err);
+          console.error("Error switching to database:", err);
           return;
         }
-
-        console.log("Database created or already exists!");
-
-        connection.changeUser({ database: "my_store" }, (err) => {
-          if (err) {
-            console.error("Error switching to database:", err);
-            return;
-          }
-
-          console.log("Switched to my_store database!");
+        console.log("Switched to my_store database!");
 
         /** -------- CREATE TABLES (in dependency order) -------- */
 
@@ -107,8 +103,7 @@ function initializeDatabase() {
             FOREIGN KEY (supplier_id) REFERENCES users(id)
           ) ENGINE=InnoDB;
         `;
-
-        // 6) Order items (פריטי הזמנה)
+// 6) Order items (פריטי הזמנה)
         const createOrderedProductsTable = `
           CREATE TABLE IF NOT EXISTS order_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -120,7 +115,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 7) Supplier ↔ Cities (ערי שירות של ספק)
+        // 7) Supplier ↔️ Cities (ערי שירות של ספק)
         const createSupplierCitiesTable = `
           CREATE TABLE IF NOT EXISTS supplier_cities (
             supplier_id INT NOT NULL,
@@ -131,7 +126,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 8) Supplier ↔ Districts (מחוזות שירות של ספק)
+        // 8) Supplier ↔️ Districts (מחוזות שירות של ספק)
         const createSupplierDistrictsTable = `
           CREATE TABLE IF NOT EXISTS supplier_districts (
             supplier_id INT NOT NULL,
@@ -142,7 +137,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 9) Owner ↔ Supplier links (בקשות/אישורים)
+        // 9) Owner ↔️ Supplier links (בקשות/אישורים)
         const createOwnerSupplierLinksTable = `
           CREATE TABLE IF NOT EXISTS owner_supplier_links (
             owner_id INT NOT NULL,
@@ -188,7 +183,6 @@ function initializeDatabase() {
                       connection.query(createSupplierDistrictsTable, (err) => {
                         if (err) { console.error("Error creating supplier_districts table:", err); return; }
                         console.log("Supplier_districts table created or already exists!");
-
                         connection.query(createOwnerSupplierLinksTable, (err) => {
                           if (err) { console.error("Error creating owner_supplier_links table:", err); return; }
                           console.log("Owner_supplier_links table created or already exists!");
@@ -201,9 +195,10 @@ function initializeDatabase() {
             });
           });
         });
-      },
-    );
+      });
+    });
   });
 }
+
 initializeDatabase();
 export default initializeDatabase;
