@@ -3,6 +3,8 @@ import { checkUser, addUser, getUsers } from "../../database/userDB.js";
 
 const router = express.Router();
 router.post("/login", async (req, res) => {
+    console.log("HIT /user/login:", req.body);   // <<< הוספה זמנית
+
   const { username, password } = req.body;
   try {
     const { userType, id } = await checkUser(username, password); 

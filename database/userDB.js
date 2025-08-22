@@ -1,20 +1,33 @@
 import pool from "./dbConnection.js";
 
 export async function checkUser(username, password) {
+  const u = (username || '').trim();
+  const p = (password || '').trim();
+
+  console.log('DB in use: (about to query)');
+
   try {
-    const query = `
-      SELECT userType, id FROM users WHERE username = ? AND password = ?
-    `;
-    const [results] = await pool.query(query, [username, password]);
+    const [dbRows] = await pool.query('SELECT DATABASE() AS db');
+    console.log('DB in use:', dbRows[0].db);
+
+    const [results] = await pool.query(
+      'SELECT userType, id FROM users WHERE username = ? AND password = ?',
+      [u, p]
+    );
+    console.log('Rows found:', results.length, 'for', u);
+
     if (results.length > 0) {
       return { userType: results[0].userType, id: results[0].id };
-    } else {
-      throw new Error("User not found or incorrect password.");
     }
+    throw new Error('User not found or incorrect password.');
   } catch (err) {
-    throw new Error("Error checking user: " + err.message);
+    console.error('DB ERROR:', err.message);
+    throw err; // כדי שהראוטר יחזיר 401 כמו קודם
   }
 }
+
+
+
 
 export async function addUser(
   username,

@@ -1,25 +1,23 @@
-import mysql from "mysql2";
+// database/dbConnection.js
+import mysql from "mysql2/promise";
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/*
-יצירה של בריכת חיבורים על מנת שלא נצטרך עבור כל בקשה של חיבור לדטה בייס ליצור חיבור חדש,
-כאשר יש אפליקציה מרובת משתמשים מומלץ להשתמש בבריכת החיבורים לחסוך יצירות חוזרות ונשנות של חיבורים עבור כל בקשה בנפרד
-מקסימום חיבורים בבריכה: 10, מוגדר שרירותית.
-*/
-const pool = mysql
-  .createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    connectionLimit: process.env.DB_CONNECTION_LIMIT,
-  })
-  /*
-  השימוש בפרומייס מאפשר אסינכרוניות. כלומר שהבקשות שהפונקציות שמשתמשות בחיבורים יוכלו להיות אסינכרוניות.
-  זה מעולה לנו כיוון שבקשות לשרת לעיתים לוקחות זמן.
-   */
-  .promise();
+// קובץ .env יושב בתיקיית my-app (תיקייה אחת מעל database)
+dotenv.config({ path: path.join(__dirname, "../.env") });
+
+
+// יצירת pool
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_DATABASE,               // לדוגמה: 'storedb'
+  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
+  waitForConnections: true,
+});
 
 export default pool;
