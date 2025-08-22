@@ -10,16 +10,18 @@ function OrderListForOwner({ refresh }) {
   //true or false to display the completed orders or not
   const [displayHistory, setDisplayHistory] = useState(false);
   const [orders, setOrders] = useState([]);
-
+  const [ownerId, setOwnerId] = useState(localStorage.getItem("userId"));
+  
   //the refresh is changed when the owner adds new order
   //the refresh is for updating in place the order list
   useEffect(() => {
     //get all orders
     axios
-      .get("http://localhost:3000/order/all")
-      .then((res) => {
-        setOrders(res.data);
+      .post("http://localhost:3000/order/by-id", {
+        id: ownerId,
+        userType: "owner",
       })
+      .then((res) => setOrders(res.data))
       .catch((err) => console.error("Failed to fetch orders", err));
   }, [refresh]);
 

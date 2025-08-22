@@ -1,13 +1,14 @@
 import pool from "./dbConnection.js";
 
-export async function addOrder(supplier_id, status, created_date) {
+export async function addOrder(supplier_id, owner_id, status, created_date) {
   try {
     const query = `
-        INSERT INTO orders (supplier_id, status, created_date)
-        VALUES (?, ?, ?)
+        INSERT INTO orders (supplier_id, owner_id, status, created_date)
+        VALUES (?, ?, ?, ?)
       `;
     const [result] = await pool.query(query, [
       supplier_id,
+      owner_id,
       status,
       created_date,
     ]);
@@ -31,7 +32,7 @@ export async function addOrderItem(product_id, order_id, quantity) {
     throw new Error("Error adding product: " + err.message);
   }
 }
-
+/*
 export async function getAllOrders() {
   try {
     const ordersQuery = `
@@ -85,12 +86,16 @@ export async function getAllOrders() {
   } catch (err) {
     throw new Error("Error retrieving orders: " + err.message);
   }
-}
+}*/
 
-export async function getOrdersBySupplier(supplier_id) {
+export async function getOrdersById(id, userType) {
 
   try {
-    const ordersQuery = `
+    let orders = []; // <-- הגדרה מחוץ לענפים
+
+
+    if (userType === "supplier") {
+      const ordersQuery = `
         SELECT 
           o.id AS order_id,
           o.created_date,
@@ -98,8 +103,19 @@ export async function getOrdersBySupplier(supplier_id) {
         FROM orders o
         WHERE o.supplier_id = ?
       `;
-
-    const [orders] = await pool.query(ordersQuery, [supplier_id]);
+    [orders] = await pool.query(ordersQuery, [id]);
+    }
+    else {
+      const ordersQuery = `
+        SELECT 
+          o.id AS order_id,
+          o.created_date,
+          o.status
+        FROM orders o
+        WHERE o.owner_id = ?
+      `;
+      [orders] = await pool.query(ordersQuery, [id]);
+    }
 
     const ordersWithItems = await Promise.all(
       orders.map(async (order) => {
