@@ -103,8 +103,7 @@ function initializeDatabase() {
             FOREIGN KEY (supplier_id) REFERENCES users(id)
           ) ENGINE=InnoDB;
         `;
-
-        // 6) Order items (פריטי הזמנה)
+// 6) Order items (פריטי הזמנה)
         const createOrderedProductsTable = `
           CREATE TABLE IF NOT EXISTS order_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -116,7 +115,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 7) Supplier ↔ Cities (ערי שירות של ספק)
+        // 7) Supplier ↔️ Cities (ערי שירות של ספק)
         const createSupplierCitiesTable = `
           CREATE TABLE IF NOT EXISTS supplier_cities (
             supplier_id INT NOT NULL,
@@ -127,7 +126,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 8) Supplier ↔ Districts (מחוזות שירות של ספק)
+        // 8) Supplier ↔️ Districts (מחוזות שירות של ספק)
         const createSupplierDistrictsTable = `
           CREATE TABLE IF NOT EXISTS supplier_districts (
             supplier_id INT NOT NULL,
@@ -138,7 +137,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 9) Owner ↔ Supplier links (בקשות/אישורים)
+        // 9) Owner ↔️ Supplier links (בקשות/אישורים)
         const createOwnerSupplierLinksTable = `
           CREATE TABLE IF NOT EXISTS owner_supplier_links (
             owner_id INT NOT NULL,
@@ -184,7 +183,6 @@ function initializeDatabase() {
                       connection.query(createSupplierDistrictsTable, (err) => {
                         if (err) { console.error("Error creating supplier_districts table:", err); return; }
                         console.log("Supplier_districts table created or already exists!");
-
                         connection.query(createOwnerSupplierLinksTable, (err) => {
                           if (err) { console.error("Error creating owner_supplier_links table:", err); return; }
                           console.log("Owner_supplier_links table created or already exists!");

@@ -11,6 +11,8 @@ function EditProductList() {
   const [products, setProducts] = useState([]);
   //oldProducts is a list of products in the memory.
   const [oldProducts, setOldProducts] = useState([]);
+  const [editingStockId, setEditingStockId] = useState(null);
+  const [newStockValue, setNewStockValue] = useState("");
   const navigate = useNavigate();
   //save the supplier id to add the product to specipfic supplier
   const supplierId = localStorage.getItem("userId");
@@ -45,6 +47,57 @@ function EditProductList() {
     }
   };
 
+  const handleDeleteProduct = async (productId) => {
+    const confirmDelete = window.confirm("האם אתה בטוח שברצונך למחוק את המוצר? פעולה זו אינה ניתנת לביטול.");
+    
+    if (confirmDelete) {
+      try {
+        const response = await axios.delete(`http://localhost:3000/products/delete/${productId}`, {
+          data: { supplier_id: supplierId }
+        });
+        
+        alert(response.data.message);
+        
+        // עדכון הרשימה לאחר מחיקה מוצלחת
+        setOldProducts(oldProducts.filter(product => product.id !== productId));
+      } catch (error) {
+        alert(error.response?.data?.message || "שגיאה במחיקת המוצר");
+      }
+    }
+  };
+
+  const handleStockEdit = (productId, currentStock) => {
+    setEditingStockId(productId);
+    setNewStockValue(currentStock.toString());
+  };
+
+  const handleStockUpdate = async (productId) => {
+    try {
+      const response = await axios.put(`http://localhost:3000/products/update-stock/${productId}`, {
+        stock_quantity: parseInt(newStockValue)
+      });
+      
+      alert(response.data.message);
+      
+      // עדכון הרשימה לאחר עדכון מוצלח
+      setOldProducts(oldProducts.map(product => 
+        product.id === productId 
+          ? { ...product, stock_quantity: parseInt(newStockValue) }
+          : product
+      ));
+      
+      setEditingStockId(null);
+      setNewStockValue("");
+    } catch (error) {
+      alert(error.response?.data?.message || "שגיאה בעדכון המלאי");
+    }
+  };
+
+  const cancelStockEdit = () => {
+    setEditingStockId(null);
+    setNewStockValue("");
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.backHomeWrapper}>
@@ -75,11 +128,11 @@ function EditProductList() {
         <>
           <h3>מוצרים להוספה למערכת </h3>
           <ul className={styles.productList}>
-            {products.map((product) => (
-              <li key={product.productId} className={styles.productItem}>
+            {products.map((product, index) => (
+              <li key={index} className={styles.productItem}>
                 <p>
                   מחיר: ₪{product.unit_price} | כמות מינימלית להזמנה:{" "}
-                  {product.min_quantity}
+                  {product.min_quantity} | כמות במלאי: {product.stock_quantity}
                 </p>
                 <h4>{product.product_name}</h4>
               </li>
@@ -101,12 +154,55 @@ function EditProductList() {
       <h3>מוצרים שקיימים במערכת</h3>
       <ul className={styles.productList}>
         {oldProducts.map((product) => (
-          <li key={product.productId} className={styles.productItem}>
+          <li key={product.id} className={styles.productItem}>
             <h4>{product.product_name}</h4>
             <p>
               מחיר: ₪{product.unit_price} | כמות מינימלית להזמנה:{" "}
               {product.min_quantity}
             </p>
+            <div className={styles.stockSection}>
+              <span>כמות במלאי: </span>
+              {editingStockId === product.id ? (
+                <div className={styles.editStock}>
+                  <input
+                    type="number"
+                    value={newStockValue}
+                    onChange={(e) => setNewStockValue(e.target.value)}
+                    className={styles.stockInput}
+                  />
+                  <button 
+                    onClick={() => handleStockUpdate(product.id)}
+                    className={styles.saveButton}
+                  >
+                    שמור
+                  </button>
+                  <button 
+                    onClick={cancelStockEdit}
+                    className={styles.cancelButton}
+                  >
+                    ביטול
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <span>{product.stock_quantity}</span>
+                  <button 
+                    onClick={() => handleStockEdit(product.id, product.stock_quantity)}
+                    className={styles.editButton}
+                  >
+                    ערוך מלאי
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className={styles.productActions}>
+              <button 
+                onClick={() => handleDeleteProduct(product.id)}
+                className={styles.deleteButton}
+              >
+                מחק מוצר
+              </button>
+            </div>
           </li>
         ))}
       </ul>
