@@ -3,7 +3,8 @@ import cors from "cors"; // Importing CORS to allow cross-origin requests
 import dotenv from "dotenv"; // Importing dotenv to load environment variables from .env file
 import userRoutes from "./routes/userRoutes.js"; 
 import productRoutes from "./routes/productRoutes.js"; 
-import orderRoutes from "./routes/orderRoutes.js"; 
+import orderRoutes from "./routes/orderRoutes.js";
+import generalRoutes from "./routes/generalRoutes.js"; 
 
 dotenv.config(); // This will load variables from .env into process.env
 
@@ -17,6 +18,8 @@ app.use(express.json()); //  accept incoming requests with JSON payload
 app.use("/user", userRoutes); 
 app.use("/products", productRoutes); 
 app.use("/order", orderRoutes); 
+app.use("/geo", generalRoutes); 
+
 
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`); 

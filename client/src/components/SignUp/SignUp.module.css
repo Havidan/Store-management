@@ -1,79 +1,134 @@
+/* פריסת מסך מלאה שניתן לגלול */
 .container {
+  position: relative;
+  min-height: 100dvh;       /* תומך במקלדות מובייל */
+  width: 100%;
+  overflow-y: auto;         /* גלילה של כל המסך */
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-start;  /* לא "מרכז אנכי" כדי שלא ייחתך תוכן */
   justify-content: center;
-  height: 100vh;
   background-image: url("/client/src/public/storeImage.jpg");
   background-size: cover;
+  background-position: center;
   font-family: "Arial", sans-serif;
-  padding: 1rem; 
+  padding: 24px;            /* ריווח מסביב */
+  box-sizing: border-box;
 }
+
+/* שכבת טשטוש קלה מעל הרקע (לא חובה) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* העטיפה של הטופס */
+.formWrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 860px;               /* רחב ונעים */
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* כותרת */
+.title {
+  font-size: 1.75rem;
+  color: #222;
+  text-align: center;
+  margin: 8px 0 16px 0;
+}
+
+/* בורר תפקיד */
+.roleSwitch {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+/* טופס */
+.form {
+  display: grid;
+  grid-template-columns: 1fr;   /* יחידת עמודה כברירת מחדל */
+  gap: 10px;
+}
+
+/* תוויות ושדות */
 .label {
   text-align: right;
-}
-
-.title {
-  font-size: 2rem;
+  font-size: 0.95rem;
   color: #333;
-  text-align: center;
-  margin-top: 3vh;
 }
 
-.form {
-  width: 100%; 
-  max-width: 35%; 
-  padding: 2rem;
-  padding-top: 0.1rem;
-  background-color: rgba(255, 255, 255, 0.85); 
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
+.labelStrong {
+  text-align: right;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 6px;
 }
 
 .input {
-  padding: 0.5rem;
+  padding: 10px 12px;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
-  margin-bottom: 1rem;
-  margin-top: 0.25rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   text-align: right;
+  background: #fff;
 }
 
 .input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #6aa8ff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
 }
 
+/* כפתורים */
 .button {
-  padding: 0.8rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
+  padding: 10px 14px;
+  background-color: #e8f1ff;
+  color: #0b5ed7;
+  border: 1px solid #cfe2ff;
+  border-radius: 10px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 1.5rem;
+  transition: background-color 0.2s ease, transform 0.05s ease, border-color 0.2s ease;
 }
 
 .button:hover {
-  background-color: #0056b3;
+  background-color: #dceaff;
 }
 
+.button:active {
+  transform: translateY(1px);
+}
+
+.buttonActive {
+  background-color: #0b5ed7;
+  color: #fff;
+  border-color: #0b5ed7;
+}
+
+.submitBtn {
+  margin-top: 8px;
+}
+
+/* קישורים (אם יהיו) */
 .link {
   display: inline-block;
   margin-top: 10px;
   text-align: center;
   color: #007bff;
-  font-size: 20px;
+  font-size: 1rem;
   text-decoration: none;
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .link:hover {
@@ -81,4 +136,133 @@
   text-decoration: underline;
   transform: translateY(-1px);
   cursor: pointer;
+}
+
+/* אוטוקומפליט של עיר */
+.autocomplete {
+  position: relative;
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 6px;
+  max-height: 220px;     /* גובה סביר, עם גלילה פנימית */
+  overflow-y: auto;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  z-index: 10;           /* מעל הטופס */
+}
+
+.suggestionItem {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.suggestionItem:hover {
+  background: #f4f7ff;
+}
+
+.suggestionActive {
+  background: #eef5ff;
+}
+
+.suggestionSub {
+  color: #666;
+  font-size: 12px;
+}
+
+.noResults {
+  color: #999;
+  font-size: 12px;
+  padding: 6px 8px;
+  text-align: right;
+}
+
+/* אזורי שירות לספק */
+.serviceAreasBox {
+  border: 1px solid #eee;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.serviceAreasScroll {
+  display: grid;
+  gap: 10px;
+  max-height: 380px;     /* כדי שהעמוד לא יימתח בלי סוף */
+  overflow-y: auto;
+  padding-right: 2px;    /* קצת מקום לסקרול ב־RTL */
+}
+
+.districtBox {
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fafafa;
+}
+
+.districtHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.districtCount {
+  color: #666;
+  font-size: 12px;
+}
+
+.citiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.cityItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* רספונסיביות */
+@media (max-width: 992px) {
+  .formWrapper {
+    max-width: 720px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .formWrapper {
+    max-width: 100%;
+    padding: 16px;
+  }
+  .citiesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.4rem;
+  }
+  .button {
+    font-size: 0.95rem;
+    padding: 9px 12px;
+  }
+  .input {
+    font-size: 0.95rem;
+    padding: 9px 10px;
+  }
 }

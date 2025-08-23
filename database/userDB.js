@@ -26,7 +26,7 @@ export async function checkUser(username, password) {
   }
 }
 
-// users.db.js (או היכן שaddUser נמצא)
+/** שמירת משתמש חדש בהתאם לסכמת users */
 export async function addUser(
   username,
   password,
@@ -34,24 +34,27 @@ export async function addUser(
   contactName,
   phone,
   userType,
-  address = null,
+  city_id = null,
+  street = null,
+  house_number = null,
   opening_hours = null
 ) {
   try {
     const query = `
       INSERT INTO users
-        (username, password, company_name, contact_name, phone, address, opening_hours, userType)
+        (username, password, company_name, contact_name, phone, city_id, street, house_number, opening_hours, userType)
       VALUES
-        (?,       ?,        ?,            ?,            ?,     ?,        ?,              ?)
+        (?,       ?,        ?,            ?,            ?,     ?,       ?,      ?,            ?,             ?)
     `;
-    // יזרוק שגיאה אם username קיים (UNIQUE)
     const [results] = await pool.query(query, [
       username,
       password,
       companyName || null,
       contactName,
       phone,
-      address || null,
+      city_id ?? null,
+      street || null,
+      house_number || null,
       opening_hours || null,
       userType,
     ]);
@@ -60,6 +63,31 @@ export async function addUser(
     throw new Error("Error adding user: " + err.message);
   }
 }
+
+/**
+ * מוסיף לרשימת הערים של הספק בטבלת supplier_cities.
+ * אין מחיקות – רישום ראשוני בלבד. משתמש ב-INSERT IGNORE למניעת כפילויות.
+ */
+export async function addSupplierServiceCities(supplierId, cityIds = []) {
+  if (!Array.isArray(cityIds) || cityIds.length === 0) return 0;
+
+  const ids = cityIds.map(Number).filter(Number.isFinite);
+  if (!ids.length) return 0;
+
+  const placeholders = ids.map(() => "(?, ?)").join(",");
+  const params = ids.flatMap(cid => [supplierId, cid]);
+
+  try {
+    const sql = `INSERT IGNORE INTO supplier_cities (supplier_id, city_id) VALUES ${placeholders}`;
+    const [result] = await pool.query(sql, params);
+    // result.affectedRows סופר גם שורות "התעלם", לכן נחזיר את מספר הערכים שניסינו להכניס
+    return ids.length;
+  } catch (err) {
+    throw new Error("addSupplierServiceCities failed: " + err.message);
+  }
+}
+
+
 
 export async function getUsers(userType) {
   try {

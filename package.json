@@ -5,6 +5,7 @@
   "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
   "main": "index.js",
   "scripts": {
+    "seed:geo": "node database/seedGeo.js",
     "start": "node server/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

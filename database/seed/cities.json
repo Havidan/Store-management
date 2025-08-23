@@ -1,0 +1,614 @@
+[
+  {
+    "external_id": "IL-001",
+    "district_name": "ירושלים",
+    "name_he": "ירושלים",
+    "name_en": "Jerusalem"
+  },
+  {
+    "external_id": null,
+    "district_name": "ירושלים",
+    "name_he": "בית שמש",
+    "name_en": "Beit Shemesh"
+  },
+  {
+    "external_id": null,
+    "district_name": "ירושלים",
+    "name_he": "מבשרת ציון",
+    "name_en": "Mevaseret Zion"
+  },
+  {
+    "external_id": null,
+    "district_name": "ירושלים",
+    "name_he": "מעלה אדומים",
+    "name_en": "Ma'ale Adumim"
+  },
+  {
+    "external_id": "IL-002",
+    "district_name": "תל אביב",
+    "name_he": "תל אביב-יפו",
+    "name_en": "Tel Aviv-Yafo"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "בת ים",
+    "name_en": "Bat Yam"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "חולון",
+    "name_en": "Holon"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "רמת גן",
+    "name_en": "Ramat Gan"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "גבעתיים",
+    "name_en": "Giv'atayim"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "רמת השרון",
+    "name_en": "Ramat HaSharon"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "הרצליה",
+    "name_en": "Herzliya"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "בני ברק",
+    "name_en": "Bnei Brak"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "קריית אונו",
+    "name_en": "Kiryat Ono"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "אור יהודה",
+    "name_en": "Or Yehuda"
+  },
+  {
+    "external_id": null,
+    "district_name": "תל אביב",
+    "name_he": "אזור",
+    "name_en": "Azor"
+  },
+  {
+    "external_id": "IL-003",
+    "district_name": "מרכז",
+    "name_he": "פתח תקווה",
+    "name_en": "Petah Tikva"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "ראשון לציון",
+    "name_en": "Rishon LeZion"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "רעננה",
+    "name_en": "Ra'anana"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "כפר סבא",
+    "name_en": "Kfar Saba"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "הוד השרון",
+    "name_en": "Hod HaSharon"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "רמת השרון",
+    "name_en": "Ramat HaSharon"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "נתניה",
+    "name_en": "Netanya"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "הרצליה",
+    "name_en": "Herzliya"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "מודיעין-מכבים-רעות",
+    "name_en": "Modi'in-Maccabim-Re'ut"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "רמלה",
+    "name_en": "Ramla"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "לוד",
+    "name_en": "Lod"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "רחובות",
+    "name_en": "Rehovot"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "נס ציונה",
+    "name_en": "Ness Ziona"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "ראש העין",
+    "name_en": "Rosh HaAyin"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "יבנה",
+    "name_en": "Yavne"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "גדרה",
+    "name_en": "Gedera"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "קריית עקרון",
+    "name_en": "Kiryat Ekron"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "שוהם",
+    "name_en": "Shoham"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "יהוד-מונוסון",
+    "name_en": "Yehud-Monosson"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "גבעת שמואל",
+    "name_en": "Giv'at Shmuel"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "בית דגן",
+    "name_en": "Beit Dagan"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "תל מונד",
+    "name_en": "Tel Mond"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "אבן יהודה",
+    "name_en": "Even Yehuda"
+  },
+  {
+    "external_id": null,
+    "district_name": "מרכז",
+    "name_he": "פרדס חנה-כרכור",
+    "name_en": "Pardes Hanna-Karkur"
+  },
+  {
+    "external_id": "IL-004",
+    "district_name": "חיפה",
+    "name_he": "חיפה",
+    "name_en": "Haifa"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "טירת כרמל",
+    "name_en": "Tirat Carmel"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "נשר",
+    "name_en": "Nesher"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "קריית אתא",
+    "name_en": "Kiryat Ata"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "קריית ביאליק",
+    "name_en": "Kiryat Bialik"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "קריית מוצקין",
+    "name_en": "Kiryat Motzkin"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "קריית ים",
+    "name_en": "Kiryat Yam"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "יקנעם עילית",
+    "name_en": "Yokneam Illit"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "זכרון יעקב",
+    "name_en": "Zikhron Ya'akov"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "בנימינה-גבעת עדה",
+    "name_en": "Binyamina-Giv'at Ada"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "אור עקיבא",
+    "name_en": "Or Akiva"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "חדרה",
+    "name_en": "Hadera"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "באקה אל-גרביה",
+    "name_en": "Baqa al-Gharbiyye"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "אום אל-פחם",
+    "name_en": "Umm al-Fahm"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "כפר קרע",
+    "name_en": "Kafr Qara"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "פוריידיס",
+    "name_en": "Fureidis"
+  },
+  {
+    "external_id": null,
+    "district_name": "חיפה",
+    "name_he": "ג'סר א-זרקא",
+    "name_en": "Jisr az-Zarqa"
+  },
+  {
+    "external_id": "IL-005",
+    "district_name": "צפון",
+    "name_he": "נהריה",
+    "name_en": "Nahariya"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "עכו",
+    "name_en": "Acre"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "כרמיאל",
+    "name_en": "Karmiel"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "מעלות-תרשיחא",
+    "name_en": "Ma'alot-Tarshiha"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "שפרעם",
+    "name_en": "Shefa-Amr"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "סכנין",
+    "name_en": "Sakhnin"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "עראבה",
+    "name_en": "Arraba"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "דיר חנא",
+    "name_en": "Deir Hanna"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "ירכא",
+    "name_en": "Yarka"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "כאבול",
+    "name_en": "Kabul"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "בענה",
+    "name_en": "Bi'ina"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "מג'ד אל-כרום",
+    "name_en": "Majd al-Krum"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "ג'דיידה-מכר",
+    "name_en": "Jadeidi-Makr"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "צפת",
+    "name_en": "Safed"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "טבריה",
+    "name_en": "Tiberias"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "נצרת",
+    "name_en": "Nazareth"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "נוף הגליל",
+    "name_en": "Nof HaGalil"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "מגדל העמק",
+    "name_en": "Migdal HaEmek"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "עפולה",
+    "name_en": "Afula"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "בית שאן",
+    "name_en": "Beit She'an"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "קריית שמונה",
+    "name_en": "Kiryat Shmona"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "מטולה",
+    "name_en": "Metula"
+  },
+  {
+    "external_id": null,
+    "district_name": "צפון",
+    "name_he": "ראש פינה",
+    "name_en": "Rosh Pinna"
+  },
+  {
+    "external_id": "IL-006",
+    "district_name": "דרום",
+    "name_he": "באר שבע",
+    "name_en": "Beersheba"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "אשדוד",
+    "name_en": "Ashdod"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "אשקלון",
+    "name_en": "Ashkelon"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "קריית גת",
+    "name_en": "Kiryat Gat"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "קריית מלאכי",
+    "name_en": "Kiryat Malakhi"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "נתיבות",
+    "name_en": "Netivot"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "שדרות",
+    "name_en": "Sderot"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "אופקים",
+    "name_en": "Ofakim"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "דימונה",
+    "name_en": "Dimona"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "ירוחם",
+    "name_en": "Yeruham"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "ערד",
+    "name_en": "Arad"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "אילת",
+    "name_en": "Eilat"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "רהט",
+    "name_en": "Rahat"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "לקיה",
+    "name_en": "Lakiya"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "כסייפה",
+    "name_en": "Kuseife"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "תל שבע",
+    "name_en": "Tel Sheva"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "שגב שלום",
+    "name_en": "Segev Shalom"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "ערערה-בנגב",
+    "name_en": "Ar'arat an-Naqab"
+  },
+  {
+    "external_id": null,
+    "district_name": "דרום",
+    "name_he": "חורה",
+    "name_en": "Hura"
+  },
+  {
+    "external_id": "IL-007",
+    "district_name": "יהודה ושומרון",
+    "name_he": "אריאל",
+    "name_en": "Ariel"
+  },
+  {
+    "external_id": null,
+    "district_name": "יהודה ושומרון",
+    "name_he": "מודיעין עילית",
+    "name_en": "Modi'in Illit"
+  },
+  {
+    "external_id": null,
+    "district_name": "יהודה ושומרון",
+    "name_he": "ביתר עילית",
+    "name_en": "Beitar Illit"
+  },
+  {
+    "external_id": null,
+    "district_name": "יהודה ושומרון",
+    "name_he": "אפרת",
+    "name_en": "Efrat"
+  }
+]
