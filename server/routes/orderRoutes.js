@@ -79,6 +79,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
+// routes/orders.js
 router.post("/by-id", async (req, res) => {
   const { id, userType } = req.body;
   try {
@@ -89,6 +90,7 @@ router.post("/by-id", async (req, res) => {
     res.status(500).json({ message: "Error retrieving orders for supplier" });
   }
 });
+
 
 router.put("/update-status/:orderId", async (req, res) => {
   const { orderId } = req.params;

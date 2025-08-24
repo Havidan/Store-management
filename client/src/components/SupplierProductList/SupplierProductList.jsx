@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./SupplierProductList.module.css";
+import { useNavigate } from "react-router-dom";
 
 function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
   const [products, setProducts] = useState([]);
   //quantities is object of pairs productName : amount
   const [quantities, setQuantities] = useState({});
   const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const navigate = useNavigate();
 
   useEffect(() => {
     //get the products of specific supplier
@@ -88,6 +90,8 @@ function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
         //for making the separate element of the orders refreshed to see the new order
         setRefresh((prev) => !prev);
         onClose();
+        navigate("/StoreOwnerHome");
+
       }
     } catch (error) {
       console.error("Error placing order:", error);

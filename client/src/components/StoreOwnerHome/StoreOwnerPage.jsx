@@ -8,7 +8,7 @@ export default function StoreOwnerPage() {
   const [refresh, setRefresh] = useState(false);
 
   const goToAddOrder = () => {
-    navigate("/StoreOwnerLinks/discover"); // מתחילים מבחירת ספק
+    navigate("/StoreOwnerLinks/active"); // מתחילים מבחירת ספק
   };
 
   return (
