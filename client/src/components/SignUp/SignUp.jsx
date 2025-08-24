@@ -13,25 +13,25 @@ export default function SignUp() {
 
   const navigate = useNavigate();
 
-  // ----- תפקיד -----
+  // תפקיד
   const [role, setRole] = useState("Supplier");
   const isSupplier = role === "Supplier";
 
-  // ----- שדות משותפים -----
+  // שדות משותפים
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // ----- בעל מכולת -----
+  // בעל מכולת
   const [ownerCityQuery, setOwnerCityQuery] = useState("");
   const [ownerCityId, setOwnerCityId] = useState(null);
   const [street, setStreet] = useState("");
   const [houseNumber, setHouseNumber] = useState("");
   const [openingHours, setOpeningHours] = useState("");
 
-  // ----- ספק: בחירת אזורי שירות -----
+  // ספק: בחירת אזורי שירות
   const [geoTree, setGeoTree] = useState([]);
   const [selectedDistricts, setSelectedDistricts] = useState(new Set());
   const [selectedCities, setSelectedCities] = useState(new Set());
@@ -39,7 +39,9 @@ export default function SignUp() {
   useEffect(() => {
     const fetchGeo = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/geo/districts-with-cities");
+        const { data } = await axios.get(
+          "http://localhost:3000/geo/districts-with-cities"
+        );
         setGeoTree(data || []);
       } catch (e) {
         console.error("Failed to fetch geo data:", e);
@@ -76,10 +78,10 @@ export default function SignUp() {
     if (found) setOwnerCityQuery(found.city_name);
   };
 
-  // ----- ספק: לוגיקת בחירה היררכית (ללא שינוי) -----
   const isDistrictFullySelected = (district) => {
     if (!district?.cities?.length) return selectedDistricts.has(district.district_id);
     return district.cities.every((c) => selectedCities.has(c.city_id));
+    // (הצ'קבוקס של מחוז מסומן אם כל הערים בו מסומנות)
   };
 
   const toggleDistrict = (district) => {
@@ -113,7 +115,6 @@ export default function SignUp() {
     setSelectedDistricts(nextDistricts);
   };
 
-  // ----- שליחה (ללא שינוי לוגי) -----
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -154,12 +155,7 @@ export default function SignUp() {
         localStorage.setItem("username", username);
         localStorage.setItem("userType", role);
         localStorage.setItem("userId", res.data.userId);
-
-        if (isSupplier) {
-          navigate("/EditProducts");
-        } else {
-          navigate("/StoreOwnerHome");
-        }
+        navigate(isSupplier ? "/EditProducts" : "/StoreOwnerHome");
       }
     } catch (err) {
       console.error("Error during registration:", err);
@@ -173,7 +169,7 @@ export default function SignUp() {
       <div className={styles.formWrapper}>
         <h2 className={styles.title}>רישום למערכת</h2>
 
-        {/* בורר תפקיד */}
+        {/* מעבר בין תפקידי רישום */}
         <div className={styles.roleSwitch}>
           <button
             type="button"
@@ -192,8 +188,6 @@ export default function SignUp() {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-
-          {/* שם חברה */}
           <label className={styles.label}>
             {isSupplier ? "שם החברה (חובה)" : "שם העסק (רשות)"}
           </label>
@@ -206,7 +200,6 @@ export default function SignUp() {
             required={isSupplier}
           />
 
-          {/* איש קשר + טלפון */}
           <label className={styles.label}>שם איש קשר (חובה)</label>
           <input
             className={styles.input}
@@ -227,7 +220,7 @@ export default function SignUp() {
             required
           />
 
-          {/* טופס בעל מכולת */}
+          {/* בעל מכולת בלבד */}
           {!isSupplier && (
             <>
               <label className={styles.label}>עיר (חובה)</label>
@@ -249,7 +242,9 @@ export default function SignUp() {
                       <div
                         key={c.city_id}
                         onClick={() => chooseOwnerCityById(c.city_id)}
-                        className={`${styles.suggestionItem} ${c.city_id === ownerCityId ? styles.suggestionActive : ""}`}
+                        className={`${styles.suggestionItem} ${
+                          c.city_id === ownerCityId ? styles.suggestionActive : ""
+                        }`}
                       >
                         {c.city_name} <span className={styles.suggestionSub}>({c.district_name})</span>
                       </div>
@@ -293,7 +288,7 @@ export default function SignUp() {
             </>
           )}
 
-          {/* טופס ספק */}
+          {/* ספק בלבד: אזורי שירות */}
           {isSupplier && (
             <div className={styles.serviceAreasBox}>
               <div className={styles.labelStrong}>אזורי שירות (בחרו מחוזות שלמים או ערים ספציפיות):</div>
@@ -331,7 +326,6 @@ export default function SignUp() {
             </div>
           )}
 
-          {/* שם משתמש + סיסמה */}
           <label className={styles.label}>שם משתמש (חובה)</label>
           <input
             className={styles.input}

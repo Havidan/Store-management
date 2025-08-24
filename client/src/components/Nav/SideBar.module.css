@@ -1,0 +1,47 @@
+/* הפאנל לא מזיז את העמוד - הוא צף מעליו */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0; /* RTL */
+  height: 100vh;
+  width: 280px;
+  background: #fff;
+  box-shadow: -2px 0 14px rgba(0,0,0,0.14);
+  transform: translateX(110%);
+  transition: transform 240ms ease;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+.open { transform: translateX(0); }
+
+/* שכבת רקע שקופה שנפתחת רק כשהפאנל פתוח */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  pointer-events: none;
+  transition: background 240ms ease;
+  z-index: 1000;
+}
+.backdropOpen {
+  background: rgba(0,0,0,0.38);
+  pointer-events: auto;
+}
+
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-bottom: 1px solid #eee;
+}
+.title { font-weight: 600; }
+.closeBtn {
+  background: transparent; border: none; font-size: 22px; cursor: pointer; line-height: 1;
+}
+
+.nav { display: flex; flex-direction: column; padding: 12px; gap: 8px; }
+.link {
+  padding: 10px 12px; border-radius: 10px; text-decoration: none; color: #222;
+  border: 1px solid transparent; transition: background 160ms ease, border-color 160ms ease;
+}
+.link:hover { background: #f6f7f9; }
+.active { border-color: #c7d2fe; background: #eef2ff; }

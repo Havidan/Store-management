@@ -100,13 +100,10 @@ function OrderListForOwner({ refresh }) {
                 className={styles.orderHeader}
                 onClick={() => toggleOrder(order.order_id)}
               >
-                <span className={styles.chevron}>
-                  {isExpanded(order.order_id) ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </span>
+                <span>#{order.order_id}</span>
+                <span>{new Date(order.created_date).toLocaleDateString()}</span>
+                <span>{order.company_name}</span>
+                <span>{order.status}</span>
                 <div className={styles.orderAction}>
                   {order.status === "בתהליך" && (
                     <button
@@ -120,10 +117,14 @@ function OrderListForOwner({ refresh }) {
                   )}
                   {order.status === "הושלמה" && <div>ההזמנה הושלמה</div>}
                 </div>
-                <span>{order.status}</span>
-                <span>{order.company_name}</span>
-                <span>{new Date(order.created_date).toLocaleDateString()}</span>
-                <span>#{order.order_id}</span>
+                <span className={styles.chevron}>
+                  {isExpanded(order.order_id) ? (
+                    <ChevronUp size={20} />
+                  ) : (
+                    <ChevronDown size={20} />
+                  )}
+                </span>
+
               </div>
 
               {isExpanded(order.order_id) && (

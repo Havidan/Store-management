@@ -96,13 +96,9 @@ function OrderListForSupplier() {
                 className={styles.orderHeader}
                 onClick={() => orderDetails(order.order_id)}
               >
-                <span className={styles.chevron}>
-                  {isExpanded(order.order_id) ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </span>
+              <span>#{order.order_id}</span>
+                <span>{new Date(order.created_date).toLocaleDateString()}</span>
+                <span>{order.status}</span>
                 <div className={styles.orderAction}>
                   {order.status === "בוצעה" && (
                     <button
@@ -123,9 +119,13 @@ function OrderListForSupplier() {
 
                   {order.status === "הושלמה" && <div>ההזמנה הושלמה</div>}
                 </div>
-                <span>{order.status}</span>
-                <span>{new Date(order.created_date).toLocaleDateString()}</span>
-                <span>#{order.order_id}</span>
+                <span className={styles.chevron}>
+                  {isExpanded(order.order_id) ? (
+                    <ChevronUp size={20} />
+                  ) : (
+                    <ChevronDown size={20} />
+                  )}
+                </span>
               </div>
 
               {isExpanded(order.order_id) && (
