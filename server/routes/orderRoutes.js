@@ -10,24 +10,24 @@ import { updateStockAfterOrder } from "../../database/productDB.js";
 const router = express.Router();
 
 router.post("/add", async (req, res) => {
-    console.log("REQ BODY:", req.body);
+  console.log("REQ BODY:", req.body);
 
   const { supplier_id, owner_id, products_list } = req.body;
 
   try {
     const orderId = await addOrder(supplier_id, owner_id, "בוצעה", new Date());
-    
+
     for (const product of products_list) {
       const { product_id, quantity } = product;
       if (quantity > 0) {
         // הוספת פריט להזמנה
         await addOrderItem(product_id, orderId, quantity);
-        
+
         // עדכון המלאי
         await updateStockAfterOrder(product_id, quantity);
       }
     }
-    
+
     res.status(201).json({ message: "Order added successfully", orderId });
   } catch (error) {
     console.error("Error adding order:", error);
@@ -37,7 +37,7 @@ router.post("/add", async (req, res) => {
 
 router.post("/by-id", async (req, res) => {
   const { id, userType } = req.body;
-console.log("In orderRoutes - received id:", id, "userType:", userType);
+  console.log("In orderRoutes - received id:", id, "userType:", userType);
   try {
     const orders = await getOrdersById(id, userType);
     res.status(200).json(orders);

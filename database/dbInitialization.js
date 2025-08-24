@@ -87,6 +87,7 @@ function initializeDatabase() {
             product_name VARCHAR(255) NOT NULL,
             unit_price DECIMAL(10, 2) NOT NULL,
             min_quantity INT NOT NULL,
+            image_url VARCHAR(255) DEFAULT NULL,
             FOREIGN KEY (supplier_id) REFERENCES users(id)
           ) ENGINE=InnoDB;
         `;
@@ -103,7 +104,8 @@ function initializeDatabase() {
             FOREIGN KEY (supplier_id) REFERENCES users(id)
           ) ENGINE=InnoDB;
         `;
-// 6) Order items (פריטי הזמנה)
+
+        // 6) Order items (פריטי הזמנה)
         const createOrderedProductsTable = `
           CREATE TABLE IF NOT EXISTS order_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -183,6 +185,7 @@ function initializeDatabase() {
                       connection.query(createSupplierDistrictsTable, (err) => {
                         if (err) { console.error("Error creating supplier_districts table:", err); return; }
                         console.log("Supplier_districts table created or already exists!");
+
                         connection.query(createOwnerSupplierLinksTable, (err) => {
                           if (err) { console.error("Error creating owner_supplier_links table:", err); return; }
                           console.log("Owner_supplier_links table created or already exists!");
