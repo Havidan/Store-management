@@ -26,7 +26,6 @@ app.use("/links", linksRoutes);
 app.use("/settings", settingsRoutes); 
 
 
-
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`); 
 });

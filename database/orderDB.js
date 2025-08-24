@@ -147,3 +147,29 @@ export async function updateStatusOrder(order_id, newStatus) {
     throw new Error("Error updating order status: " + err.message);
   }
 }
+
+export async function getUserEmailById(userId) {
+  const q = `
+    SELECT id, email, company_name, contact_name, username, userType
+    FROM users
+    WHERE id = ?
+    LIMIT 1
+  `;
+  const [rows] = await pool.query(q, [userId]);
+  return rows[0] || null;
+}
+
+export async function getOrderParticipants(orderId) {
+  const q = `
+    SELECT o.id, o.owner_id, o.supplier_id,
+           uo.email AS owner_email, uo.company_name AS owner_company_name,
+           us.email AS supplier_email, us.company_name AS supplier_company_name
+    FROM orders o
+    JOIN users uo ON uo.id = o.owner_id
+    JOIN users us ON us.id = o.supplier_id
+    WHERE o.id = ?
+    LIMIT 1
+  `;
+  const [rows] = await pool.query(q, [orderId]);
+  return rows[0] || null;
+}
