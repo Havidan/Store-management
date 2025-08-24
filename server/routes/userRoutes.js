@@ -11,6 +11,9 @@ import {
 
 const router = express.Router();
 
+/* =========================
+ * Auth
+ * ========================= */
 router.post("/login", async (req, res) => {
   console.log("HIT /user/login:", req.body);
   const { username, password } = req.body;
@@ -22,25 +25,26 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Register user (StoreOwner | Supplier)
+/* =========================
+ * Register (StoreOwner | Supplier)
+ * ========================= */
 router.post("/register", async (req, res) => {
   try {
     let {
       username,
-      email,              // << חדש
+      email,
       password,
       companyName,
       contactName,
       phone,
       userType,          // "Supplier" | "StoreOwner"
-      city_id,           // לבעל מכולת
+      city_id,
       street,
       house_number,
       opening_time,
       closing_time,
-      // ספק בלבד (רשות):
-      serviceCities = [],    // [city_id,...]
-      serviceDistricts = [], // [district_id,...]
+      serviceCities = [],
+      serviceDistricts = [],
     } = req.body;
 
     // ניקוי/נירמול
@@ -57,17 +61,13 @@ router.post("/register", async (req, res) => {
 
     const parsedCityId = Number.isFinite(+city_id) ? +city_id : null;
 
-    // ולידציית userType
+    // ולידציות
     if (userType !== "Supplier" && userType !== "StoreOwner") {
       return res.status(400).json({ message: "userType חייב להיות 'Supplier' או 'StoreOwner'" });
     }
-
-    // חובה בשדות משותפים
     if (!username || !password || !contactName || !phone) {
-      return res.status(400).json({ message: "שם משתמש, סיסמה, איש קשר וטלפון הם שדות חובה" });
+      return res.status(400).json({ message: "שם משתמש, סיסמה, איש קשר וטלפון הם חובה" });
     }
-
-    // אימייל חובה + ולידציה בסיסית
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
     if (!emailRe.test(email)) {
       return res.status(400).json({ message: "אימייל לא תקין" });
@@ -75,27 +75,24 @@ router.post("/register", async (req, res) => {
 
     if (userType === "Supplier") {
       if (!companyName) {
-        return res.status(400).json({ message: "ל'ספק' חובה להזין שם חברה (companyName)" });
+        return res.status(400).json({ message: "ל'ספק' חובה להזין שם חברה" });
       }
       city_id = null; street = null; house_number = null; opening_time = null; closing_time = null;
     } else {
-      // StoreOwner
-      if (!parsedCityId)  return res.status(400).json({ message: "לבעל חנות חובה לבחור עיר (city_id)" });
-      if (!street)       return res.status(400).json({ message: "לבעל חנות חובה להזין רחוב (street)" });
-      if (!house_number) return res.status(400).json({ message: "לבעל חנות חובה להזין מספר בית (house_number)" });
-
+      if (!parsedCityId)  return res.status(400).json({ message: "לבעל חנות חובה לבחור עיר" });
+      if (!street)       return res.status(400).json({ message: "רחוב חובה" });
+      if (!house_number) return res.status(400).json({ message: "מספר בית חובה" });
       const hhmm = /^[0-2]\d:[0-5]\d$/;
-      if (!hhmm.test(opening_time)) return res.status(400).json({ message: "opening_time חייב בפורמט HH:MM" });
-      if (!hhmm.test(closing_time)) return res.status(400).json({ message: "closing_time חייב בפורמט HH:MM" });
-
+      if (!hhmm.test(opening_time)) return res.status(400).json({ message: "opening_time בפורמט HH:MM" });
+      if (!hhmm.test(closing_time)) return res.status(400).json({ message: "closing_time בפורמט HH:MM" });
       if (!companyName) companyName = null;
       city_id = parsedCityId;
     }
 
-    // יצירת המשתמש
+    // יצירת משתמש
     const userId = await addUser(
       username,
-      email,           // << חדש
+      email,
       password,
       companyName,
       contactName,
@@ -108,11 +105,10 @@ router.post("/register", async (req, res) => {
       closing_time
     );
 
-    // ספק: שמירת אזורי שירות
+    // ספק — אזורי שירות ראשוניים
     if (userType === "Supplier") {
-      const districtIds = Array.from(new Set((Array.isArray(serviceDistricts) ? serviceDistricts : []).map((x) => +x))).filter(Number.isFinite);
-      const cityIdsRaw  = Array.from(new Set((Array.isArray(serviceCities) ? serviceCities : []).map((x) => +x))).filter(Number.isFinite);
-
+      const districtIds = Array.from(new Set((serviceDistricts || []).map((x) => +x))).filter(Number.isFinite);
+      const cityIdsRaw  = Array.from(new Set((serviceCities || []).map((x) => +x))).filter(Number.isFinite);
       if (districtIds.length) await addSupplierServiceDistricts(userId, districtIds);
       const cityIdsFromDistricts = districtIds.length ? await getCityIdsByDistrictIds(districtIds) : [];
       const unionCityIds = Array.from(new Set([...cityIdsRaw, ...cityIdsFromDistricts]));
@@ -128,21 +124,21 @@ router.post("/register", async (req, res) => {
     if (error.message?.includes("ER_DUP_ENTRY") && error.message?.includes("users.username")) {
       return res.status(409).json({ message: "שם המשתמש כבר תפוס" });
     }
-    if (error.message?.includes("ER_NO_REFERENCED_ROW")) {
-      return res.status(400).json({ message: "city_id לא קיים בטבלת הערים" });
-    }
     console.error("/user/register failed:", error);
-    return res.status(500).json({ message: "Error adding user", error: error.message });
+    return res.status(500).json({ message: "Error adding user" });
   }
 });
 
+/* =========================
+ * Public listing
+ * ========================= */
 router.get("/", async (req, res) => {
   try {
     const { userType } = req.query;
     const users = await getUsers(userType);
     res.json(users);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching users", error: error.message });
+    res.status(500).json({ message: "Error fetching users" });
   }
 });
 

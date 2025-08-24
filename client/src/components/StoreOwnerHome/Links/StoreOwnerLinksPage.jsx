@@ -1,20 +1,56 @@
 import React from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useResolvedPath } from "react-router-dom";
+import styles from "./LinksTabs.module.css";
 
 export default function StoreOwnerLinksPage() {
-  const navigate = useNavigate();
+  const location = useLocation();
+  // basePath הוא הנתיב המלא של הראוטר הנוכחי (למשל /app/store-links)
+  const basePath = useResolvedPath(".");
+
+  const isActiveTab = (isActive, tab) => {
+    // אם אנחנו בדיוק על נתיב הבסיס (לפני/אחרי ה-redirect), נחשיב את "active" כמסומן
+    const atBase = location.pathname.replace(/\/+$/, "") === basePath.pathname.replace(/\/+$/, "");
+    if (tab === "active" && atBase) return true;
+    return isActive;
+  };
 
   return (
-    <div style={{ padding: 16 }} dir="rtl">
-      <h2>החיבורים שלי</h2>
+    <div className={styles.page} dir="rtl">
+      <h2 className={styles.title}>החיבורים שלי</h2>
 
-      <div style={{ display: "flex", gap: 12, margin: "12px 0" }}>
-        <NavLink to="active">פעילים</NavLink>
-        <NavLink to="pending">ממתינים</NavLink>
-        <NavLink to="discover">מצא ספקים</NavLink>
+      <nav className={styles.tabs} aria-label="ניווט חיבורים">
+        <NavLink
+          to="active"
+          className={({ isActive }) =>
+            `${styles.tab} ${isActiveTab(isActive, "active") ? styles.active : ""}`
+          }
+          end={false}
+        >
+          פעילים
+        </NavLink>
+
+        <NavLink
+          to="pending"
+          className={({ isActive }) =>
+            `${styles.tab} ${isActive ? styles.active : ""}`
+          }
+        >
+          ממתינים
+        </NavLink>
+
+        <NavLink
+          to="discover"
+          className={({ isActive }) =>
+            `${styles.tab} ${isActive ? styles.active : ""}`
+          }
+        >
+          מצא ספקים
+        </NavLink>
+      </nav>
+
+      <div className={styles.outletWrap}>
+        <Outlet />
       </div>
-
-      <Outlet />
     </div>
   );
 }

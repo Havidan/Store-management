@@ -1,16 +1,19 @@
 import pool from "./dbConnection.js";
 
+/* =========================
+ * Auth
+ * ========================= */
 export async function checkUser(username, password) {
-  const u = (username || '').trim();
-  const p = (password || '').trim();
+  const u = (username || "").trim();
+  const p = (password || "").trim();
 
   try {
-    const [results] = await pool.query(
-      'SELECT userType, id FROM users WHERE username = ? AND password = ?',
+    const [rows] = await pool.query(
+      "SELECT userType, id FROM users WHERE username = ? AND password = ?",
       [u, p]
     );
-    if (results.length > 0) {
-      return { userType: results[0].userType, id: results[0].id };
+    if (rows.length > 0) {
+      return { userType: rows[0].userType, id: rows[0].id };
     }
     throw new Error("User not found or incorrect password.");
   } catch (err) {
@@ -18,9 +21,12 @@ export async function checkUser(username, password) {
   }
 }
 
+/* =========================
+ * Register
+ * ========================= */
 export async function addUser(
   username,
-  email,           // << חדש
+  email,
   password,
   companyName,
   contactName,
@@ -33,13 +39,13 @@ export async function addUser(
   closing_time = null
 ) {
   try {
-    const query = `
+    const sql = `
       INSERT INTO users
         (username, email, password, company_name, contact_name, phone, city_id, street, house_number, opening_time, closing_time, userType)
       VALUES
         (?,        ?,     ?,        ?,            ?,            ?,     ?,       ?,      ?,            ?,            ?,            ?)
     `;
-    const [results] = await pool.query(query, [
+    const [res] = await pool.query(sql, [
       username,
       email || null,
       password,
@@ -53,16 +59,35 @@ export async function addUser(
       closing_time || null,
       userType,
     ]);
-    return results.insertId;
+    return res.insertId;
   } catch (err) {
     throw new Error("Error adding user: " + err.message);
   }
 }
 
+/* =========================
+ * Public listing
+ * ========================= */
+export async function getUsers(userType) {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, company_name, contact_name, phone FROM users WHERE userType = ?`,
+      [userType]
+    );
+    return rows;
+  } catch (err) {
+    throw new Error("Error getting users: " + err.message);
+  }
+}
+
+/* =========================
+ * Supplier service areas — helpers
+ * ========================= */
 export async function addSupplierServiceCities(supplierId, cityIds = []) {
   if (!Array.isArray(cityIds) || cityIds.length === 0) return 0;
   const ids = cityIds.map(Number).filter(Number.isFinite);
   if (!ids.length) return 0;
+
   const placeholders = ids.map(() => "(?, ?)").join(",");
   const params = ids.flatMap((cid) => [supplierId, cid]);
   try {
@@ -78,6 +103,7 @@ export async function addSupplierServiceDistricts(supplierId, districtIds = []) 
   if (!Array.isArray(districtIds) || districtIds.length === 0) return 0;
   const ids = districtIds.map(Number).filter(Number.isFinite);
   if (!ids.length) return 0;
+
   const placeholders = ids.map(() => "(?, ?)").join(",");
   const params = ids.flatMap((did) => [supplierId, did]);
   try {
@@ -119,15 +145,5 @@ export async function getCityIdsByDistrictIds(districtIds = []) {
     return rows.map((r) => r.city_id);
   } catch (err) {
     throw new Error("getCityIdsByDistrictIds failed: " + err.message);
-  }
-}
-
-export async function getUsers(userType) {
-  try {
-    const query = `SELECT id, company_name, contact_name, phone FROM users WHERE userType = ?`;
-    const [results] = await pool.query(query, [userType]);
-    return results;
-  } catch (err) {
-    throw new Error("Error getting users: " + err.message);
   }
 }
