@@ -1,155 +1,48 @@
-/* StoreOwnerPage.module.css */
-body,
-html {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
+.page { 
+  min-height: 100dvh; 
+  background: #fafafa; 
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+ }
 
-body::before {
-  background-color: rgba(255, 255, 255, 0.7); 
+.topbar {
+  position: sticky; 
+  top: 0; 
+  z-index: 5;
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  gap: 12px; 
+  padding: 10px 12px; 
+  background: #fff; 
+  border-bottom: 1px solid #eee;
 }
-
-.container {
-  width: 100%;
-  margin: 0 auto;
-  position: relative;
-  height: 100vh;
-  display: grid;
-  place-items: center;
-  padding-bottom: 50px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  direction: rtl;
-}
-
-.container h1 {
-  text-align: center;
-  color: #2c3e50;
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 2rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 1;
-}
-
-.container h1::after {
-  content: '';
-  position: absolute;
-  bottom: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 4px;
-  background: linear-gradient(90deg, #475fff, #2967e3);
-  border-radius: 2px;
-  box-shadow: 0 2px 4px rgba(71, 95, 255, 0.3);
-}
-
-.logoutButton {
-  position: absolute;
-  top: 20px; 
-  right: 20px; 
-  padding: 10px 20px;
-  background-color: #475fff; 
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
+.menuBtn {
+  font-size: 20px; 
+  border: 1px solid #e5e7eb; 
+  background: #fff;
+  border-radius: 10px; 
+  padding: 6px 10px; 
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(71, 95, 255, 0.3);
+}
+.title { 
+  margin: 0; font-size: 20px; font-weight: 700; 
+}
+.actions { 
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; 
 }
 
-.logoutButton:hover {
-  background-color: #2967e3; 
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(71, 95, 255, 0.4);
+.primaryBtn {
+  background: #10b981; color: #fff; border: 1px solid #059669;
+  border-radius: 10px; padding: 8px 12px; cursor: pointer; font-weight: 600;
 }
+.primaryBtn:hover { background: #059669; }
 
-.addOrderButton {
-  background-color: #169a2a; 
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  margin-bottom: 3rem;
-  position: relative;
-  overflow: hidden;
+.ghostBtn {
+  background: #fff; color: #111; border: 1px solid #e5e7eb;
+  border-radius: 10px; padding: 8px 12px; cursor: pointer;
 }
+.ghostBtn:hover { background: #f6f7f9; }
 
-.addOrderButton::before {
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.addOrderButton:hover {
-  background-color: #0d6a1b; 
-  transform: scale(1.05); 
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-}
-
-.addOrderButton:active {
-  transform: scale(0.98);
-}
-
-/* אנימציות כניסה */
-.container > * {
-  animation: fadeInUp 0.6s ease forwards;
-  opacity: 0;
-}
-
-.container > *:nth-child(1) { animation-delay: 0.1s; }
-.container > *:nth-child(2) { animation-delay: 0.2s; }
-.container > *:nth-child(3) { animation-delay: 0.3s; }
-.container > *:nth-child(4) { animation-delay: 0.4s; }
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .container h1 {
-    font-size: 2rem;
-  }
-  
-  .logoutButton {
-    top: 10px;
-    right: 10px;
-    padding: 8px 16px;
-    font-size: 14px;
-  }
-  
-  .addOrderButton {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .container h1 {
-    font-size: 1.8rem;
-  }
-  
-  .addOrderButton {
-    padding: 8px 16px;
-    font-size: 0.8rem;
-  }
-}
+.content { padding: 16px; max-width: 1100px; margin: 0 auto; }

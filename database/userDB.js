@@ -4,31 +4,23 @@ export async function checkUser(username, password) {
   const u = (username || '').trim();
   const p = (password || '').trim();
 
-  console.log('DB in use: (about to query)');
-
   try {
-    const [dbRows] = await pool.query('SELECT DATABASE() AS db');
-    console.log('DB in use:', dbRows[0].db);
-
     const [results] = await pool.query(
       'SELECT userType, id FROM users WHERE username = ? AND password = ?',
       [u, p]
     );
-    console.log('Rows found:', results.length, 'for', u);
-
     if (results.length > 0) {
       return { userType: results[0].userType, id: results[0].id };
     }
-    throw new Error('User not found or incorrect password.');
+    throw new Error("User not found or incorrect password.");
   } catch (err) {
-    console.error('DB ERROR:', err.message);
-    throw err; // כדי שהראוטר יחזיר 401 כמו קודם
+    throw err;
   }
 }
 
-/** שמירת משתמש חדש בהתאם לסכמת users */
 export async function addUser(
   username,
+  email,           // << חדש
   password,
   companyName,
   contactName,
@@ -37,17 +29,19 @@ export async function addUser(
   city_id = null,
   street = null,
   house_number = null,
-  opening_hours = null
+  opening_time = null,
+  closing_time = null
 ) {
   try {
     const query = `
       INSERT INTO users
-        (username, password, company_name, contact_name, phone, city_id, street, house_number, opening_hours, userType)
+        (username, email, password, company_name, contact_name, phone, city_id, street, house_number, opening_time, closing_time, userType)
       VALUES
-        (?,       ?,        ?,            ?,            ?,     ?,       ?,      ?,            ?,             ?)
+        (?,        ?,     ?,        ?,            ?,            ?,     ?,       ?,      ?,            ?,            ?,            ?)
     `;
     const [results] = await pool.query(query, [
       username,
+      email || null,
       password,
       companyName || null,
       contactName,
@@ -55,7 +49,8 @@ export async function addUser(
       city_id ?? null,
       street || null,
       house_number || null,
-      opening_hours || null,
+      opening_time || null,
+      closing_time || null,
       userType,
     ]);
     return results.insertId;
@@ -64,40 +59,75 @@ export async function addUser(
   }
 }
 
-/**
- * מוסיף לרשימת הערים של הספק בטבלת supplier_cities.
- * אין מחיקות – רישום ראשוני בלבד. משתמש ב-INSERT IGNORE למניעת כפילויות.
- */
 export async function addSupplierServiceCities(supplierId, cityIds = []) {
   if (!Array.isArray(cityIds) || cityIds.length === 0) return 0;
-
   const ids = cityIds.map(Number).filter(Number.isFinite);
   if (!ids.length) return 0;
-
   const placeholders = ids.map(() => "(?, ?)").join(",");
-  const params = ids.flatMap(cid => [supplierId, cid]);
-
+  const params = ids.flatMap((cid) => [supplierId, cid]);
   try {
     const sql = `INSERT IGNORE INTO supplier_cities (supplier_id, city_id) VALUES ${placeholders}`;
-    const [result] = await pool.query(sql, params);
-    // result.affectedRows סופר גם שורות "התעלם", לכן נחזיר את מספר הערכים שניסינו להכניס
+    await pool.query(sql, params);
     return ids.length;
   } catch (err) {
     throw new Error("addSupplierServiceCities failed: " + err.message);
   }
 }
 
+export async function addSupplierServiceDistricts(supplierId, districtIds = []) {
+  if (!Array.isArray(districtIds) || districtIds.length === 0) return 0;
+  const ids = districtIds.map(Number).filter(Number.isFinite);
+  if (!ids.length) return 0;
+  const placeholders = ids.map(() => "(?, ?)").join(",");
+  const params = ids.flatMap((did) => [supplierId, did]);
+  try {
+    const sql = `INSERT IGNORE INTO supplier_districts (supplier_id, district_id) VALUES ${placeholders}`;
+    await pool.query(sql, params);
+    return ids.length;
+  } catch (err) {
+    throw new Error("addSupplierServiceDistricts failed: " + err.message);
+  }
+}
 
+export async function getExistingCityIds(cityIds = []) {
+  if (!Array.isArray(cityIds) || cityIds.length === 0) return [];
+  const ids = cityIds.map(Number).filter(Number.isFinite);
+  if (!ids.length) return [];
+  try {
+    const placeholders = ids.map(() => "?").join(",");
+    const sql = `SELECT id FROM cities WHERE id IN (${placeholders}) AND is_active = 1`;
+    const [rows] = await pool.query(sql, ids);
+    return rows.map((r) => r.id);
+  } catch (err) {
+    throw new Error("getExistingCityIds failed: " + err.message);
+  }
+}
+
+export async function getCityIdsByDistrictIds(districtIds = []) {
+  if (!Array.isArray(districtIds) || districtIds.length === 0) return [];
+  const ids = districtIds.map(Number).filter(Number.isFinite);
+  if (!ids.length) return [];
+  try {
+    const placeholders = ids.map(() => "?").join(",");
+    const sql = `
+      SELECT id AS city_id
+      FROM cities
+      WHERE district_id IN (${placeholders})
+        AND is_active = 1
+    `;
+    const [rows] = await pool.query(sql, ids);
+    return rows.map((r) => r.city_id);
+  } catch (err) {
+    throw new Error("getCityIdsByDistrictIds failed: " + err.message);
+  }
+}
 
 export async function getUsers(userType) {
   try {
-    const query = `
-      SELECT id, company_name, contact_name, phone FROM users WHERE userType = ?
-    `;
+    const query = `SELECT id, company_name, contact_name, phone FROM users WHERE userType = ?`;
     const [results] = await pool.query(query, [userType]);
-
     return results;
   } catch (err) {
-    throw new Error("Error getting suppliers: " + err.message);
+    throw new Error("Error getting users: " + err.message);
   }
 }

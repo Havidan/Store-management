@@ -5,6 +5,7 @@ import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js"; 
 import orderRoutes from "./routes/orderRoutes.js";
 import generalRoutes from "./routes/generalRoutes.js"; 
+import linksRoutes from "./routes/SupplierOwnerlinksRoutes.js";
 
 dotenv.config(); // This will load variables from .env into process.env
 
@@ -19,7 +20,8 @@ app.use('/uploads', express.static('uploads'));
 app.use("/user", userRoutes); 
 app.use("/products", productRoutes); 
 app.use("/order", orderRoutes); 
-app.use("/geo", generalRoutes); 
+app.use("/geo", generalRoutes);
+app.use("/links", linksRoutes); 
 
 
 app.listen(PORT, () => {

@@ -32,87 +32,46 @@ export async function addOrderItem(product_id, order_id, quantity) {
     throw new Error("Error adding product: " + err.message);
   }
 }
-/*
-export async function getAllOrders() {
-  try {
-    const ordersQuery = `
-        SELECT 
-          o.id AS order_id,
-          o.supplier_id,
-          o.status,
-          o.created_date,
-          u.contact_name,
-          u.phone,
-          u.company_name
-        FROM orders o
-        JOIN users u ON o.supplier_id = u.id
-      `;
 
-    const [orders] = await pool.query(ordersQuery);
-
-    //wait until all promises will finish
-    const ordersWithItems = await Promise.all(
-      //create an array of promises
-      orders.map(async (order) => {
-        const itemsQuery = `
-            SELECT 
-              oi.product_id, 
-              oi.quantity, 
-              p.product_name, 
-              p.unit_price
-            FROM order_items oi
-            JOIN products p ON oi.product_id = p.id
-            WHERE oi.order_id = ?
-          `;
-
-        const [items] = await pool.query(itemsQuery, [order.order_id]);
-
-        return {
-          order_id: order.order_id,
-          supplier_id: order.supplier_id,
-          status: order.status,
-          created_date: order.created_date,
-          contact_name: order.contact_name,
-          phone: order.phone,
-          company_name: order.company_name,
-          products: items,
-        };
-      }),
-    );
-
-    //print all fields with spaces
-    console.log(JSON.stringify(ordersWithItems, null, 2));
-    return ordersWithItems;
-  } catch (err) {
-    throw new Error("Error retrieving orders: " + err.message);
-  }
-}*/
-
+/**
+ * מחזיר הזמנות לפי משתמש (supplier/owner) כולל פרטי איש קשר:
+ * - אם userType === "supplier": נחזיר הזמנות של הספק + פרטי בעל המכולת (owner_*), כולל opening_time/closing_time.
+ * - אחרת (owner): נחזיר הזמנות של הבעלים + פרטי הספק (company_name/contact_name/phone).
+ */
 export async function getOrdersById(id, userType) {
-
   try {
-    let orders = []; // <-- הגדרה מחוץ לענפים
-
+    let orders = [];
 
     if (userType === "supplier") {
       const ordersQuery = `
         SELECT 
           o.id AS order_id,
           o.created_date,
-          o.status
+          o.status,
+          uo.company_name   AS owner_company_name,
+          uo.contact_name   AS owner_contact_name,
+          uo.phone          AS owner_phone,
+          uo.opening_time   AS owner_opening_time,
+          uo.closing_time   AS owner_closing_time
         FROM orders o
+        JOIN users uo ON uo.id = o.owner_id AND uo.userType = 'StoreOwner'
         WHERE o.supplier_id = ?
+        ORDER BY o.created_date DESC
       `;
-    [orders] = await pool.query(ordersQuery, [id]);
-    }
-    else {
+      [orders] = await pool.query(ordersQuery, [id]);
+    } else {
       const ordersQuery = `
         SELECT 
           o.id AS order_id,
           o.created_date,
-          o.status
+          o.status,
+          us.company_name,
+          us.contact_name,
+          us.phone
         FROM orders o
+        JOIN users us ON us.id = o.supplier_id AND us.userType = 'Supplier'
         WHERE o.owner_id = ?
+        ORDER BY o.created_date DESC
       `;
       [orders] = await pool.query(ordersQuery, [id]);
     }
@@ -128,10 +87,9 @@ export async function getOrdersById(id, userType) {
             JOIN products p ON oi.product_id = p.id
             WHERE oi.order_id = ?
           `;
-
         const [items] = await pool.query(itemsQuery, [order.order_id]);
 
-        return {
+        const base = {
           order_id: order.order_id,
           created_date: order.created_date,
           status: order.status,
@@ -141,7 +99,25 @@ export async function getOrdersById(id, userType) {
             quantity: item.quantity,
           })),
         };
-      }),
+
+        if (userType === "supplier") {
+          return {
+            ...base,
+            owner_company_name: order.owner_company_name,
+            owner_contact_name: order.owner_contact_name,
+            owner_phone: order.owner_phone,
+            owner_opening_time: order.owner_opening_time, // TIME
+            owner_closing_time: order.owner_closing_time, // TIME
+          };
+        } else {
+          return {
+            ...base,
+            company_name: order.company_name,
+            contact_name: order.contact_name,
+            phone: order.phone,
+          };
+        }
+      })
     );
 
     return ordersWithItems;

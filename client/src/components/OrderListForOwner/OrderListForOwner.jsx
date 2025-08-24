@@ -4,18 +4,12 @@ import styles from "./OrderListForOwner.module.css";
 import axios from "axios";
 
 function OrderListForOwner({ refresh }) {
-  
-  //the set holds all orders that open for seeing their details
   const [expandedOrders, setExpandedOrders] = useState(new Set());
-  //true or false to display the completed orders or not
   const [displayHistory, setDisplayHistory] = useState(false);
   const [orders, setOrders] = useState([]);
-  const [ownerId, setOwnerId] = useState(localStorage.getItem("userId"));
-  
-  //the refresh is changed when the owner adds new order
-  //the refresh is for updating in place the order list
+  const [ownerId] = useState(localStorage.getItem("userId"));
+
   useEffect(() => {
-    //get all orders
     axios
       .post("http://localhost:3000/order/by-id", {
         id: ownerId,
@@ -23,52 +17,36 @@ function OrderListForOwner({ refresh }) {
       })
       .then((res) => setOrders(res.data))
       .catch((err) => console.error("Failed to fetch orders", err));
-  }, [refresh]);
+  }, [ownerId, refresh]);
 
-  //when clicking on an order see the details
   const toggleOrder = (orderId) => {
     setExpandedOrders((prev) => {
-      //the set holds all orders that open for seeing their details
-      const newSet = new Set(prev);
-      //if it was open - close
-      if (newSet.has(orderId)) {
-        newSet.delete(orderId);
-      } 
-      //if the order was close - open
-      else {
-        newSet.add(orderId);
-      }
-      return newSet;
+      const s = new Set(prev);
+      s.has(orderId) ? s.delete(orderId) : s.add(orderId);
+      return s;
     });
   };
 
   const isExpanded = (orderId) => expandedOrders.has(orderId);
 
-  //to nake the order's status to be "complete"
   const handleOrderArrivalConfirmation = async (orderId) => {
     try {
       const res = await axios.put(
         `http://localhost:3000/order/update-status/${orderId}`,
-        {
-          status: "הושלמה",
-        },
+        { status: "הושלמה" }
       );
-
-      //for refreshing the orders' list without send new request to server
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order.order_id === orderId ? { ...order, status: "הושלמה" } : order,
-        ),
+          order.order_id === orderId ? { ...order, status: "הושלמה" } : order
+        )
       );
-
       console.log(`✅ Order ${orderId} status updated:`, res.data);
     } catch (err) {
       console.error("❌ Failed to update order status:", err);
     }
   };
 
-  //to move between the orders in history or in proccess
-  const displayCompleteOrders = async () => {
+  const displayCompleteOrders = () => {
     setDisplayHistory((prev) => !prev);
   };
 
@@ -76,10 +54,9 @@ function OrderListForOwner({ refresh }) {
     <div className={styles.ordersSection}>
       <h2 className={styles.title}>רשימת הזמנות</h2>
       <button className={styles.historyButton} onClick={displayCompleteOrders}>
-        {displayHistory
-          ? "לצפיה בהזמנות שטרם סופקו"
-          : "לצפיה בהיסטורית ההזמנות"}
+        {displayHistory ? "לצפיה בהזמנות שטרם סופקו" : "לצפיה בהיסטורית ההזמנות"}
       </button>
+
       <div className={styles.orderHeaderRow}>
         <span>מס' הזמנה</span>
         <span>תאריך</span>
@@ -87,12 +64,11 @@ function OrderListForOwner({ refresh }) {
         <span>סטטוס</span>
         <span></span>
       </div>
+
       <div className={styles.orderList}>
         {orders
           .filter((order) =>
-            displayHistory
-              ? order.status === "הושלמה"
-              : order.status !== "הושלמה",
+            displayHistory ? order.status === "הושלמה" : order.status !== "הושלמה"
           )
           .map((order) => (
             <div key={order.order_id} className={styles.orderRow}>
@@ -100,30 +76,26 @@ function OrderListForOwner({ refresh }) {
                 className={styles.orderHeader}
                 onClick={() => toggleOrder(order.order_id)}
               >
-                <span className={styles.chevron}>
-                  {isExpanded(order.order_id) ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </span>
+                <span>#{order.order_id}</span>
+                <span>{new Date(order.created_date).toLocaleDateString()}</span>
+                <span>{order.company_name}</span>
+                <span>{order.status}</span>
+
                 <div className={styles.orderAction}>
                   {order.status === "בתהליך" && (
                     <button
                       className={styles.confirmButton}
-                      onClick={() =>
-                        handleOrderArrivalConfirmation(order.order_id)
-                      }
+                      onClick={() => handleOrderArrivalConfirmation(order.order_id)}
                     >
                       אשר הגעת הזמנה
                     </button>
                   )}
                   {order.status === "הושלמה" && <div>ההזמנה הושלמה</div>}
                 </div>
-                <span>{order.status}</span>
-                <span>{order.company_name}</span>
-                <span>{new Date(order.created_date).toLocaleDateString()}</span>
-                <span>#{order.order_id}</span>
+
+                <span className={styles.chevron}>
+                  {isExpanded(order.order_id) ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </span>
               </div>
 
               {isExpanded(order.order_id) && (
@@ -137,6 +109,7 @@ function OrderListForOwner({ refresh }) {
                   <p>
                     <strong>:מוצרים</strong>
                   </p>
+
                   {order.products.length > 0 && (
                     <div className={styles.productsTable}>
                       <table>
@@ -149,7 +122,7 @@ function OrderListForOwner({ refresh }) {
                         </thead>
                         <tbody>
                           {order.products.map((product) => (
-                            <tr key={product.id}>
+                            <tr key={product.product_id}>
                               <td>{product.product_id}</td>
                               <td>{product.product_name}</td>
                               <td>{product.quantity}</td>

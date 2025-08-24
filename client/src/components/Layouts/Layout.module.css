@@ -1,11 +1,11 @@
-.page {
+.shell {
   min-height: 100dvh;
   background: #fafafa;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
+/* טופ-בר קבוע לכל הדפים שבתוך הלייאאוט */
 .topbar {
   position: sticky;
   top: 0;
@@ -28,45 +28,36 @@
   cursor: pointer;
 }
 
-.title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-}
+.brand { font-weight: 700; }
 
-.actions {
+.topbarActions {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.primaryBtn {
-  background: #10b981;
-  color: #fff;
-  border: 1px solid #059669;
-  border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.primaryBtn:hover { background: #059669; }
-
 .ghostBtn {
-  background: #fff;
-  color: #111;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
+  background: #fff; color: #111; border: 1px solid #e5e7eb;
+  border-radius: 10px; padding: 8px 12px; cursor: pointer;
 }
 .ghostBtn:hover { background: #f6f7f9; }
 
-/* החלק של התוכן – מרכז אופקי ואנכי */
-.content {
+/* אזור התוכן הכללי */
+.main {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   padding: 16px;
+}
+
+/* עטיפה שמרחיבה בדסקטופ, כמעט מסך מלא במובייל */
+.contentWide {
+  width: min(1400px, 96vw);
+  margin: 0 auto;
+}
+
+/* עטיפה לטבלאות/רשימות – גלילה אופקית במובייל אם צריך */
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
 }

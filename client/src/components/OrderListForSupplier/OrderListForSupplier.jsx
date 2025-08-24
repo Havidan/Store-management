@@ -12,7 +12,6 @@ function OrderListForSupplier() {
 
   useEffect(() => {
     axios
-    //get the supplier orders
       .post("http://localhost:3000/order/by-id", {
         id: supplierId,
         userType: "supplier",
@@ -21,123 +20,106 @@ function OrderListForSupplier() {
       .catch((err) => console.error("Failed to fetch orders", err));
   }, [supplierId]);
 
-  //when clicking on an order see the details
-  const orderDetails = (orderId) => {
+  const toggleExpand = (orderId) => {
     setExpandedOrders((prev) => {
-      //the set holds all orders that open for seeing their details
-      const newSet = new Set(prev);
-      //if it was open - close
-      if (newSet.has(orderId)) {
-        newSet.delete(orderId);
-      } 
-      //if the order was close - open
-      else {
-        newSet.add(orderId);
-      }
-      return newSet;
+      const s = new Set(prev);
+      s.has(orderId) ? s.delete(orderId) : s.add(orderId);
+      return s;
     });
   };
 
   const isExpanded = (orderId) => expandedOrders.has(orderId);
 
-  //to nake the order's status to be "in proccess"
   const handleOrderArrivalConfirmation = async (orderId) => {
     try {
       const res = await axios.put(
         `http://localhost:3000/order/update-status/${orderId}`,
-        {
-          status: "בתהליך",
-        },
+        { status: "בתהליך" }
       );
 
-      //for refreshing the orders' list
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order.order_id === orderId ? { ...order, status: "בתהליך" } : order,
-        ),
+          order.order_id === orderId ? { ...order, status: "בתהליך" } : order
+        )
       );
-      
+
       console.log(`Order ${orderId} status updated:`, res.data);
     } catch (err) {
       console.error("Failed to update order status:", err);
     }
   };
 
-  //to move between the orders in history or in proccess
-  const displayCompleteOrders = async () => {
-    setDisplayHistory((prev) => !prev);
+  const displayCompleteOrders = () => setDisplayHistory((prev) => !prev);
+
+  const fmt = (t) => {
+    if (!t) return "—";
+    const s = String(t);
+    const m = s.match(/^([0-2]\d:[0-5]\d)(?::[0-5]\d)?$/);
+    return m ? m[1] : s;
   };
 
   return (
     <div className={styles.ordersSection}>
       <h2 className={styles.title}>רשימת הזמנות לספק</h2>
       <button className={styles.historyButton} onClick={displayCompleteOrders}>
-        {displayHistory
-          ? "לצפיה בהזמנות שטרם סופקו"
-          : "לצפיה בהיסטורית ההזמנות"}
+        {displayHistory ? "לצפיה בהזמנות שטרם סופקו" : "לצפיה בהיסטורית ההזמנות"}
       </button>
+
       <div className={styles.orderHeaderRow}>
         <span>מס' הזמנה</span>
         <span>תאריך</span>
         <span>סטטוס</span>
-        <span></span> 
+        <span></span>
       </div>
 
       <div className={styles.orderList}>
         {orders
           .filter((order) =>
-            displayHistory
-              ? order.status === "הושלמה"
-              : order.status !== "הושלמה",
+            displayHistory ? order.status === "הושלמה" : order.status !== "הושלמה"
           )
           .map((order) => (
             <div key={order.order_id} className={styles.orderRow}>
-              <div
-                className={styles.orderHeader}
-                onClick={() => orderDetails(order.order_id)}
-              >
-                <span className={styles.chevron}>
-                  {isExpanded(order.order_id) ? (
-                    <ChevronUp size={20} />
-                  ) : (
-                    <ChevronDown size={20} />
-                  )}
-                </span>
+              <div className={styles.orderHeader} onClick={() => toggleExpand(order.order_id)}>
+                <span>#{order.order_id}</span>
+                <span>{new Date(order.created_date).toLocaleDateString()}</span>
+                <span>{order.status}</span>
+
                 <div className={styles.orderAction}>
                   {order.status === "בוצעה" && (
                     <button
                       className={styles.confirmButton}
-                      onClick={() =>
-                        handleOrderArrivalConfirmation(order.order_id)
-                      }
+                      onClick={() => handleOrderArrivalConfirmation(order.order_id)}
                     >
                       לאישור קבלת הזמנה
                     </button>
                   )}
-
                   {order.status === "בתהליך" && (
                     <button className={styles.confirmButton} disabled>
                       ההזמנה אושרה
                     </button>
                   )}
-
                   {order.status === "הושלמה" && <div>ההזמנה הושלמה</div>}
                 </div>
-                <span>{order.status}</span>
-                <span>{new Date(order.created_date).toLocaleDateString()}</span>
-                <span>#{order.order_id}</span>
+
+                <span className={styles.chevron}>
+                  {isExpanded(order.order_id) ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </span>
               </div>
 
               {isExpanded(order.order_id) && (
                 <div className={styles.orderDetails}>
-                  <p>
-                    <strong>מוצרים:</strong>
-                  </p>
-                  <ul>
+                  <div className={styles.orderMeta}>
+                    <p><strong>שם החנות:</strong> {order.owner_company_name}</p>
+                    <p><strong>איש קשר:</strong> {order.owner_contact_name}</p>
+                    <p><strong>טלפון:</strong> {order.owner_phone}</p>
+                    <p><strong>שעות פתיחה:</strong> {fmt(order.owner_opening_time)} - {fmt(order.owner_closing_time)}</p>
+                  </div>
+
+                  <p className={styles.productsTitle}><strong>מוצרים:</strong></p>
+                  <ul className={styles.productsList}>
                     {order.products.map((product) => (
                       <li key={product.product_id}>
-                        מספר מוצר: {product.product_id}, כמות:{" "}
-                        {product.quantity}, שם מוצר: {product.product_name}
+                        מספר מוצר: {product.product_id}, כמות: {product.quantity}, שם מוצר: {product.product_name}
                       </li>
                     ))}
                   </ul>
