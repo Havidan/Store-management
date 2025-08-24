@@ -1,112 +1,159 @@
-.ordersSection {
-  margin-top: 40px;
-  padding: 0 20px;
-  width: 65%;
+/* כללי */
+.ordersSection { margin-top: 10px; padding: 0 20px; width: 65%; }
+body::before { background-color: rgba(255, 255, 255, 0.7); }
+
+/* כותרת */
+.title {
+  text-align: center;
+  color: #111827; /* אפור-שחור */
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  position: relative;
 }
-body::before {
-  background-color: rgba(255, 255, 255, 0.7);
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 3px;
+  background: linear-gradient(90deg, #6F8B7A, #8FA79A); /* ירקרק-אפרפר פסטלי */
+  border-radius: 2px;
 }
 
-.orderList {
-  border-top: 2px solid #ddd;
+/* כפתורים – Sage עדין */
+.historyButton {
+  margin-right: 2rem;
+  padding: 7px 10px;
+  font-size: medium;
+  border-radius: 6px;
+  border: 1px solid #6F8B7A66;
+  background-color: #6F8B7A;        /* sage */
+  color: #F8FAFC;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(111, 139, 122, 0.22);
+}
+.historyButton:hover { background-color: #5D7668; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(111,139,122,.26); }
+
+.confirmButton {
+  background-color: #50a070;
+  color: #ffffff;
+  border: 1px solid #6F8B7A66;
+  padding: 8px 11px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(111,139,122,.2);
+}
+.confirmButton:hover { background-color: #5D7668; transform: translateY(-1px); }
+.confirmButton:disabled {
+  background-color: #D9E2DD;   /* אפרפר-ירקרק עדין */
+  color: #3d6953;
+  border-color: #D9E2DD;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
-.orderRow {
-  border-bottom: 1px solid #ddd;
+/* ====== טבלת רשימת ההזמנות ====== */
+/* פריסה: 0.5fr | 1fr | 1fr | 1fr | 1.5fr | auto  (RTL) */
+.orderHeaderRow {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr auto;
+  column-gap: 0;               /* כדי שקווי ההפרדה יהיו רציפים */
+  padding: 0;                  /* padding עובר לתאים עצמם */
+  font-weight: 700;
+  background-color: #F3F4F6;
+  border-bottom: 2px solid #E5E7EB;
+  border-radius: 6px 6px 0 0;
+  direction: rtl;
+  text-align: right;
+  color: #111827;
 }
+.orderHeaderRow > * {
+  padding: 12px;
+  border-inline-start: 1px solid #ECEFF3;  /* קווי הפרדה אנכיים בהירים */
+  display: flex; align-items: center; justify-content: flex-start;
+}
+.orderHeaderRow > *:first-child { border-inline-start: 0; }
+
+.orderList { border-top: 2px solid #E5E7EB; }
+.orderRow { border-bottom: 1px solid #E5E7EB; }
+.orderRow:last-child { border-bottom: none; }
 
 .orderHeader {
   display: grid;
-  grid-template-columns: 0.2fr 1.5fr 1fr 1fr 0.6fr auto;
-  padding: 10px;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr auto;
+  column-gap: 0;
+  padding: 0;
   cursor: pointer;
-  background-color: #f9f9f9;
+  background-color: #FFFFFF;
   transition: background-color 0.2s ease;
-  align-items: center;
-  text-align: right; 
-}
-
-.orderHeader:hover {
-  background-color: #eef;
-}
-
-.orderHeader span {
-  font-size: 0.95rem;
-  color: #333;
-}
-
-.orderDetails {
-  background-color: #fdfdfd;
-  padding: 10px 20px;
-  font-size: 0.9rem;
-  color: #444;
-}
-
-.orderDetails ul {
-  list-style: disc;
-  margin-top: 5px;
-}
-
-.chevron {
-  display: flex;
-  justify-content: center;
-}
-
-.orderAction {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  position: relative;
-  height: 5vh;
-}
-
-.confirmButton {
-  background-color: #f12f2f; 
-  color: white;
-  border: none;
-  padding: 15px 15px;
-  font-size: 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  height: 80%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.confirmButton:hover {
-  background-color: rgb(171, 33, 33); 
-}
-
-.confirmButton:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.orderHeaderRow {
-  display: grid;
-  grid-template-columns: 0.6fr 1.1fr 1.5fr 1.5fr;
-  gap: 10px;
-  padding: 10px;
-  font-weight: bold;
-  background-color: #f2f2f2;
-  border-bottom: 2px solid #ccc;
-  direction: rtl;
+  align-items: stretch;
+  direction: rtl;   /* סדר עמודות מימין לשמאל */
   text-align: right;
 }
+.orderHeader:hover { background-color: #EEF3F1; } /* טינט ירקרק-אפרפר עדין */
 
-.orderActionHeader {
-  text-align: center;
+.orderHeader > * {
+  padding: 12px;
+  border-inline-start: 1px solid #EEF2F6;  /* קווי הפרדה אנכיים בהירים */
+  display: flex; align-items: center; justify-content: flex-start; /* ימין ב-RTL */
+}
+.orderHeader > *:first-child { border-inline-start: 0; }
+
+.orderHeader span { font-size: 0.95rem; color: #1F2937; font-weight: 500; }
+
+/* סכום */
+.orderAmount {
+  display: block;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: #5D7668;  /* טקסט ירקרק-אפור רגוע */
 }
 
-.historyButton {
-  margin-left: 5px;
-  margin-bottom: 10px;
-  padding: 10px 15px;
-  font-size: large;
-  border-radius: 5px;
-  border: none;
-  background-color: #007bff;
-  color: white;
+/* פעולה + חץ */
+.orderAction { display: flex; justify-content: flex-start; align-items: center; gap: 8px; min-height: 40px; }
+.chevron { display: flex; justify-content: center; color: #5D7668; }
+
+/* פרטים */
+.orderDetails { background-color: #FFFFFF; padding: 12px 16px; font-size: 0.9rem; color: #374151; }
+.productsTitle { margin-top: 8px; }
+
+/* ====== פילטר תאריכים ====== */
+.filterBar { display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.filterGroup { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.filterLabel { font-weight:600; font-size:0.95rem; color:#111827; }
+.inlineLabel { display:inline-flex; align-items:center; gap:6px; font-size:0.95rem; }
+
+.dateInput {
+  padding: 6px 10px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  background: #FFFFFF;
+  min-width: 7rem;
+  direction: ltr;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.dateInput:hover { border-color: #B6C1CC; }
+.dateInput:focus { border-color: #6F8B7A; box-shadow: 0 0 0 3px rgba(111,139,122,.20); }
+
+.clearFilterButton {
+  padding: 7px 12px;
+  border: 1px solid #6F8B7A;
+  background: #FFFFFF;
+  color: #3D4B44;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.15s ease, transform 0.05s ease;
 }
+.clearFilterButton:hover { background: #EEF3F1; }
+.clearFilterButton:active { transform: translateY(1px); }
