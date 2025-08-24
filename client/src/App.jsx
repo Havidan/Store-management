@@ -49,7 +49,7 @@ export default function AppWrapper() {
         <Route element={<SupplierLayout />}>
           <Route path="/SupplierHome" element={<SupplierPage />} />
           <Route path="/SupplierLinks" element={<SupplierLinksPage />}>
-            <Route index element={<SupplierLinksPending />} />
+            <Route index element={<SupplierLinksActive />} />
             <Route path="pending" element={<SupplierLinksPending />} />
             <Route path="active" element={<SupplierLinksActive />} />
           </Route>

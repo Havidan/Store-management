@@ -1,0 +1,212 @@
+.page {
+  max-width: 900px;
+  margin: 32px auto;
+  padding: 16px;
+  direction: rtl;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  padding: 24px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: #1e293b;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 10px 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.required {
+  color: #dc2626;
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border .2s ease, box-shadow .2s ease;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.saveBtn {
+  background: #2563eb;
+  color: #fff;
+}
+
+.saveBtn:hover {
+  background: #1d4ed8;
+}
+
+/* אוטוקומפליט עיר */
+.comboWrap {
+  position: relative;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 20;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 6px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.suggestionItem {
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+
+.suggestionItem:hover {
+  background: #f3f4f6;
+}
+
+.suggestionActive {
+  background: #e0f2fe;
+}
+
+.suggestionSub {
+  color: #64748b;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+.noResults {
+  padding: 10px 14px;
+  color: #64748b;
+}
+
+/* אזורי שירות (ספק) */
+.serviceAreasBox {
+  margin-top: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  background: #f9fafb;
+}
+
+.labelStrong {
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.serviceAreasScroll {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-inline: 4px;
+}
+
+.districtBox {
+  margin-bottom: 12px;
+}
+
+.districtHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.districtCount {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.citiesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+  margin-top: 8px;
+}
+
+.cityItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #334155;
+}
+
+/* ======= הודעת הצלחה אחרי שמירה ======= */
+.successBox {
+  text-align: center;
+  padding: 28px 16px;
+}
+
+.successTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #065f46; /* ירוק כהה */
+  margin-bottom: 8px;
+}
+
+.successText {
+  color: #115e59; /* ירקרק */
+  margin-bottom: 16px;
+}
+
+.successActions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.secondaryBtn {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.secondaryBtn:hover {
+  background: #d1d5db;
+}
