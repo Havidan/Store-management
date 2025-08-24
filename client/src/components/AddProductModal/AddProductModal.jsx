@@ -158,7 +158,7 @@ function AddProductModal({ onCancel, onAdd }) {
           </div>
         </form>
       </div>
-    </div>
+    </div> 
   );
 }
 
