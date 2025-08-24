@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 // Public
 import Login from "./components/Login/Login";
 import SignUp from "./components/SignUp/SignUp";
+import ContactForm from "./components/ContactForm/ContactForm";
 
 // Layouts
 import StoreLayout from "./components/Layouts/StoreLayout";
@@ -43,6 +44,7 @@ export default function AppWrapper() {
             <Route path="discover" element={<StoreLinksDiscover />} />
           </Route>
           <Route path="/StoreOwnerSettings" element={<StoreOwnerSettingsPage />} />
+          <Route path="/ContactForm" element={<ContactForm />} />
         </Route>
 
         {/* Supplier area with persistent Sidebar */}
@@ -54,8 +56,10 @@ export default function AppWrapper() {
             <Route path="active" element={<SupplierLinksActive />} />
           </Route>
           <Route path="/SupplierSettings" element={<SupplierSettingsPage />} />
+          <Route path="/ContactForm" element={<ContactForm />} />
           <Route path="/EditProducts" element={<EditProductsList />} />
         </Route>
+
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

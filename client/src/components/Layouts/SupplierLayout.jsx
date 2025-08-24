@@ -18,6 +18,7 @@ export default function SupplierLayout() {
     { label: "הזמנות", to: "/SupplierHome", end: true },
     { label: "קישורים עם בעלי חנויות", to: "/SupplierLinks" },
     { label: "איזור אישי", to: "/SupplierSettings" },
+    { label: "צור קשר", to: "/ContactForm" },
   ];
 
   return (

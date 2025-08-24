@@ -16,6 +16,7 @@ export default function StoreLayout() {
     { label: "הזמנות", to: "/StoreOwnerHome", end: true },
     { label: "קישורים עם ספקים", to: "/StoreOwnerLinks" },
     { label: "איזור אישי", to: "/StoreOwnerSettings" },
+    { label: "צור קשר", to: "/ContactForm" },
   ];
 
   return (
