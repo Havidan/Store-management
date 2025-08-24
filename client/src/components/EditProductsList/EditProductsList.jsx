@@ -253,71 +253,12 @@ function EditProductList() {
                 </div>
               )}
               <div className={styles.productDetails}>
-                {editingProductId === product.id ? (
-                  // מצב עריכה
-                  <div className={styles.editProductForm}>
-                    <div className={styles.editField}>
-                      <label>שם המוצר:</label>
-                      <input
-                        type="text"
-                        value={editedProduct.product_name}
-                        onChange={(e) => setEditedProduct({
-                          ...editedProduct,
-                          product_name: e.target.value
-                        })}
-                        className={styles.editInput}
-                      />
-                    </div>
-                    <div className={styles.editField}>
-                      <label>מחיר:</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={editedProduct.unit_price}
-                        onChange={(e) => setEditedProduct({
-                          ...editedProduct,
-                          unit_price: e.target.value
-                        })}
-                        className={styles.editInput}
-                      />
-                    </div>
-                    <div className={styles.editField}>
-                      <label>כמות מינימלית:</label>
-                      <input
-                        type="number"
-                        value={editedProduct.min_quantity}
-                        onChange={(e) => setEditedProduct({
-                          ...editedProduct,
-                          min_quantity: e.target.value
-                        })}
-                        className={styles.editInput}
-                      />
-                    </div>
-                    <div className={styles.editButtons}>
-                      <button 
-                        onClick={() => handleProductUpdate(product.id)}
-                        className={styles.saveButton}
-                      >
-                        שמור שינויים
-                      </button>
-                      <button 
-                        onClick={cancelProductEdit}
-                        className={styles.cancelButton}
-                      >
-                        ביטול
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  // מצב תצוגה רגיל
-                  <>
-                    <h4>{product.product_name}</h4>
-                    <p>
-                      מחיר: ₪{product.unit_price} | כמות מינימלית להזמנה:{" "}
-                      {product.min_quantity}
-                    </p>
-                  </>
-                )}
+                {/* מצב תצוגה רגיל */}
+                <h4>{product.product_name}</h4>
+                <p>
+                  מחיר: ₪{product.unit_price} | כמות מינימלית להזמנה:{" "}
+                  {product.min_quantity}
+                </p>
                 
                 <div className={styles.stockSection}>
                   <span>כמות במלאי: </span>
@@ -356,14 +297,12 @@ function EditProductList() {
                 </div>
                 
                 <div className={styles.productActions}>
-                  {editingProductId !== product.id && (
-                    <button 
-                      onClick={() => handleProductEdit(product)}
-                      className={styles.editProductButton}
-                    >
-                      ערוך מוצר
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => handleProductEdit(product)}
+                    className={styles.editProductButton}
+                  >
+                    ערוך מוצר
+                  </button>
                   <button 
                     onClick={() => handleDeleteProduct(product.id)}
                     className={styles.deleteButton}
@@ -376,6 +315,82 @@ function EditProductList() {
           </li>
         ))}
       </ul>
+
+      {/* Modal for editing product */}
+      {editingProductId && (
+        <div className={styles.editProductModalOverlay} onClick={cancelProductEdit}>
+          <div className={styles.editProductModal} onClick={(e) => e.stopPropagation()}>
+            <button 
+              className={styles.closeModalButton}
+              onClick={cancelProductEdit}
+            >
+              ×
+            </button>
+            
+            <h3 className={styles.editProductModalTitle}>עריכת מוצר</h3>
+            
+            <div className={styles.editProductForm}>
+              <div className={styles.editField}>
+                <label>שם המוצר</label>
+                <input
+                  type="text"
+                  value={editedProduct.product_name}
+                  onChange={(e) => setEditedProduct({
+                    ...editedProduct,
+                    product_name: e.target.value
+                  })}
+                  className={styles.editInput}
+                  placeholder="הכנס שם מוצר"
+                />
+              </div>
+              
+              <div className={styles.editField}>
+                <label>מחיר ליחידה (₪)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editedProduct.unit_price}
+                  onChange={(e) => setEditedProduct({
+                    ...editedProduct,
+                    unit_price: e.target.value
+                  })}
+                  className={styles.editInput}
+                  placeholder="0.00"
+                />
+              </div>
+              
+              <div className={styles.editField}>
+                <label>כמות מינימלית להזמנה</label>
+                <input
+                  type="number"
+                  value={editedProduct.min_quantity}
+                  onChange={(e) => setEditedProduct({
+                    ...editedProduct,
+                    min_quantity: e.target.value
+                  })}
+                  className={styles.editInput}
+                  placeholder="הכנס כמות מינימלית"
+                />
+              </div>
+              
+              <div className={styles.editButtons}>
+                <button 
+                  onClick={() => handleProductUpdate(editingProductId)}
+                  className={styles.saveButton}
+                >
+                  שמור שינויים
+                </button>
+                <button 
+                  onClick={cancelProductEdit}
+                  className={styles.cancelButton}
+                >
+                  ביטול
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

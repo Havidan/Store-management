@@ -466,6 +466,338 @@
   box-shadow: 0 12px 35px rgba(23, 162, 184, 0.5);
 }
 
+/* תצוגת תמונות במודל העריכה */
+.currentImage {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.currentImage span {
+  display: block;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.currentImagePreview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.currentImagePreview:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.imagePreview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(145deg, #e8f5e8, #d4edda);
+  border-radius: 12px;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  animation: slideIn 0.3s ease;
+}
+
+.imagePreview span {
+  display: block;
+  font-weight: 600;
+  color: #155724;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.newImagePreview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 3px solid #28a745;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  transition: all 0.3s ease;
+}
+
+.newImagePreview:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* שיפור input file */
+.editInput[type="file"] {
+  padding: 0.8rem;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border: 2px dashed rgba(0, 123, 255, 0.3);
+  cursor: pointer;
+}
+
+.editInput[type="file"]:hover {
+  border-color: rgba(0, 123, 255, 0.5);
+  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+}
+
+.editInput[type="file"]:focus {
+  border-color: #007bff;
+  border-style: solid;
+}
+
+/* ===== MODAL STYLES FOR EDIT PRODUCT ===== */
+
+/* רקע המודל */
+.editProductModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+/* המודל עצמו */
+.editProductModal {
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* כותרת המודל */
+.editProductModalTitle {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.editProductModalTitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 2px;
+}
+
+/* פורם עריכת המוצר */
+.editProductForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editField label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-right: 0.5rem;
+}
+
+.editField label::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, #007bff, #28a745);
+  border-radius: 2px;
+}
+
+.editInput {
+  padding: 1rem 1.5rem;
+  border: 2px solid rgba(0, 123, 255, 0.2);
+  border-radius: 12px;
+  font-size: 1rem;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  outline: none;
+}
+
+.editInput:focus {
+  border-color: #007bff;
+  box-shadow: 
+    0 0 0 3px rgba(0, 123, 255, 0.1),
+    0 4px 12px rgba(0, 123, 255, 0.15);
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.editInput:hover {
+  border-color: rgba(0, 123, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* כפתורי הפעולה */
+.editButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.editButtons .saveButton {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.editButtons .saveButton::before {
+  content: '✓';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.editButtons .saveButton:hover {
+  background: linear-gradient(135deg, #20c997, #17a2b8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.editButtons .cancelButton {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.editButtons .cancelButton::before {
+  content: '✕';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.editButtons .cancelButton:hover {
+  background: linear-gradient(135deg, #5a6268, #495057);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+/* אנימציות המודל */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* כפתור סגירה */
+.closeModalButton {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeModalButton:hover {
+  background: #dc3545;
+  color: white;
+  transform: scale(1.1);
+}
+
 /* אנימציות */
 .productItem {
   animation: slideInUp 0.6s ease forwards;
@@ -571,6 +903,28 @@
   .deleteButton::before {
     left: 20px;
   }
+
+  /* מודל רספונסיבי */
+  .editProductModal {
+    width: 95%;
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .editProductModalTitle {
+    font-size: 1.5rem;
+  }
+  
+  .editButtons {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .editButtons .saveButton,
+  .editButtons .cancelButton {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -600,6 +954,21 @@
   .editProductButton,
   .deleteButton {
     padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .editProductModal {
+    width: 98%;
+    padding: 1rem;
+    max-height: 95vh;
+  }
+  
+  .editField {
+    gap: 0.3rem;
+  }
+  
+  .editInput {
+    padding: 0.8rem 1rem;
     font-size: 0.9rem;
   }
 }

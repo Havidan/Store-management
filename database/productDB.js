@@ -118,3 +118,27 @@ export async function updateStockAfterOrder(productId, quantityOrdered) {
     throw new Error("Error updating stock after order: " + err.message);
   }
 }
+
+export async function updateProduct(productId, productName, unitPrice, minQuantity) {
+  try {
+    const query = `
+      UPDATE products 
+      SET product_name = ?, unit_price = ?, min_quantity = ?
+      WHERE id = ?
+    `;
+    
+    const [result] = await pool.query(query, [productName, unitPrice, minQuantity, productId]);
+    
+    if (result.affectedRows === 0) {
+      throw new Error("המוצר לא נמצא");
+    }
+
+    return { 
+      success: true, 
+      message: "המוצר עודכן בהצלחה",
+      productId: productId 
+    };
+  } catch (err) {
+    throw new Error("Error updating product: " + err.message);
+  }
+}
