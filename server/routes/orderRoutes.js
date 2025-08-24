@@ -5,18 +5,18 @@ import {
   addOrderItem,
   getOrdersById,
   updateStatusOrder,
-  getUserEmailById,       // 👈 חדש
-  getOrderParticipants,   // 👈 חדש
+  getUserEmailById,       
+  getOrderParticipants,   
 } from "../../database/orderDB.js";
 import { updateStockAfterOrder } from "../../database/productDB.js";
-import { sendStyledEmail } from "../emailSenderApi.js"; // 👈 ודאי את הנתיב
+import { sendStyledEmail } from "../emailSenderApi.js";
 
 const router = express.Router();
 
 // זיהוי סטטוסים בסיסי (אפשר לדייק לפי ה-ENUM אצלך)
 function isApproved(status = "") {
   const s = String(status).trim().toLowerCase();
-  return ["approved", "אושרה", "אושר"].includes(s);
+  return ["approved", "אושרה", "אושר", "בתהליך"].includes(s);
 }
 function isDelivered(status = "") {
   const s = String(status).trim().toLowerCase();
@@ -35,13 +35,13 @@ router.post("/add", async (req, res) => {
   const { supplier_id, owner_id, products_list } = req.body;
 
   try {
-    // 1) יצירת הזמנה + פריטים + עדכון מלאי
+    // 1) יצירת הזמנה + פריטים (ללא עדכון מלאי - יתעדכן רק כשהספק יאשר)
     const orderId = await addOrder(supplier_id, owner_id, "בוצעה", new Date());
 
     for (const { product_id, quantity } of products_list || []) {
       if (quantity > 0) {
         await addOrderItem(product_id, orderId, quantity);
-        await updateStockAfterOrder(product_id, quantity);
+        // הסרתי את השורה: await updateStockAfterOrder(product_id, quantity);
       }
     }
 
@@ -95,7 +95,7 @@ router.put("/update-status/:orderId", async (req, res) => {
   const { status } = req.body;
 
   try {
-    // 1) עדכון סטטוס
+    // 1) עדכון סטטוס (כולל עדכון מלאי אם הסטטוס הוא "בתהליך")
     const result = await updateStatusOrder(orderId, status);
 
     // 2) תשובה מידית ללקוח
@@ -127,7 +127,22 @@ router.put("/update-status/:orderId", async (req, res) => {
 
   } catch (error) {
     console.error("Error updating order status:", error);
-    res.status(500).json({ message: "Error updating order status" });
+    
+    // טיפול משופר בשגיאות מלאי
+    if (error.message.includes('אין מספיק מלאי') || 
+        error.message.includes('שגיאה בעדכון המלאי')) {
+      res.status(400).json({ 
+        message: "שגיאה בעדכון המלאי", 
+        error: error.message,
+        success: false 
+      });
+    } else {
+      res.status(500).json({ 
+        message: "Error updating order status", 
+        error: error.message,
+        success: false 
+      });
+    }
   }
 });
 

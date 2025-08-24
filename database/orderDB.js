@@ -1,4 +1,5 @@
 import pool from "./dbConnection.js";
+import { updateStockAfterOrder } from "./productDB.js"; 
 
 export async function addOrder(supplier_id, owner_id, status, created_date) {
   try {
@@ -126,8 +127,13 @@ export async function getOrdersById(id, userType) {
   }
 }
 
+
 export async function updateStatusOrder(order_id, newStatus) {
   try {
+    // התחלת transaction כדי לוודא שהכל יתבצע יחד או כלום
+    await pool.query('START TRANSACTION');
+
+    // עדכון סטטוס ההזמנה
     const query = `
         UPDATE orders
         SET status = ?
@@ -136,14 +142,42 @@ export async function updateStatusOrder(order_id, newStatus) {
     const [result] = await pool.query(query, [newStatus, order_id]);
 
     if (result.affectedRows === 0) {
+      await pool.query('ROLLBACK');
       throw new Error(`No order found with id ${order_id}`);
     }
 
+    // אם הסטטוס שונה ל"בתהליך" - עדכון המלאי
+    if (newStatus === "בתהליך") {
+      // שליפת כל הפריטים בהזמנה
+      const itemsQuery = `
+        SELECT oi.product_id, oi.quantity 
+        FROM order_items oi
+        WHERE oi.order_id = ?
+      `;
+      const [items] = await pool.query(itemsQuery, [order_id]);
+
+      // עדכון המלאי עבור כל פריט
+      for (const item of items) {
+        try {
+          await updateStockAfterOrder(item.product_id, item.quantity);
+        } catch (stockError) {
+          // אם יש בעיה עם המלאי - ביטול כל התהליך
+          await pool.query('ROLLBACK');
+          throw new Error(`שגיאה בעדכון המלאי למוצר ${item.product_id}: ${stockError.message}`);
+        }
+      }
+    }
+
+    // אישור כל השינויים
+    await pool.query('COMMIT');
+
     return {
       success: true,
-      message: `Order ${order_id} status updated to '${newStatus}'`,
+      message: `Order ${order_id} status updated to '${newStatus}'${newStatus === "בתהליך" ? ' והמלאי עודכן' : ''}`,
     };
   } catch (err) {
+    // ביטול השינויים במקרה של שגיאה
+    await pool.query('ROLLBACK');
     throw new Error("Error updating order status: " + err.message);
   }
 }
