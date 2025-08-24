@@ -7,7 +7,8 @@ import {
   getProductsBySupplier, 
   deleteProduct, 
   updateProductStock,
-  updateStockAfterOrder 
+  updateStockAfterOrder,
+  updateProduct // הוספת הפונקציה החדשה
 } from "../../database/productDB.js"; 
 
 const router = express.Router();
@@ -110,6 +111,34 @@ router.put("/update-stock/:productId", async (req, res) => {
   
   try {
     const result = await updateProductStock(productId, stock_quantity);
+    res.status(200).json(result);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: error.message });
+  }
+});
+
+// הוספת route חדש לעדכון פרטי המוצר
+router.put("/update/:productId", async (req, res) => {
+  const { productId } = req.params;
+  const { product_name, unit_price, min_quantity } = req.body;
+  
+  try {
+    // בדיקות תקינות
+    if (!product_name || product_name.trim() === '') {
+      return res.status(400).json({ message: "שם המוצר הוא שדה חובה" });
+    }
+    
+    if (!unit_price || unit_price <= 0) {
+      return res.status(400).json({ message: "מחיר המוצר חייב להיות גדול מ-0" });
+    }
+    
+    if (!min_quantity || min_quantity <= 0) {
+      return res.status(400).json({ message: "כמות מינימלית חייבת להיות גדולה מ-0" });
+    }
+
+    const result = await updateProduct(productId, product_name, unit_price, min_quantity);
     res.status(200).json(result);
   } catch (error) {
     res
