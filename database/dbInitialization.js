@@ -46,7 +46,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 2) Cities (ערים) - with district_id + external_id + metadata
+        // 2) Cities (ערים)
         const createCitiesTable = `
           CREATE TABLE IF NOT EXISTS cities (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -61,11 +61,12 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 3) Users (משתמשים) - with address fields (city_id/street/house_number) + opening_hours
+        // 3) Users (משתמשים) - כולל email + opening_time/closing_time
         const createUsersTable = `
           CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(255) UNIQUE NOT NULL,
+            email VARCHAR(255) UNIQUE NULL,
             password VARCHAR(255) NOT NULL,
             company_name VARCHAR(255) NULL,
             contact_name VARCHAR(255) NULL,
@@ -73,13 +74,14 @@ function initializeDatabase() {
             city_id INT NULL,
             street VARCHAR(255) NULL,
             house_number VARCHAR(32) NULL,
-            opening_hours VARCHAR(255) NULL,
+            opening_time TIME NULL,
+            closing_time TIME NULL,
             userType ENUM('StoreOwner', 'Supplier') NOT NULL,
             FOREIGN KEY (city_id) REFERENCES cities(id)
           ) ENGINE=InnoDB;
         `;
 
-        // 4) Products (מוצרים) - supplier-owned
+        // 4) Products (מוצרים)
         const createProductsTable = `
           CREATE TABLE IF NOT EXISTS products (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,7 +94,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 5) Orders (הזמנות) - includes owner_id (StoreOwner) and supplier_id
+        // 5) Orders (הזמנות)
         const createOrdersTable = `
           CREATE TABLE IF NOT EXISTS orders (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -117,7 +119,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 7) Supplier ↔️ Cities (ערי שירות של ספק)
+        // 7) Supplier ↔️ Cities
         const createSupplierCitiesTable = `
           CREATE TABLE IF NOT EXISTS supplier_cities (
             supplier_id INT NOT NULL,
@@ -128,7 +130,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 8) Supplier ↔️ Districts (מחוזות שירות של ספק)
+        // 8) Supplier ↔️ Districts
         const createSupplierDistrictsTable = `
           CREATE TABLE IF NOT EXISTS supplier_districts (
             supplier_id INT NOT NULL,
@@ -139,7 +141,7 @@ function initializeDatabase() {
           ) ENGINE=InnoDB;
         `;
 
-        // 9) Owner ↔️ Supplier links (בקשות/אישורים)
+        // 9) Owner ↔️ Supplier links
         const createOwnerSupplierLinksTable = `
           CREATE TABLE IF NOT EXISTS owner_supplier_links (
             owner_id INT NOT NULL,

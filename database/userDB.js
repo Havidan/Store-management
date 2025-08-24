@@ -18,9 +18,9 @@ export async function checkUser(username, password) {
   }
 }
 
-// Insert a new user row into users
 export async function addUser(
   username,
+  email,           // << חדש
   password,
   companyName,
   contactName,
@@ -29,17 +29,19 @@ export async function addUser(
   city_id = null,
   street = null,
   house_number = null,
-  opening_hours = null
+  opening_time = null,
+  closing_time = null
 ) {
   try {
     const query = `
       INSERT INTO users
-        (username, password, company_name, contact_name, phone, city_id, street, house_number, opening_hours, userType)
+        (username, email, password, company_name, contact_name, phone, city_id, street, house_number, opening_time, closing_time, userType)
       VALUES
-        (?,       ?,        ?,            ?,            ?,     ?,       ?,      ?,            ?,             ?)
+        (?,        ?,     ?,        ?,            ?,            ?,     ?,       ?,      ?,            ?,            ?,            ?)
     `;
     const [results] = await pool.query(query, [
       username,
+      email || null,
       password,
       companyName || null,
       contactName,
@@ -47,7 +49,8 @@ export async function addUser(
       city_id ?? null,
       street || null,
       house_number || null,
-      opening_hours || null,
+      opening_time || null,
+      closing_time || null,
       userType,
     ]);
     return results.insertId;
@@ -56,18 +59,12 @@ export async function addUser(
   }
 }
 
-/**
- * NEW: הוספת ערים לשירות ספק (ללא מחיקה). INSERT IGNORE למניעת כפילויות.
- */
 export async function addSupplierServiceCities(supplierId, cityIds = []) {
   if (!Array.isArray(cityIds) || cityIds.length === 0) return 0;
-
   const ids = cityIds.map(Number).filter(Number.isFinite);
   if (!ids.length) return 0;
-
   const placeholders = ids.map(() => "(?, ?)").join(",");
   const params = ids.flatMap((cid) => [supplierId, cid]);
-
   try {
     const sql = `INSERT IGNORE INTO supplier_cities (supplier_id, city_id) VALUES ${placeholders}`;
     await pool.query(sql, params);
@@ -77,14 +74,10 @@ export async function addSupplierServiceCities(supplierId, cityIds = []) {
   }
 }
 
-/**
- * NEW: הוספת מחוזות לשירות ספק.
- */
 export async function addSupplierServiceDistricts(supplierId, districtIds = []) {
   if (!Array.isArray(districtIds) || districtIds.length === 0) return 0;
   const ids = districtIds.map(Number).filter(Number.isFinite);
   if (!ids.length) return 0;
-
   const placeholders = ids.map(() => "(?, ?)").join(",");
   const params = ids.flatMap((did) => [supplierId, did]);
   try {
@@ -96,26 +89,6 @@ export async function addSupplierServiceDistricts(supplierId, districtIds = []) 
   }
 }
 
-/**
- * NEW: מחזיר מזהי ערים פעילות עבור רשימת מזהי מחוזות.
- */
-export async function getCityIdsByDistrictIds(districtIds = []) {
-  if (!Array.isArray(districtIds) || districtIds.length === 0) return [];
-  const ids = districtIds.map(Number).filter(Number.isFinite);
-  if (!ids.length) return [];
-  try {
-    const placeholders = ids.map(() => "?").join(",");
-    const sql = `SELECT id FROM cities WHERE district_id IN (${placeholders}) AND is_active = 1`;
-    const [rows] = await pool.query(sql, ids);
-    return rows.map((r) => r.id);
-  } catch (err) {
-    throw new Error("getCityIdsByDistrictIds failed: " + err.message);
-  }
-}
-
-/**
- * NEW: סינון לרשימת ערים קיימות ופעילות (מניעת שגיאות FK אם בצד לקוח יש IDs ישנים/לא תקינים).
- */
 export async function getExistingCityIds(cityIds = []) {
   if (!Array.isArray(cityIds) || cityIds.length === 0) return [];
   const ids = cityIds.map(Number).filter(Number.isFinite);
@@ -127,6 +100,25 @@ export async function getExistingCityIds(cityIds = []) {
     return rows.map((r) => r.id);
   } catch (err) {
     throw new Error("getExistingCityIds failed: " + err.message);
+  }
+}
+
+export async function getCityIdsByDistrictIds(districtIds = []) {
+  if (!Array.isArray(districtIds) || districtIds.length === 0) return [];
+  const ids = districtIds.map(Number).filter(Number.isFinite);
+  if (!ids.length) return [];
+  try {
+    const placeholders = ids.map(() => "?").join(",");
+    const sql = `
+      SELECT id AS city_id
+      FROM cities
+      WHERE district_id IN (${placeholders})
+        AND is_active = 1
+    `;
+    const [rows] = await pool.query(sql, ids);
+    return rows.map((r) => r.city_id);
+  } catch (err) {
+    throw new Error("getCityIdsByDistrictIds failed: " + err.message);
   }
 }
 

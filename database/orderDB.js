@@ -35,15 +35,14 @@ export async function addOrderItem(product_id, order_id, quantity) {
 
 /**
  * מחזיר הזמנות לפי משתמש (supplier/owner) כולל פרטי איש קשר:
- * - אם userType === "supplier": נחזיר הזמנות של הספק, ו(בנוסף) פרטי בעל המכולת (owner_*).
- * - אחרת (owner): נחזיר הזמנות של הבעלים, כולל פרטי הספק (company_name/contact_name/phone) כדי שה-UI שלך יציג אותם.
+ * - אם userType === "supplier": נחזיר הזמנות של הספק + פרטי בעל המכולת (owner_*), כולל opening_time/closing_time.
+ * - אחרת (owner): נחזיר הזמנות של הבעלים + פרטי הספק (company_name/contact_name/phone).
  */
 export async function getOrdersById(id, userType) {
   try {
     let orders = [];
 
     if (userType === "supplier") {
-      // הזמנות של הספק + נתוני בעל המכולת (לשימוש עתידי בצד ספק)
       const ordersQuery = `
         SELECT 
           o.id AS order_id,
@@ -51,7 +50,9 @@ export async function getOrdersById(id, userType) {
           o.status,
           uo.company_name   AS owner_company_name,
           uo.contact_name   AS owner_contact_name,
-          uo.phone          AS owner_phone
+          uo.phone          AS owner_phone,
+          uo.opening_time   AS owner_opening_time,
+          uo.closing_time   AS owner_closing_time
         FROM orders o
         JOIN users uo ON uo.id = o.owner_id AND uo.userType = 'StoreOwner'
         WHERE o.supplier_id = ?
@@ -59,7 +60,6 @@ export async function getOrdersById(id, userType) {
       `;
       [orders] = await pool.query(ordersQuery, [id]);
     } else {
-      // הזמנות של בעל המכולת + נתוני הספק להצגה (company_name/contact_name/phone)
       const ordersQuery = `
         SELECT 
           o.id AS order_id,
@@ -87,7 +87,6 @@ export async function getOrdersById(id, userType) {
             JOIN products p ON oi.product_id = p.id
             WHERE oi.order_id = ?
           `;
-
         const [items] = await pool.query(itemsQuery, [order.order_id]);
 
         const base = {
@@ -101,16 +100,16 @@ export async function getOrdersById(id, userType) {
           })),
         };
 
-        // הזרקת פרטי איש קשר בהתאם לצד הקורא
         if (userType === "supplier") {
           return {
             ...base,
             owner_company_name: order.owner_company_name,
             owner_contact_name: order.owner_contact_name,
             owner_phone: order.owner_phone,
+            owner_opening_time: order.owner_opening_time, // TIME
+            owner_closing_time: order.owner_closing_time, // TIME
           };
         } else {
-          // owner
           return {
             ...base,
             company_name: order.company_name,

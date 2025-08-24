@@ -1,230 +1,187 @@
-/* פריסת מסך מלאה שניתן לגלול */
+/* מעטפת כללית */
 .container {
-  position: relative;
-  min-height: 100dvh;       /* תומך במקלדות מובייל */
-  width: 100%;
-  overflow-y: auto;         /* גלילה של כל המסך */
-  display: flex;
-  align-items: flex-start;  /* לא "מרכז אנכי" כדי שלא ייחתך תוכן */
-  justify-content: center;
-  background-image: url("/client/src/public/storeImage.jpg");
-  background-size: cover;
-  background-position: center;
-  font-family: "Arial", sans-serif;
-  padding: 24px;            /* ריווח מסביב */
-  box-sizing: border-box;
+  max-width: 720px;
+  margin: 32px auto;
+  padding: 20px;
+  direction: rtl;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* שכבת טשטוש קלה מעל הרקע (לא חובה) */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255,255,255,0.15);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* העטיפה של הטופס */
-.formWrapper {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 860px;               /* רחב ונעים */
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  padding: 24px;
-  box-sizing: border-box;
+/* כרטיס ההרשמה */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 32px;
 }
 
 /* כותרת */
 .title {
-  font-size: 1.75rem;
-  color: #222;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
   text-align: center;
-  margin: 8px 0 16px 0;
+  color: #1e293b;
 }
 
-/* בורר תפקיד */
+/* מתג ספק/בעל חנות */
 .roleSwitch {
   display: flex;
-  gap: 10px;
   justify-content: center;
-  margin-bottom: 16px;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
-/* טופס */
-.form {
-  display: grid;
-  grid-template-columns: 1fr;   /* יחידת עמודה כברירת מחדל */
-  gap: 10px;
+.roleSwitch label {
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+}
+
+.roleSwitch input {
+  margin-left: 8px;
 }
 
 /* תוויות ושדות */
 .label {
-  text-align: right;
-  font-size: 0.95rem;
-  color: #333;
+  display: block;
+  font-weight: 600;
+  margin: 12px 0 6px;
+  color: #374151;
 }
 
-.labelStrong {
-  text-align: right;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 6px;
+/* כוכבית חובה קטנה ואדומה */
+.required {
+  color: #dc2626;
+  margin-right: 4px;
+  font-size: 14px;
 }
 
 .input {
+  width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  text-align: right;
-  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input:focus {
-  outline: none;
-  border-color: #6aa8ff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-/* כפתורים */
+/* כפתור */
 .button {
-  padding: 10px 14px;
-  background-color: #e8f1ff;
-  color: #0b5ed7;
-  border: 1px solid #cfe2ff;
-  border-radius: 10px;
-  font-size: 1rem;
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.05s ease, border-color 0.2s ease;
-}
-
-.button:hover {
-  background-color: #dceaff;
-}
-
-.button:active {
-  transform: translateY(1px);
-}
-
-.buttonActive {
-  background-color: #0b5ed7;
-  color: #fff;
-  border-color: #0b5ed7;
+  transition: background 0.2s ease;
 }
 
 .submitBtn {
-  margin-top: 8px;
+  background: #2563eb;
+  color: #fff;
 }
 
-/* קישורים (אם יהיו) */
-.link {
-  display: inline-block;
-  margin-top: 10px;
-  text-align: center;
-  color: #007bff;
-  font-size: 1rem;
-  text-decoration: none;
-  transition: color 0.2s ease, transform 0.2s ease;
+.submitBtn:hover {
+  background: #1d4ed8;
 }
 
-.link:hover {
-  color: #0056b3;
-  text-decoration: underline;
-  transform: translateY(-1px);
-  cursor: pointer;
-}
-
-/* אוטוקומפליט של עיר */
-.autocomplete {
+/* הצעות חיפוש (עיר/מחוז) */
+.comboWrap {
   position: relative;
 }
 
 .suggestions {
   position: absolute;
-  top: calc(100% + 4px);
+  top: 100%;
   right: 0;
   left: 0;
+  z-index: 20;
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e2e8f0;
   border-radius: 10px;
-  padding: 6px;
-  max-height: 220px;     /* גובה סביר, עם גלילה פנימית */
+  max-height: 220px;
   overflow-y: auto;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
-  z-index: 10;           /* מעל הטופס */
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .suggestionItem {
-  padding: 8px 10px;
-  border-radius: 8px;
+  padding: 10px 14px;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
+  transition: background 0.2s ease;
 }
 
 .suggestionItem:hover {
-  background: #f4f7ff;
+  background: #f1f5f9;
 }
 
 .suggestionActive {
-  background: #eef5ff;
+  background: #e0f2fe;
 }
 
 .suggestionSub {
-  color: #666;
+  color: #64748b;
   font-size: 12px;
+  margin-right: 6px;
 }
 
 .noResults {
-  color: #999;
-  font-size: 12px;
-  padding: 6px 8px;
-  text-align: right;
+  padding: 12px;
+  text-align: center;
+  color: #64748b;
 }
 
-/* אזורי שירות לספק */
+/* תיבות בחירה של ספק (מחוזות/ערים) */
 .serviceAreasBox {
-  border: 1px solid #eee;
-  padding: 12px;
+  margin-top: 20px;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  background: #fff;
+  padding: 16px;
+  background: #f9fafb;
+}
+
+.labelStrong {
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: block;
+  color: #1f2937;
 }
 
 .serviceAreasScroll {
-  display: grid;
-  gap: 10px;
-  max-height: 380px;     /* כדי שהעמוד לא יימתח בלי סוף */
+  max-height: 280px;
   overflow-y: auto;
-  padding-right: 2px;    /* קצת מקום לסקרול ב־RTL */
+  margin-top: 10px;
+  padding-right: 8px;
 }
 
 .districtBox {
-  border: 1px solid #f0f0f0;
-  border-radius: 10px;
-  padding: 10px;
-  background: #fafafa;
+  margin-bottom: 16px;
 }
 
 .districtHeader {
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
+  font-weight: 600;
+  color: #374151;
 }
 
 .districtCount {
-  color: #666;
+  color: #94a3b8;
   font-size: 12px;
 }
 
 .citiesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   margin-top: 8px;
 }
@@ -233,36 +190,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-/* רספונסיביות */
-@media (max-width: 992px) {
-  .formWrapper {
-    max-width: 720px;
-    padding: 20px;
-  }
-}
-
-@media (max-width: 768px) {
-  .formWrapper {
-    max-width: 100%;
-    padding: 16px;
-  }
-  .citiesGrid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-}
-
-@media (max-width: 480px) {
-  .title {
-    font-size: 1.4rem;
-  }
-  .button {
-    font-size: 0.95rem;
-    padding: 9px 12px;
-  }
-  .input {
-    font-size: 0.95rem;
-    padding: 9px 10px;
-  }
+  font-size: 14px;
+  color: #334155;
 }

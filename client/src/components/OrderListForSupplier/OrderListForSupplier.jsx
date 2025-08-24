@@ -20,7 +20,7 @@ function OrderListForSupplier() {
       .catch((err) => console.error("Failed to fetch orders", err));
   }, [supplierId]);
 
-  const orderDetails = (orderId) => {
+  const toggleExpand = (orderId) => {
     setExpandedOrders((prev) => {
       const s = new Set(prev);
       s.has(orderId) ? s.delete(orderId) : s.add(orderId);
@@ -51,6 +51,13 @@ function OrderListForSupplier() {
 
   const displayCompleteOrders = () => setDisplayHistory((prev) => !prev);
 
+  const fmt = (t) => {
+    if (!t) return "—";
+    const s = String(t);
+    const m = s.match(/^([0-2]\d:[0-5]\d)(?::[0-5]\d)?$/);
+    return m ? m[1] : s;
+  };
+
   return (
     <div className={styles.ordersSection}>
       <h2 className={styles.title}>רשימת הזמנות לספק</h2>
@@ -72,7 +79,7 @@ function OrderListForSupplier() {
           )
           .map((order) => (
             <div key={order.order_id} className={styles.orderRow}>
-              <div className={styles.orderHeader} onClick={() => orderDetails(order.order_id)}>
+              <div className={styles.orderHeader} onClick={() => toggleExpand(order.order_id)}>
                 <span>#{order.order_id}</span>
                 <span>{new Date(order.created_date).toLocaleDateString()}</span>
                 <span>{order.status}</span>
@@ -101,14 +108,18 @@ function OrderListForSupplier() {
 
               {isExpanded(order.order_id) && (
                 <div className={styles.orderDetails}>
-                  <p>
-                    <strong>מוצרים:</strong>
-                  </p>
-                  <ul>
+                  <div className={styles.orderMeta}>
+                    <p><strong>שם החנות:</strong> {order.owner_company_name}</p>
+                    <p><strong>איש קשר:</strong> {order.owner_contact_name}</p>
+                    <p><strong>טלפון:</strong> {order.owner_phone}</p>
+                    <p><strong>שעות פתיחה:</strong> {fmt(order.owner_opening_time)} - {fmt(order.owner_closing_time)}</p>
+                  </div>
+
+                  <p className={styles.productsTitle}><strong>מוצרים:</strong></p>
+                  <ul className={styles.productsList}>
                     {order.products.map((product) => (
                       <li key={product.product_id}>
-                        מספר מוצר: {product.product_id}, כמות: {product.quantity}, שם מוצר:{" "}
-                        {product.product_name}
+                        מספר מוצר: {product.product_id}, כמות: {product.quantity}, שם מוצר: {product.product_name}
                       </li>
                     ))}
                   </ul>
