@@ -5,6 +5,7 @@ import {
   getOrdersById,
   updateStatusOrder,
 } from "../../database/orderDB.js";
+import { updateStockAfterOrder } from "../../database/productDB.js";
 
 const router = express.Router();
 
@@ -15,29 +16,24 @@ router.post("/add", async (req, res) => {
 
   try {
     const orderId = await addOrder(supplier_id, owner_id, "בוצעה", new Date());
+    
     for (const product of products_list) {
       const { product_id, quantity } = product;
       if (quantity > 0) {
+        // הוספת פריט להזמנה
         await addOrderItem(product_id, orderId, quantity);
+        
+        // עדכון המלאי
+        await updateStockAfterOrder(product_id, quantity);
       }
     }
+    
     res.status(201).json({ message: "Order added successfully", orderId });
   } catch (error) {
     console.error("Error adding order:", error);
-    res.status(500).json({ message: "Error adding order" });
+    res.status(500).json({ message: "Error adding order", error: error.message });
   }
 });
-/*
-router.get("/all", async (req, res) => {
-
-  try {
-    const orders = await getAllOrders();
-    res.status(200).json(orders);
-  } catch (error) {
-    console.error("Error retrieving orders:", error);
-    res.status(500).json({ message: "Error retrieving orders" });
-  }
-});*/
 
 router.post("/by-id", async (req, res) => {
   const { id, userType } = req.body;

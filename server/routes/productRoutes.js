@@ -1,4 +1,7 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { 
   addProduct, 
   getProductsBySupplier, 
@@ -9,23 +12,65 @@ import {
 
 const router = express.Router();
 
-router.post("/add", async (req, res) => {
+// הגדרת multer לטיפול בהעלאת תמונות
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = 'uploads/images/';
+    // יצירת התיקיה אם היא לא קיימת
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    // יצירת שם ייחודי לתמונה
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'product-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    // בדיקה שזה קובץ תמונה
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('רק קבצי תמונה מותרים'));
+    }
+  }
+});
+
+router.post("/add", upload.single('image'), async (req, res) => {
   const { supplier_id, product_name, unit_price, min_quantity, stock_quantity } = req.body;
+  
   try {
+    let image_url = null;
+    if (req.file) {
+      image_url = `/uploads/images/${req.file.filename}`;
+    }
 
     const productId = await addProduct(
       supplier_id,
       product_name,
       unit_price,
       min_quantity,
-      stock_quantity || 0
+      stock_quantity || 0,
+      image_url
     );
 
     res.status(201).json({
       message: "Product added successfully",
-      productId: productId, 
+      productId: productId,
+      image_url: image_url
     });
   } catch (error) {
+    // מחיקת הקובץ אם הייתה שגיאה בשמירה למסד הנתונים
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Error deleting file:', err);
+      });
+    }
     res
       .status(500)
       .json({ message: "Error adding product", error: error.message });

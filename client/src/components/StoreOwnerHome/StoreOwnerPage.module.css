@@ -1,9 +1,11 @@
+/* StoreOwnerPage.module.css */
 body,
 html {
   margin: 0;
   padding: 0;
   width: 100%;
 }
+
 body::before {
   background-color: rgba(255, 255, 255, 0.7); 
 }
@@ -16,6 +18,32 @@ body::before {
   display: grid;
   place-items: center;
   padding-bottom: 50px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  direction: rtl;
+}
+
+.container h1 {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.container h1::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, #475fff, #2967e3);
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(71, 95, 255, 0.3);
 }
 
 .logoutButton {
@@ -29,11 +57,14 @@ body::before {
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease; 
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(71, 95, 255, 0.3);
 }
 
 .logoutButton:hover {
   background-color: #2967e3; 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(71, 95, 255, 0.4);
 }
 
 .addOrderButton {
@@ -47,6 +78,18 @@ body::before {
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.addOrderButton::before {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .addOrderButton:hover {
@@ -57,4 +100,56 @@ body::before {
 
 .addOrderButton:active {
   transform: scale(0.98);
+}
+
+/* אנימציות כניסה */
+.container > * {
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+}
+
+.container > *:nth-child(1) { animation-delay: 0.1s; }
+.container > *:nth-child(2) { animation-delay: 0.2s; }
+.container > *:nth-child(3) { animation-delay: 0.3s; }
+.container > *:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container h1 {
+    font-size: 2rem;
+  }
+  
+  .logoutButton {
+    top: 10px;
+    right: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  
+  .addOrderButton {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container h1 {
+    font-size: 1.8rem;
+  }
+  
+  .addOrderButton {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
 }

@@ -5,12 +5,13 @@ export async function addProduct(
   product_name,
   unit_price,
   min_quantity,
-  stock_quantity = 0
+  stock_quantity = 0,
+  image_url = null
 ) {
   try {
     const query = `
-      INSERT INTO products (supplier_id, product_name, unit_price, min_quantity, stock_quantity)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO products (supplier_id, product_name, unit_price, min_quantity, stock_quantity, image_url)
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await pool.query(query, [
@@ -19,6 +20,7 @@ export async function addProduct(
       unit_price,
       min_quantity,
       stock_quantity,
+      image_url,
     ]);
 
     return result.insertId;
@@ -30,7 +32,7 @@ export async function addProduct(
 export async function getProductsBySupplier(supplierId) {
   try {
     const query = `
-        SELECT id, product_name, unit_price, min_quantity, stock_quantity
+        SELECT id, product_name, unit_price, min_quantity, stock_quantity, image_url
         FROM products
         WHERE supplier_id = ?
       `;

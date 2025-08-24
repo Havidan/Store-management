@@ -1,18 +1,85 @@
+/* OrderListForOwner.module.css */
 .ordersSection {
   margin-top: 20px;
   padding: 0 20px;
   width: 50%;
 }
+
 body::before {
   background-color: rgba(255, 255, 255, 0.7); 
 }
 
+.title {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border-radius: 2px;
+}
+
+.historyButton {
+  margin-left: 5px;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  font-size: large;
+  border-radius: 5px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.historyButton:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.orderHeaderRow {
+  display: grid;
+  grid-template-columns: 0.6fr 0.9fr 1fr 1.2fr 1.9fr;
+  gap: 10px;
+  padding: 10px;
+  font-weight: bold;
+  background-color: #f2f2f2;
+  border-bottom: 2px solid #ccc;
+  direction: rtl;
+  text-align: right;
+  border-radius: 5px 5px 0 0;
+}
+
 .orderList {
   border-top: 2px solid #ddd;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
 }
 
 .orderRow {
   border-bottom: 1px solid #ddd;
+  transition: all 0.2s ease;
+}
+
+.orderRow:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.orderRow:last-child {
+  border-bottom: none;
 }
 
 .orderHeader {
@@ -33,51 +100,14 @@ body::before {
 .orderHeader span {
   font-size: 0.95rem;
   color: #333;
-}
-
-.orderDetails {
-  background-color: #fdfdfd;
-  padding: 10px 20px;
-  font-size: 0.9rem;
-  color: #444;
-  text-align: right;
-  padding-bottom: 25px;
-}
-
-.productsTable {
-  width: 100%;
-  margin-top: 10px;
-  font-size: 0.9rem;
-}
-
-.productsTable table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.productsTable th,
-.productsTable td {
-  padding: 8px 12px;
-  text-align: right; 
-  border: 1px solid #ddd;
-}
-
-.productsTable th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-}
-
-.productsTable tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.productsTable tr:hover {
-  background-color: #eef;
+  font-weight: 500;
 }
 
 .chevron {
   display: flex;
   justify-content: center;
+  color: #007bff;
+  transition: transform 0.3s ease;
 }
 
 .orderAction {
@@ -100,37 +130,173 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(241, 47, 47, 0.3);
 }
 
 .confirmButton:hover {
   background-color: rgb(171, 33, 33); 
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(241, 47, 47, 0.4);
 }
 
 .confirmButton:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.orderHeaderRow {
-  display: grid;
-  grid-template-columns: 0.6fr 0.9fr 1fr 1.2fr 1.9fr;
-  gap: 10px;
-  padding: 10px;
-  font-weight: bold;
-  background-color: #f2f2f2;
-  border-bottom: 2px solid #ccc;
-  direction: rtl;
+.orderDetails {
+  background-color: #fdfdfd;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  color: #444;
   text-align: right;
+  padding-bottom: 25px;
+  border-top: 1px solid #e9ecef;
+  animation: expandDetails 0.3s ease;
 }
 
-.historyButton {
-  margin-left: 5px;
-  margin-bottom: 10px;
-  padding: 10px 15px;
-  font-size: large;
-  border-radius: 5px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
+@keyframes expandDetails {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    padding-top: 10px;
+    padding-bottom: 25px;
+  }
+}
+
+.orderDetails p {
+  margin-bottom: 0.8rem;
+  color: #444;
+  font-weight: 500;
+}
+
+.orderDetails strong {
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.productsTable {
+  width: 100%;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.productsTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.productsTable th,
+.productsTable td {
+  padding: 8px 12px;
+  text-align: right; 
+  border: 1px solid #ddd;
+  font-weight: 500;
+}
+
+.productsTable th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.productsTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.productsTable tr:hover {
+  background-color: #eef;
+  transition: background-color 0.2s ease;
+}
+
+/* אנימציות */
+.orderRow {
+  animation: slideInOrder 0.4s ease forwards;
+  opacity: 0;
+}
+
+.orderRow:nth-child(1) { animation-delay: 0.1s; }
+.orderRow:nth-child(2) { animation-delay: 0.15s; }
+.orderRow:nth-child(3) { animation-delay: 0.2s; }
+.orderRow:nth-child(4) { animation-delay: 0.25s; }
+.orderRow:nth-child(5) { animation-delay: 0.3s; }
+
+@keyframes slideInOrder {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ordersSection {
+    width: 100%;
+    padding: 0 10px;
+    margin-top: 10px;
+  }
+  
+  .orderHeaderRow {
+    display: none; /* מסתיר את הכותרת במובייל */
+  }
+  
+  .orderHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 15px;
+  }
+  
+  .orderHeader span {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid #e9ecef;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .orderHeader span:last-child {
+    border-bottom: none;
+  }
+  
+  .productsTable {
+    font-size: 0.8rem;
+  }
+  
+  .productsTable th,
+  .productsTable td {
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.4rem;
+  }
+  
+  .historyButton {
+    padding: 8px 12px;
+    font-size: medium;
+  }
+  
+  .confirmButton {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
 }

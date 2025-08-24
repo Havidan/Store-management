@@ -106,3 +106,148 @@ body::before {
 .closeButton:hover {
   background-color: #e53935;
 }
+
+
+/* כל הסגנונות הקיימים + הוספות חדשות */
+
+.productStock {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.unavailable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  color: #721c24;
+}
+
+.unavailable span {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.unavailable small {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.productList {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.productItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.productName {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.productPrice {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.productMin {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.quantityInput {
+  width: 100px;
+}
+
+.quantityInput input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.placeOrderButton {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.placeOrderButton:hover {
+  background-color: #218838;
+}
+
+.closeButton {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: #5a6268;
+}

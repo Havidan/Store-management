@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // Enabling CORS (Cross-Origin Resource Sharing) so the server can accept requests from different domains
 app.use(express.json()); //  accept incoming requests with JSON payload
 
+app.use('/uploads', express.static('uploads'));
 app.use("/user", userRoutes); 
 app.use("/products", productRoutes); 
 app.use("/order", orderRoutes); 
