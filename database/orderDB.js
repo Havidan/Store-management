@@ -34,25 +34,21 @@ export async function addOrderItem(product_id, order_id, quantity) {
   }
 }
 
-/**
- * מחזיר הזמנות לפי משתמש (supplier/owner) כולל פרטי איש קשר:
- * - אם userType === "supplier": נחזיר הזמנות של הספק + פרטי בעל המכולת (owner_*), כולל opening_time/closing_time.
- * - אחרת (owner): נחזיר הזמנות של הבעלים + פרטי הספק (company_name/contact_name/phone).
- */
 // db/orders.js (או היכן שמוגדר getOrdersById)
 export async function getOrdersById(id, userType) {
   try {
     let orders = [];
 
-    // סכומי הזמנה לכל order_id
+    // סאב־שאילתה לסכומי הזמנה (quantity * unit_price)
     const totalsSubquery = `
-      SELECT oi.order_id, SUM(oi.quantity * p.price) AS order_total
+      SELECT oi.order_id, SUM(oi.quantity * p.unit_price) AS order_total
       FROM order_items oi
       JOIN products p ON p.id = oi.product_id
       GROUP BY oi.order_id
     `;
 
     if (userType === "supplier") {
+      // ספק רואה בעלי מכולת
       const ordersQuery = `
         SELECT 
           o.id AS order_id,
@@ -65,13 +61,16 @@ export async function getOrdersById(id, userType) {
           uo.closing_time   AS owner_closing_time,
           CAST(IFNULL(ot.order_total, 0) AS DOUBLE) AS order_total
         FROM orders o
-        JOIN users uo ON uo.id = o.owner_id AND uo.userType = 'StoreOwner'
-        LEFT JOIN (${totalsSubquery}) ot ON ot.order_id = o.id
+        JOIN users uo 
+          ON uo.id = o.owner_id AND uo.userType = 'StoreOwner'
+        LEFT JOIN (${totalsSubquery}) ot 
+          ON ot.order_id = o.id
         WHERE o.supplier_id = ?
         ORDER BY o.created_date DESC
       `;
       [orders] = await pool.query(ordersQuery, [id]);
     } else {
+      // בעל מכולת רואה ספקים
       const ordersQuery = `
         SELECT 
           o.id AS order_id,
@@ -82,14 +81,17 @@ export async function getOrdersById(id, userType) {
           us.phone,
           CAST(IFNULL(ot.order_total, 0) AS DOUBLE) AS order_total
         FROM orders o
-        JOIN users us ON us.id = o.supplier_id AND us.userType = 'Supplier'
-        LEFT JOIN (${totalsSubquery}) ot ON ot.order_id = o.id
+        JOIN users us 
+          ON us.id = o.supplier_id AND us.userType = 'Supplier'
+        LEFT JOIN (${totalsSubquery}) ot 
+          ON ot.order_id = o.id
         WHERE o.owner_id = ?
         ORDER BY o.created_date DESC
       `;
       [orders] = await pool.query(ordersQuery, [id]);
     }
 
+    // פריטי הזמנה עם unit_price ושם מוצר
     const ordersWithItems = await Promise.all(
       orders.map(async (order) => {
         const itemsQuery = `
@@ -97,7 +99,7 @@ export async function getOrdersById(id, userType) {
             oi.product_id, 
             oi.quantity, 
             p.product_name,
-            p.price AS unit_price
+            p.unit_price
           FROM order_items oi
           JOIN products p ON oi.product_id = p.id
           WHERE oi.order_id = ?
@@ -108,7 +110,7 @@ export async function getOrdersById(id, userType) {
           order_id: order.order_id,
           created_date: order.created_date,
           status: order.status,
-          order_total: Number(order.order_total) || 0, // מבטיח מספר
+          order_total: Number(order.order_total) || 0, // לוודא שמספר
           products: items.map((item) => ({
             product_name: item.product_name,
             product_id: item.product_id,
@@ -142,6 +144,7 @@ export async function getOrdersById(id, userType) {
     throw new Error("Error retrieving orders for supplier: " + err.message);
   }
 }
+
 
 export async function updateStatusOrder(order_id, newStatus) {
   try {

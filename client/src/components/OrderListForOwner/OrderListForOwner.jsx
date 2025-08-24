@@ -1,3 +1,4 @@
+// OrderListForOwner.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import styles from "./OrderListForOwner.module.css";
@@ -51,11 +52,10 @@ function OrderListForOwner({ refresh }) {
 
   const displayCompleteOrders = () => setDisplayHistory((prev) => !prev);
 
-  // --- חישוב סכום הזמנה ---
+  // --- סכום הזמנה (קולט order_total ומגבה מחישוב פריטים) ---
   const toNumber = (v, fallback = 0) => {
     if (v == null) return fallback;
     if (typeof v === "number") return Number.isFinite(v) ? v : fallback;
-    // מנקה מטבעות/רווחים/מפרידי אלפים אם יגיע בעתיד כמחרוזת
     let s = String(v).trim().replace(/[^\d.,\-]/g, "");
     if (s.includes(".") && s.includes(",")) s = s.replace(/,/g, "");
     else if (s.includes(",") && !s.includes(".")) s = s.replace(/\./g, "").replace(",", ".");
@@ -65,12 +65,7 @@ function OrderListForOwner({ refresh }) {
   };
 
   const calcOrderTotal = (order) => {
-    // 1) מגיע מהשרת כמספר: הכי מדויק
     if (order?.order_total != null) return toNumber(order.order_total, 0);
-    // 2) שמות חלופיים, אם קיימים אצלך
-    if (order?.total_amount != null) return toNumber(order.total_amount, 0);
-    if (order?.totalPrice != null) return toNumber(order.totalPrice, 0);
-    // 3) חישוב מהפריטים (unit_price הוסף מהשרת)
     if (Array.isArray(order?.products)) {
       return order.products.reduce(
         (sum, p) => sum + toNumber(p?.unit_price, 0) * toNumber(p?.quantity, 0),
