@@ -1,974 +1,328 @@
-.container {
-  min-height: 100vh;
-  padding: 2rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  direction: rtl;
+/* ====== Base ====== */
+:root {
+  --bg: #f7f8fa;
+  --panel: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #6F8B7A;   /* sage עדין */
+  --accent-2: #5D7668;
+  --danger: #74c587;
+  --radius: 12px;
 }
 
+.container {
+  min-height: 100vh;
+  padding: 24px;
+  background: var(--bg);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  direction: rtl;
+  color: var(--text);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ====== Top bar ====== */
 .backHomeWrapper {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 100;
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
 }
 
 .backHomeButton {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
+  transition: background .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
+.backHomeButton:hover { background: #f3f4f6; border-color: #d1d5db; }
 
-.backHomeButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-}
-
+/* ====== Title & Toolbar ====== */
 .container h2 {
-  text-align: center;
-  color: #2c3e50;
-  font-size: 2rem;
+  text-align: right;
+  font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 2rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
+  margin: 6px 0 16px;
 }
 
-.container h2::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
-  background: linear-gradient(90deg, #007bff, #0056b3);
-  border-radius: 2px;
-}
-
-.container h3 {
-  color: #2c3e50;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 2.5rem 0 1.5rem 0;
-  text-align: center;
-  position: relative;
-  padding: 1rem 0;
-}
-
-.container h3::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 3px;
-  background: linear-gradient(90deg, #28a745, #20c997);
-  border-radius: 2px;
+.toolbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 20px;
 }
 
 .addButton {
-  display: block;
-  margin: 0 auto 2rem auto;
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
-  border: none;
-  padding: 1rem 2.5rem;
-  border-radius: 50px;
-  font-size: 1.1rem;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid color-mix(in oklab, var(--accent) 70%, #000 0%);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  transition: background .15s ease, transform .05s ease, box-shadow .15s ease;
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+}
+.addButton:hover { background: var(--accent-2); }
+.addButton:active { transform: translateY(1px); }
+
+/* ====== Section titles ====== */
+.container h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 20px 0 12px;
+  color: var(--text);
 }
 
-.addButton::before {
-  content: '+';
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.addButton:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
-  background: linear-gradient(135deg, #20c997, #17a2b8);
-}
-
+/* ====== Catalog grid ====== */
+.grid,
 .productList {
+  /* משלבים: לשמור תאימות לשם הקיים productList וגם לאפשר grid */
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 1.5rem;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
 
+/* ====== Card ====== */
+.card,
 .productItem {
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 
-    0 10px 30px rgba(0, 0, 0, 0.1),
-    0 1px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.03);
+  display: flex;
+  flex-direction: column;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .05s ease;
 }
-
-.productItem::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #007bff, #28a745, #ffc107, #dc3545);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
+.card:hover,
 .productItem:hover {
-  transform: translateY(-5px);
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.15),
-    0 5px 15px rgba(0, 0, 0, 0.08);
+  border-color: #d7dbdf;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
 }
 
-.productItem:hover::before {
-  opacity: 1;
-}
-
+/* Media */
+.cardMedia,
 .productImageContainer {
-  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #f2f4f7;
   overflow: hidden;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
-
+.image,
 .productImage {
-  width: 80px !important;
-  height: 80px !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
   object-fit: cover;
-  border-radius: 15px !important;
+  border-radius: 0 !important;
+  border: 0 !important;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 3px solid #fff !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.productImage:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
+/* Content */
+.cardContent,
 .productDetails {
+  padding: 12px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   flex: 1;
 }
-
+.titleLine,
 .productDetails h4 {
-  color: #2c3e50;
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  position: relative;
-  padding-bottom: 0.5rem;
-}
-
-.productDetails h4::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 50px;
-  height: 2px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  border-radius: 1px;
-}
-
-.productDetails p {
-  color: #495057;
   font-size: 1rem;
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  padding: 0.8rem;
-  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* סגנון מיוחד לפרטי המוצר */
-.productInfo {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.8rem;
-  margin-bottom: 1rem;
-}
-
-.productInfoItem {
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  padding: 0.8rem 1rem;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 123, 255, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.productInfoItem:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border-color: rgba(0, 123, 255, 0.2);
-}
-
-.productInfoItem .label {
-  font-weight: 600;
-  color: #495057;
-  font-size: 0.9rem;
-  margin-bottom: 0.3rem;
-  display: block;
-}
-
-.productInfoItem .value {
-  font-size: 1.1rem;
   font-weight: 700;
-  color: #2c3e50;
+  margin: 0;
+  color: var(--text);
 }
 
-.productInfoItem.price .value {
-  color: #28a745;
+/* Meta grid inside card */
+.metaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  align-items: center;
 }
-
-.productInfoItem.price .value::before {
-  content: '₪';
-  margin-left: 0.2rem;
+.metaItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.92rem;
+  color: var(--muted);
 }
+.metaLabel { color: var(--muted); }
+.metaValue { color: var(--text); font-weight: 600; }
+.price { color: var(--accent-2); }
 
-.productInfoItem.quantity .value {
-  color: #007bff;
-}
-
-.productInfoItem.stock .value {
-  color: #6f42c1;
-}
-
+/* Stock row */
 .stockSection {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 1rem;
-  background: rgba(0, 123, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(0, 123, 255, 0.1);
+  gap: 8px;
+  margin-top: 4px;
+  padding: 8px 10px;
+  background: #f7faf8;
+  border: 1px solid #e1e7e3;
+  border-radius: 10px;
 }
+.stockSection > span { font-weight: 600; color: var(--text); }
 
-.stockSection span {
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.editStock {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
+.editStock { display: inline-flex; gap: 8px; align-items: center; }
 .stockInput {
-  padding: 0.5rem 0.8rem;
-  border: 2px solid #007bff;
+  width: 88px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  font-size: 1rem;
-  width: 80px;
+  font-size: 0.95rem;
   text-align: center;
-  transition: all 0.3s ease;
-}
-
-.stockInput:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
+.stockInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(111,139,122,.18); }
 
-.saveButton {
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-}
-
-.saveButton:hover {
-  background: linear-gradient(135deg, #20c997, #17a2b8);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-}
-
-.cancelButton {
-  background: linear-gradient(135deg, #6c757d, #5a6268);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
-}
-
-.cancelButton:hover {
-  background: linear-gradient(135deg, #5a6268, #495057);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
-}
-
-.editButton {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-right: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-}
-
-.editButton:hover {
-  background: linear-gradient(135deg, #0056b3, #004085);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
-}
-
-/* כפתור עריכת מוצר - הוספה חדשה */
-.editProductButton {
-  background: linear-gradient(135deg, #816fea, #62ffb0);
-  color: #212529;
-  border: none;
-  padding: 0.7rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
-  margin-left: 0.8rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.editProductButton::before {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-}
-
-.editProductButton:hover {
-  background: linear-gradient(135deg, #7e68ff, #2a9fda);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 193, 7, 0.4);
-  color: #fff;
-}
-
-.productActions {
-  margin-top: 1rem;
+/* Card actions */
+.productActions,
+.cardActions {
+  margin-top: auto;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
+  padding-top: 8px;
 }
 
+/* Buttons - minimalist */
+.editButton,
+.editProductButton,
+.saveButton,
+.cancelButton,
 .deleteButton {
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  color: white;
-  border: none;
-  padding: 0.7rem 1.5rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  padding: 8px 12px;
   border-radius: 10px;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-  position: relative;
-  overflow: hidden;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, transform .05s ease;
+}
+.editButton:hover,
+.editProductButton:hover,
+.saveButton:hover,
+.cancelButton:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
 }
 
-.deleteButton::before {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
+/* Primary (save) */
+.saveButton {
+  background: var(--accent);
+  color: #fff;
+  border-color: color-mix(in oklab, var(--accent) 70%, #000 0%);
 }
+.saveButton:hover { background: var(--accent-2); }
 
-.deleteButton:hover {
-  background: linear-gradient(135deg, #c82333, #bd2130);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+/* Danger */
+.deleteButton {
+  color: #fff;
+  background: var(--danger);
+  border-color: #46b961;
 }
+.deleteButton:hover { background: #93ceac; }
 
-.finishButtonWrapper {
-  display: flex;
-  justify-content: center;
-  margin: 3rem 0;
-}
-
+/* Finish section */
+.finishButtonWrapper { display: flex; justify-content: center; margin: 24px 0 8px; }
 .finishButton {
-  background: linear-gradient(135deg, #17a2b8, #138496);
-  color: white;
-  border: none;
-  padding: 1.2rem 3rem;
-  border-radius: 50px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.4);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.finishButton::before {
-  content: '✓';
-  position: absolute;
-  left: 30px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.finishButton:hover {
-  background: linear-gradient(135deg, #138496, #117a8b);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(23, 162, 184, 0.5);
-}
-
-/* תצוגת תמונות במודל העריכה */
-.currentImage {
-  margin-bottom: 1rem;
-  padding: 1rem;
-  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.currentImage span {
-  display: block;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 0.8rem;
-  font-size: 0.9rem;
-}
-
-.currentImagePreview {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-}
-
-.currentImagePreview:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.imagePreview {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: linear-gradient(145deg, #e8f5e8, #d4edda);
-  border-radius: 12px;
-  border: 1px solid rgba(40, 167, 69, 0.2);
-  animation: slideIn 0.3s ease;
-}
-
-.imagePreview span {
-  display: block;
-  font-weight: 600;
-  color: #155724;
-  margin-bottom: 0.8rem;
-  font-size: 0.9rem;
-}
-
-.newImagePreview {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 3px solid #28a745;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-  transition: all 0.3s ease;
-}
-
-.newImagePreview:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* שיפור input file */
-.editInput[type="file"] {
-  padding: 0.8rem;
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  border: 2px dashed rgba(0, 123, 255, 0.3);
-  cursor: pointer;
-}
-
-.editInput[type="file"]:hover {
-  border-color: rgba(0, 123, 255, 0.5);
-  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-}
-
-.editInput[type="file"]:focus {
-  border-color: #007bff;
-  border-style: solid;
-}
-
-/* ===== MODAL STYLES FOR EDIT PRODUCT ===== */
-
-/* רקע המודל */
-.editProductModalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s ease;
-}
-
-/* המודל עצמו */
-.editProductModal {
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* כותרת המודל */
-.editProductModalTitle {
-  color: #2c3e50;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  text-align: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  position: relative;
-  padding-bottom: 1rem;
-}
-
-.editProductModalTitle::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  border-radius: 2px;
-}
-
-/* פורם עריכת המוצר */
-.editProductForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.editField {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.editField label {
-  font-weight: 600;
-  color: #2c3e50;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid color-mix(in oklab, var(--accent) 70%, #000 0%);
+  padding: 12px 22px;
+  border-radius: 999px;
   font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease, transform .05s ease;
+}
+.finishButton:hover { background: var(--accent-2); }
+.finishButton:active { transform: translateY(1px); }
+
+/* ====== Modal (clean) ====== */
+.editProductModalOverlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.editProductModal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  width: min(520px, 92vw);
+  max-height: 88vh;
+  overflow: auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
   position: relative;
-  padding-right: 0.5rem;
+}
+.editProductModalTitle {
+  margin: 0 0 12px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+  text-align: right;
 }
 
-.editField label::before {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 100%;
-  background: linear-gradient(180deg, #007bff, #28a745);
-  border-radius: 2px;
-}
+.editProductForm { display: grid; gap: 12px; }
+.editField { display: grid; gap: 6px; }
+.editField label { font-weight: 600; color: var(--text); }
 
 .editInput {
-  padding: 1rem 1.5rem;
-  border: 2px solid rgba(0, 123, 255, 0.2);
-  border-radius: 12px;
-  font-size: 1rem;
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.95rem;
   outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
+.editInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(111,139,122,.18); }
 
-.editInput:focus {
-  border-color: #007bff;
-  box-shadow: 
-    0 0 0 3px rgba(0, 123, 255, 0.1),
-    0 4px 12px rgba(0, 123, 255, 0.15);
-  background: #ffffff;
-  transform: translateY(-1px);
-}
-
-.editInput:hover {
-  border-color: rgba(0, 123, 255, 0.4);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* כפתורי הפעולה */
 .editButtons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex; justify-content: flex-start; gap: 8px;
+  margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line);
 }
 
-.editButtons .saveButton {
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.editButtons .saveButton::before {
-  content: '✓';
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.editButtons .saveButton:hover {
-  background: linear-gradient(135deg, #20c997, #17a2b8);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-}
-
-.editButtons .cancelButton {
-  background: linear-gradient(135deg, #6c757d, #5a6268);
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.editButtons .cancelButton::before {
-  content: '✕';
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-.editButtons .cancelButton:hover {
-  background: linear-gradient(135deg, #5a6268, #495057);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
-}
-
-/* אנימציות המודל */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* כפתור סגירה */
 .closeModalButton {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: rgba(220, 53, 69, 0.1);
-  color: #dc3545;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute; inset-inline-start: 12px; top: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--text);
+  width: 36px; height: 36px; border-radius: 50%;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  display: grid; place-items: center;
+  transition: background .15s ease, border-color .15s ease;
 }
+.closeModalButton:hover { background: #f3f4f6; border-color: #d1d5db; }
 
-.closeModalButton:hover {
-  background: #dc3545;
-  color: white;
-  transform: scale(1.1);
-}
-
-/* אנימציות */
-.productItem {
-  animation: slideInUp 0.6s ease forwards;
-  opacity: 0;
-}
-
-.productItem:nth-child(1) { animation-delay: 0.1s; }
-.productItem:nth-child(2) { animation-delay: 0.2s; }
-.productItem:nth-child(3) { animation-delay: 0.3s; }
-.productItem:nth-child(4) { animation-delay: 0.4s; }
-.productItem:nth-child(5) { animation-delay: 0.5s; }
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* הוספת hover effects משופרים */
-.productActions button {
-  position: relative;
-  transform-origin: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.productActions button:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* Responsive Design */
+/* ====== Responsive ====== */
 @media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-  }
-  
-  .container h2 {
-    font-size: 1.5rem;
-  }
-  
-  .productItem {
-    padding: 1rem;
-  }
-  
-  .productItem > div {
-    flex-direction: column;
-    align-items: flex-start !important;
-    gap: 1rem !important;
-  }
-  
-  .productImage {
-    width: 60px !important;
-    height: 60px !important;
-  }
-  
-  .stockSection {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .editStock {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    width: 100%;
-  }
-  
-  .stockInput {
-    width: 100%;
-  }
-  
-  .backHomeWrapper {
-    position: static;
-    margin-bottom: 1rem;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .backHomeButton {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.8rem;
-  }
-  
-  .productActions {
-    flex-direction: column;
-    gap: 0.8rem;
-    align-items: stretch;
-  }
-  
-  .editProductButton,
-  .deleteButton {
-    width: 100%;
-    justify-content: center;
-    margin-left: 0;
-  }
-  
-  .editProductButton::before,
-  .deleteButton::before {
-    left: 20px;
-  }
-
-  /* מודל רספונסיבי */
-  .editProductModal {
-    width: 95%;
-    padding: 1.5rem;
-    margin: 1rem;
-  }
-  
-  .editProductModalTitle {
-    font-size: 1.5rem;
-  }
-  
-  .editButtons {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .editButtons .saveButton,
-  .editButtons .cancelButton {
-    width: 100%;
-    padding: 0.8rem 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .addButton,
-  .finishButton {
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
-  }
-  
-  .productInfo {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-  
-  .productInfoItem {
-    padding: 0.6rem 0.8rem;
-  }
-  
-  .productInfoItem .label {
-    font-size: 0.8rem;
-  }
-  
-  .productInfoItem .value {
-    font-size: 1rem;
-  }
-  
-  .editProductButton,
-  .deleteButton {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-  }
-
-  .editProductModal {
-    width: 98%;
-    padding: 1rem;
-    max-height: 95vh;
-  }
-  
-  .editField {
-    gap: 0.3rem;
-  }
-  
-  .editInput {
-    padding: 0.8rem 1rem;
-    font-size: 0.9rem;
-  }
+  .container { padding: 16px; }
+  .grid, .productList { gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .stockSection { flex-direction: column; align-items: stretch; }
+  .editStock { width: 100%; }
+  .stockInput { width: 100%; }
 }

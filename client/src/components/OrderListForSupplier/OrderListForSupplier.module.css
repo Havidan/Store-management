@@ -157,3 +157,31 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 }
 .clearFilterButton:hover { background: #EEF3F1; }
 .clearFilterButton:active { transform: translateY(1px); }
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.exportButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.exportButton:hover {
+  background-color: #45a049;
+}
+
+.exportButton:active {
+  background-color: #3d8b40;
+}

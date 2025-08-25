@@ -6,6 +6,8 @@ import styles from "./Layout.module.css";
 export default function StoreLayout() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const ownerUsername = localStorage.getItem("username") || "ספק";
+
 
   const handleLogout = () => {
     localStorage.clear();
@@ -24,7 +26,7 @@ export default function StoreLayout() {
       {/* Topbar קבוע */}
       <header className={styles.topbar}>
         <button className={styles.menuBtn} onClick={() => setMenuOpen(true)} aria-label="פתיחת תפריט">☰</button>
-        <div className={styles.brand}>איזור בעל מכולת</div>
+        <div className={styles.brand}>איזור בעל מכולת: {ownerUsername}</div>
         <div className={styles.topbarActions}>
           <button className={styles.ghostBtn} onClick={handleLogout}>התנתקות</button>
         </div>
