@@ -158,8 +158,6 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 }
 .clearFilterButton:hover { background: #EEF3F1; }
 .clearFilterButton:active { transform: translateY(1px); }
-<<<<<<< HEAD
-/* === Tight & centered rows (override) === */
 
 /* ממרכז אנכית את תאי הכותרת והשורות */
 .orderHeaderRow,

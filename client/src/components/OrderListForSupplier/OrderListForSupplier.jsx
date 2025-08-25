@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { ChevronDown, ChevronUp, Download } from "lucide-react";
 import * as XLSX from 'xlsx';
-import styles from "./OrderListForSupplier.module.css";
+import styles from "./OrderList.module.css";
 
 function OrderListForSupplier() {
   const supplierId = localStorage.getItem("userId");
