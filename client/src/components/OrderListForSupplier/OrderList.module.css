@@ -278,3 +278,33 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 .exportButton:active {
   background-color: #3d8b40;
 }
+
+/*=========== Responsive ===========*/
+@media (max-width: 768px) {
+  .ordersSection {
+    width: 100%;
+    padding: 0 12px;
+  }
+
+  /* עוטפים את הטבלה בגלילה אופקית */
+  .orderList {
+    overflow-x: auto;
+    display: block;
+  }
+
+  /* טבלאות שומרות על רוחב מינימלי - לא מתכווצות */
+  .orderHeaderRow,
+  .orderHeader {
+    min-width: 600px; /* או יותר לפי מספר העמודות שלך */
+  }
+
+  /* טבלה פנימית של מוצרים */
+  .innerTableWrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .innerTable {
+    min-width: 400px; /* או כמה שצריך כדי לא לשבור */
+  }
+}

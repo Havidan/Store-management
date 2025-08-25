@@ -251,3 +251,51 @@ body::before {
 .closeButton:hover {
   background-color: #5a6268;
 }
+
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .productItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .quantityInput {
+    width: 100%;
+  }
+
+  .modalButtons {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .placeOrderButton,
+  .closeButton {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalContent h3 {
+    font-size: 18px;
+  }
+
+  .productName {
+    font-size: 14px;
+  }
+
+  .productPrice,
+  .productMin {
+    font-size: 12px;
+  }
+
+  .quantityInput input {
+    font-size: 12px;
+    padding: 6px;
+  }
+}

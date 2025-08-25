@@ -367,3 +367,41 @@ body::before {
 .cancelButton:hover {
   background-color: #aaa;
 }
+
+/* עבור מסכים קטנים במיוחד */
+@media (max-width: 480px) {
+  .modalContent {
+    width: 95vw;        /* יתפרס כמעט על כל המסך */
+    padding: 1.5rem;    /* פחות padding כדי לא לקחת יותר מדי מקום */
+    max-height: 90vh;   /* גלילה אנכית אם התוכן גדול */
+    overflow-y: auto;
+  }
+
+  /* כפתורים מסודרים אנכית */
+  .modalButtons {
+    flex-direction: column-reverse;  /* כפתור אישור למטה */
+    gap: 0.8rem;
+  }
+
+  .addButton,
+  .cancelButton {
+    width: 100%;      /* כל כפתור תופס שורה מלאה */
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
+
+  /* פונט ושדות קלט קטנים יותר */
+  .formGroup label {
+    font-size: 0.85rem;
+  }
+
+  .formGroup input {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .imagePreview img {
+    max-width: 100px;
+    max-height: 100px;
+  }
+}

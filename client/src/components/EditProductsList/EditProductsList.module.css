@@ -321,8 +321,20 @@
 /* ====== Responsive ====== */
 @media (max-width: 768px) {
   .container { padding: 16px; }
-  .grid, .productList { gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-  .stockSection { flex-direction: column; align-items: stretch; }
-  .editStock { width: 100%; }
-  .stockInput { width: 100%; }
+
+  /* שינוי כאן - רק עמודה אחת בכל שורה במובייל */
+  .grid, 
+  .productList { 
+    gap: 12px; 
+    grid-template-columns: 1fr; 
+  }
+
+  .stockSection { 
+    flex-direction: column; 
+    align-items: stretch; 
+  }
+
+  .editStock { width: 90%; }
+  .stockInput { width: 90%; }
 }
+

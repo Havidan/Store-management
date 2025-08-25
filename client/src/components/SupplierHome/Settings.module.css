@@ -210,3 +210,38 @@
 .secondaryBtn:hover {
   background: #d1d5db;
 }
+
+@media (max-width: 768px) {
+  .page {
+    padding: 12px;
+    max-width: 95%;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .citiesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .input {
+    font-size: 1rem;
+  }
+
+  .button, .saveBtn, .secondaryBtn {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title, .successTitle {
+    font-size: 18px;
+  }
+
+  .successBox {
+    padding: 20px 12px;
+  }
+}

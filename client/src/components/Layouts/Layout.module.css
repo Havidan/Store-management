@@ -61,3 +61,33 @@
   width: 100%;
   overflow-x: auto;
 }
+
+
+
+/*================= Responsive =================*/
+@media (max-width: 768px) {
+  .topbar {
+    padding: 8px 10px;
+    flex-wrap: wrap;        /* אם יש יותר מדי אקשנס שירדו שורה */
+    gap: 8px;
+  }
+
+  .brand {
+    font-size: 1rem;        /* שלא יתפוס יותר מדי מקום */
+  }
+
+  .topbarActions {
+    flex-wrap: wrap;        /* שברשימת כפתורים תהיה ירידה שורה */
+    gap: 6px;
+  }
+
+  .ghostBtn, 
+  .menuBtn {
+    padding: 6px 10px;
+    font-size: 0.9rem;      /* שיהיה נוח ללחיצה אבל לא ענק */
+  }
+
+  .main {
+    padding: 12px;          /* פחות padding במסכים קטנים */
+  }
+}
