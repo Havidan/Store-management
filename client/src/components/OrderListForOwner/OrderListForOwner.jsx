@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import styles from "../OrderListForSupplier/OrderListForSupplier.module.css";
+import { ChevronDown, ChevronUp, Download } from "lucide-react";
 import axios from "axios";
+import * as XLSX from "xlsx";
 
 function OrderListForOwner({ refresh }) {
   const [expandedOrders, setExpandedOrders] = useState(new Set());
@@ -115,6 +116,75 @@ function OrderListForOwner({ refresh }) {
       maximumFractionDigits: 2,
     }).format(toNumber(num, 0));
 
+  // --- פונקציית ייצוא Excel ---
+  const exportToExcel = () => {
+    if (filteredOrders.length === 0) {
+      alert("אין הזמנות לייצוא");
+      return;
+    }
+
+    // יצירת שם קובץ חכם
+    const today = new Date().toLocaleDateString("he-IL").replace(/\./g, "-");
+    const statusText = displayHistory ? "הושלמו" : "פעילות";
+    let fileName = `הזמנות_${statusText}_${today}`;
+    
+    if (isDateFilterActive) {
+      const fromText = dateFilter.from ? dateFilter.from.replace(/-/g, "-") : "";
+      const toText = dateFilter.to ? dateFilter.to.replace(/-/g, "-") : "";
+      if (fromText && toText) {
+        fileName += `_מ${fromText}_עד${toText}`;
+      } else if (fromText) {
+        fileName += `_מ${fromText}`;
+      } else if (toText) {
+        fileName += `_עד${toText}`;
+      }
+    }
+
+    // הכנת נתונים לעמוד פרטי ההזמנה
+    const ordersData = filteredOrders.map(order => ({
+      "מס' הזמנה": order.order_id,
+      "תאריך": new Date(order.created_date).toLocaleDateString("he-IL"),
+      "חברת אספקה": order.company_name,
+      "סכום ההזמנה": calcOrderTotal(order),
+      "סטטוס": order.status,
+      "איש קשר": order.contact_name,
+      "טלפון": order.phone
+    }));
+
+    // הכנת נתונים לעמוד פרטי המוצרים
+    const productsData = [];
+    filteredOrders.forEach(order => {
+      if (order.products && order.products.length > 0) {
+        order.products.forEach(product => {
+          productsData.push({
+            "מס' הזמנה": order.order_id,
+            "תאריך ההזמנה": new Date(order.created_date).toLocaleDateString("he-IL"),
+            "חברת אספקה": order.company_name,
+            "מספר מוצר": product.product_id,
+            "שם מוצר": product.product_name,
+            "כמות": product.quantity,
+            "מחיר יחידה": product.unit_price || "",
+            "סכום פריט": (toNumber(product.unit_price, 0) * toNumber(product.quantity, 0)) || ""
+          });
+        });
+      }
+    });
+
+    // יצירת Workbook עם שני עמודים
+    const wb = XLSX.utils.book_new();
+    
+    // עמוד פרטי ההזמנות
+    const ordersWs = XLSX.utils.json_to_sheet(ordersData);
+    XLSX.utils.book_append_sheet(wb, ordersWs, "פרטי הזמנות");
+    
+    // עמוד פרטי המוצרים
+    const productsWs = XLSX.utils.json_to_sheet(productsData);
+    XLSX.utils.book_append_sheet(wb, productsWs, "פרטי מוצרים");
+
+    // שמירת הקובץ
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+  };
+
   return (
     <div className={styles.ordersSection} dir="rtl">
       <h2 className={styles.title}>רשימת הזמנות</h2>
@@ -156,9 +226,20 @@ function OrderListForOwner({ refresh }) {
           )}
         </div>
 
-        <button className={styles.historyButton} onClick={displayCompleteOrders}>
-          {displayHistory ? "לצפיה בהזמנות שטרם סופקו" : "לצפיה בהיסטורית ההזמנות"}
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button 
+            className={styles.exportButton} 
+            onClick={exportToExcel}
+            title={`ייצא ${filteredOrders.length} הזמנות לאקסל`}
+          >
+            <Download size={16} style={{ marginLeft: "5px" }} />
+            ייצא ל-Excel ({filteredOrders.length} הזמנות)
+          </button>
+
+          <button className={styles.historyButton} onClick={displayCompleteOrders}>
+            {displayHistory ? "לצפיה בהזמנות שטרם סופקו" : "לצפיה בהיסטורית ההזמנות"}
+          </button>
+        </div>
       </div>
 
       {/* כותרת: [מס' הזמנה][תאריך][חברת אספקה][סכום ההזמנה][סטטוס][פעולה][חץ] */}

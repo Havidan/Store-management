@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /* OrderListForOwner.module.css — עיצוב בלבד */
 .ordersSection { margin-top: 20px; padding: 0 20px; width: 65%; }
+=======
+/* כללי */
+.ordersSection { margin-top: 10px; padding: 0 20px; width: 65%; }
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
 body::before { background-color: rgba(255, 255, 255, 0.7); }
 
 /* כותרת */
@@ -8,7 +13,7 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
   color: #111827; /* אפור-שחור */
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   position: relative;
 }
 .title::after {
@@ -23,6 +28,7 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
   border-radius: 2px;
 }
 
+<<<<<<< HEAD
 /* כפתורים – Sage */
 .historyButton {
   margin-left: 5px;
@@ -32,6 +38,16 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
   border-radius: 6px;
   border: 1px solid #6F8B7A66;
   background-color: #6F8B7A;
+=======
+/* כפתורים – Sage עדין */
+.historyButton {
+  margin-right: 2rem;
+  padding: 7px 10px;
+  font-size: medium;
+  border-radius: 6px;
+  border: 1px solid #6F8B7A66;
+  background-color: #6F8B7A;        /* sage */
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
   color: #F8FAFC;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -40,10 +56,17 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 .historyButton:hover { background-color: #5D7668; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(111,139,122,.26); }
 
 .confirmButton {
+<<<<<<< HEAD
   background-color: #6F8B7A;
   color: #ffffff;
   border: 1px solid #6F8B7A66;
   padding: 10px 14px;
+=======
+  background-color: #50a070;
+  color: #ffffff;
+  border: 1px solid #6F8B7A66;
+  padding: 8px 11px;
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
   font-size: 0.95rem;
   border-radius: 8px;
   cursor: pointer;
@@ -51,16 +74,24 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(111,139,122,.2);
 }
+<<<<<<< HEAD
 .confirmButton:hover { background-color: #5D7668; transform: translateY(-1px); }
 .confirmButton:disabled {
   background-color: #D9E2DD;
   color: #3D4B44;
+=======
+.confirmButton:hover { background-color: #618d74; transform: translateY(-1px); }
+.confirmButton:disabled {
+  background-color: #D9E2DD;   /* אפרפר-ירקרק עדין */
+  color: #749b84;
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
   border-color: #D9E2DD;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
 }
 
+<<<<<<< HEAD
 /* ===== טבלת רשימת ההזמנות ===== */
 /* פריסה RTL: 0.5fr | 1fr | 1fr | 1fr | 1fr | 1.5fr | auto  */
 .orderHeaderRow {
@@ -68,6 +99,15 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
   grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr 1.5fr auto;
   column-gap: 0;
   padding: 0;
+=======
+/* ====== טבלת רשימת ההזמנות ====== */
+/* פריסה: 0.5fr | 1fr | 1fr | 1fr | 1.5fr | auto  (RTL) */
+.orderHeaderRow {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr auto;
+  column-gap: 0;               /* כדי שקווי ההפרדה יהיו רציפים */
+  padding: 0;                  /* padding עובר לתאים עצמם */
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
   font-weight: 700;
   background-color: #F3F4F6;
   border-bottom: 2px solid #E5E7EB;
@@ -83,22 +123,32 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 }
 .orderHeaderRow > *:first-child { border-inline-start: 0; }
 
+<<<<<<< HEAD
 .orderList { border-top: 2px solid #E5E7EB; border-radius: 0 0 8px 8px; overflow: hidden; }
 
 .orderRow { border-bottom: 1px solid #E5E7EB; transition: background-color 0.2s ease; }
 .orderRow:hover { background-color: #F8FAFC; }
+=======
+.orderList { border-top: 2px solid #E5E7EB; }
+.orderRow { border-bottom: 1px solid #E5E7EB; }
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
 .orderRow:last-child { border-bottom: none; }
 
 /* שורות נתונים – אותו גריד בדיוק */
 .orderHeader {
   display: grid;
+<<<<<<< HEAD
   grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr 1.5fr auto;
+=======
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr auto;
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
   column-gap: 0;
   padding: 0;
   cursor: pointer;
   background-color: #FFFFFF;
   transition: background-color 0.2s ease;
   align-items: stretch;
+<<<<<<< HEAD
   text-align: right;
   direction: rtl;
 }
@@ -107,10 +157,21 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 .orderHeader > * {
   padding: 12px;
   border-inline-start: 1px solid #EEF2F6;
+=======
+  direction: rtl;   /* סדר עמודות מימין לשמאל */
+  text-align: right;
+}
+.orderHeader:hover { background-color: #EEF3F1; } /* טינט ירקרק-אפרפר עדין */
+
+.orderHeader > * {
+  padding: 12px;
+  border-inline-start: 1px solid #EEF2F6;  /* קווי הפרדה אנכיים בהירים */
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
   display: flex; align-items: center; justify-content: flex-start; /* ימין ב-RTL */
 }
 .orderHeader > *:first-child { border-inline-start: 0; }
 
+<<<<<<< HEAD
 .orderHeader span {
   font-size: 0.95rem;
   color: #1F2937;
@@ -181,12 +242,43 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 .filterGroup { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .filterLabel { font-weight: 600; font-size: 0.95rem; color: #111827; }
 .inlineLabel { display: inline-flex; align-items: center; gap: 6px; font-size: 0.95rem; }
+=======
+.orderHeader span { font-size: 0.95rem; color: #1F2937; font-weight: 500; }
+
+/* סכום */
+.orderAmount {
+  display: block;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: #5D7668;  /* טקסט ירקרק-אפור רגוע */
+}
+
+/* פעולה + חץ */
+.orderAction { display: flex; justify-content: flex-start; align-items: center; gap: 8px; min-height: 40px; }
+.chevron { display: flex; justify-content: center; color: #5D7668; }
+
+/* פרטים */
+.orderDetails { background-color: #FFFFFF; padding: 12px 16px; font-size: 0.9rem; color: #374151; }
+.productsTitle { margin-top: 8px; }
+
+/* ====== פילטר תאריכים ====== */
+.filterBar { display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.filterGroup { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.filterLabel { font-weight:600; font-size:0.95rem; color:#111827; }
+.inlineLabel { display:inline-flex; align-items:center; gap:6px; font-size:0.95rem; }
+
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
 .dateInput {
   padding: 6px 10px;
   border: 1px solid #CBD5E1;
   border-radius: 8px;
   background: #FFFFFF;
+<<<<<<< HEAD
   min-width: 11rem;
+=======
+  min-width: 7rem;
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed
   direction: ltr;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -206,3 +298,34 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 }
 .clearFilterButton:hover { background: #EEF3F1; }
 .clearFilterButton:active { transform: translateY(1px); }
+<<<<<<< HEAD
+=======
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.exportButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.exportButton:hover {
+  background-color: #45a049;
+}
+
+.exportButton:active {
+  background-color: #3d8b40;
+}
+>>>>>>> 2e9c97314b2bc4b450bade8942aef215d0bf91ed

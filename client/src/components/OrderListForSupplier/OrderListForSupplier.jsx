@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Download } from "lucide-react";
+import * as XLSX from 'xlsx';
 import styles from "./OrderListForSupplier.module.css";
 
 function OrderListForSupplier() {
@@ -105,6 +106,82 @@ function OrderListForSupplier() {
 
   const clearDateFilter = () => setDateFilter({ from: "", to: "" });
 
+  // פונקציה לייצוא Excel
+  const exportToExcel = () => {
+    try {
+      // יצירת נתונים לגיליון ראשי של הזמנות
+      const ordersData = filteredOrders.map(order => ({
+        'מספר הזמנה': order.order_id,
+        'תאריך': new Date(order.created_date).toLocaleDateString('he-IL'),
+        'סכום ההזמנה': calcOrderTotal(order),
+        'סטטוס': order.status,
+        'שם החנות': order.owner_company_name,
+        'איש קשר': order.owner_contact_name,
+        'טלפון': order.owner_phone,
+        'שעות פתיחה': `${order.owner_opening_time} - ${order.owner_closing_time}`,
+        'מספר מוצרים': order.products ? order.products.length : 0
+      }));
+
+      // יצירת נתונים לגיליון פירוט מוצרים
+      const productsData = [];
+      filteredOrders.forEach(order => {
+        if (order.products && Array.isArray(order.products)) {
+          order.products.forEach(product => {
+            productsData.push({
+              'מספר הזמנה': order.order_id,
+              'תאריך הזמנה': new Date(order.created_date).toLocaleDateString('he-IL'),
+              'שם החנות': order.owner_company_name,
+              'מספר מוצר': product.product_id,
+              'שם מוצר': product.product_name || '',
+              'כמות': product.quantity,
+              'מחיר יחידה': product.unit_price || 0,
+              'סכום מוצר': (product.unit_price || 0) * (product.quantity || 0)
+            });
+          });
+        }
+      });
+
+      // יצירת חוברת עבודה
+      const workbook = XLSX.utils.book_new();
+
+      // הוספת גיליון הזמנות
+      const ordersWorksheet = XLSX.utils.json_to_sheet(ordersData);
+      XLSX.utils.book_append_sheet(workbook, ordersWorksheet, 'הזמנות');
+
+      // הוספת גיליון מוצרים
+      if (productsData.length > 0) {
+        const productsWorksheet = XLSX.utils.json_to_sheet(productsData);
+        XLSX.utils.book_append_sheet(workbook, productsWorksheet, 'פירוט מוצרים');
+      }
+
+      // יצירת שם קובץ עם תאריך
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0];
+      let fileName = `הזמנות_${dateStr}`;
+      
+      // הוספת מידע על הסינון לשם הקובץ
+      if (displayHistory) {
+        fileName += '_היסטוריה';
+      } else {
+        fileName += '_פעילות';
+      }
+      
+      if (isDateFilterActive) {
+        fileName += '_מסונן';
+      }
+      
+      fileName += '.xlsx';
+
+      // הורדת הקובץ
+      XLSX.writeFile(workbook, fileName);
+
+      console.log(`Excel file exported: ${fileName}`);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      alert('שגיאה בייצוא הקובץ. נסה שוב.');
+    }
+  };
+
   return (
     <div className={styles.ordersSection} dir="rtl">
       <h2 className={styles.title}>רשימת הזמנות לספק</h2>
@@ -138,9 +215,21 @@ function OrderListForSupplier() {
           )}
         </div>
 
-        <button className={styles.historyButton} onClick={displayCompleteOrders}>
-          {displayHistory ? "לצפיה בהזמנות שטרם סופקו" : "לצפיה בהיסטורית ההזמנות"}
-        </button>
+      <div className={styles.actionButtons}>
+        <div style={{ display: "flex", gap: "10px" }}>
+            <button 
+                className={styles.exportButton} 
+                onClick={exportToExcel}
+                title={`ייצא ${filteredOrders.length} הזמנות לאקסל`}
+              >
+                <Download size={16} style={{ marginLeft: "5px" }} />
+                ייצא ל-Excel ({filteredOrders.length} הזמנות)
+              </button>
+            </div>
+          <button className={styles.historyButton} onClick={displayCompleteOrders}>
+            {displayHistory ? "לצפיה בהזמנות שטרם סופקו" : "לצפיה בהיסטורית ההזמנות"}
+           </button>
+        </div>
       </div>
 
       {/* כותרת: [מס' הזמנה][תאריך][שם חנות][סכום ההזמנה][סטטוס][פעולה][חץ] */}
