@@ -33,12 +33,19 @@ function fireAndForget(fn) {
 // --- צור קשר: שליחת פנייה למייל ---
 router.post("/contactForm", async (req, res) => {
   try {
-    const { fullName, email, phone, subject, message, userId } = req.body || {};
+    // אם המשתמש מחובר — נעדיף userId מה-session
+    const sessionUser = req.session?.user || null;
+
+    // שדות מהלקוח
+    let { fullName, email, phone, subject, message, userId } = req.body || {};
 
     // ולידציה בסיסית בצד שרת
     if (!fullName || !email || !subject || !message) {
       return res.status(400).json({ message: "Missing required fields" });
     }
+
+    // העדפה ל-session מזהה/פרטים (לא חובה)
+    if (sessionUser?.id) userId = String(sessionUser.id);
 
     // תשובה מידית ללקוח
     res.json({ ok: true });
@@ -50,6 +57,11 @@ router.post("/contactForm", async (req, res) => {
       const esc = (s = "") =>
         String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
+      // תוספת מידע מזהה אם יש session (לא חובה)
+      const sessionInfo = sessionUser
+        ? `<p><b>Session User:</b> ${esc(sessionUser.username || "")} (#${esc(String(sessionUser.id))}, ${esc(sessionUser.userType || "")})</p>`
+        : "";
+
       // מייל לצוות / כתובת יעד
       await sendStyledEmail(
         TO,
@@ -60,6 +72,7 @@ router.post("/contactForm", async (req, res) => {
           <p><b>אימייל:</b> ${esc(email)}</p>
           ${phone ? `<p><b>טלפון:</b> ${esc(phone)}</p>` : ""}
           ${userId ? `<p><b>User ID:</b> ${esc(userId)}</p>` : ""}
+          ${sessionInfo}
           <hr />
           <p><b>נושא:</b> ${esc(subject)}</p>
           <p style="white-space:pre-wrap; line-height:1.6">${esc(message)}</p>
@@ -90,6 +103,5 @@ router.post("/contactForm", async (req, res) => {
     }
   }
 });
-
 
 export default router;

@@ -2,10 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import styles from "./Settings.module.css";
 
+// חדשים — Session toggle
+import { useAuth } from "../../auth/AuthContext";
+import api from "../../api/axios";
+
 export default function StoreOwnerSettingsPage() {
   const userId = localStorage.getItem("userId");
 
-  // מצב תצוגה: לאחר שמירה מוצלחת נסתיר את הטופס
   const [saved, setSaved] = useState(false);
 
   // פרטי בעל חנות
@@ -25,6 +28,9 @@ export default function StoreOwnerSettingsPage() {
 
   // עץ מחוזות/ערים
   const [geoTree, setGeoTree] = useState([]);
+
+  // Session?
+  const { USE_SESSION_AUTH } = useAuth();
 
   // click outside לאוטוקומפליט
   const comboRef = useRef(null);
@@ -50,9 +56,17 @@ export default function StoreOwnerSettingsPage() {
     const load = async () => {
       try {
         // פרטי בעל חנות
-        const { data } = await axios.get("http://localhost:3000/settings/owner", {
-          params: { userId },
-        });
+        let data;
+        if (USE_SESSION_AUTH) {
+          const res = await api.get("/settings/owner/my");
+          data = res.data;
+        } else {
+          const res = await axios.get("http://localhost:3000/settings/owner", {
+            params: { userId },
+          });
+            data = res.data;
+        }
+
         setCompanyName(data.company_name || "");
         setContactName(data.contact_name || "");
         setPhone(data.phone || "");
@@ -63,19 +77,21 @@ export default function StoreOwnerSettingsPage() {
         setClosingTime(data.closing_time ? String(data.closing_time).slice(0, 5) : "");
         if (data.city_id) {
           setOwnerCityId(data.city_id);
-          setOwnerCityQuery(data.city_name || ""); // שרת יכול להחזיר שם עיר
+          setOwnerCityQuery(data.city_name || "");
         }
 
         // עץ מחוזות/ערים
-        const geo = await axios.get("http://localhost:3000/geo/districts-with-cities");
+        const geo = USE_SESSION_AUTH
+          ? await api.get("/geo/districts-with-cities")
+          : await axios.get("http://localhost:3000/geo/districts-with-cities");
         setGeoTree(geo.data || []);
       } catch (e) {
         console.error("Failed to load owner settings:", e);
         alert("שגיאה בטעינת הנתונים");
       }
     };
-    if (userId) load();
-  }, [userId]);
+    if (USE_SESSION_AUTH || userId) load();
+  }, [USE_SESSION_AUTH, userId]);
 
   // רשימת ערים שטוחה למסנן
   const allCities = useMemo(() => {
@@ -119,19 +135,32 @@ export default function StoreOwnerSettingsPage() {
     }
 
     try {
-      await axios.put("http://localhost:3000/settings/owner", {
-        userId,
-        company_name: companyName || null,
-        contact_name: contactName,
-        phone,
-        email,
-        city_id: ownerCityId,
-        street,
-        house_number: houseNumber,
-        opening_time: openingTime,
-        closing_time: closingTime,
-      });
-      // הצלחה — מעבר למסך הצלחה
+      if (USE_SESSION_AUTH) {
+        await api.put("/settings/owner/my", {
+          company_name: companyName || null,
+          contact_name: contactName,
+          phone,
+          email,
+          city_id: ownerCityId,
+          street,
+          house_number: houseNumber,
+          opening_time: openingTime,
+          closing_time: closingTime,
+        });
+      } else {
+        await axios.put("http://localhost:3000/settings/owner", {
+          userId,
+          company_name: companyName || null,
+          contact_name: contactName,
+          phone,
+          email,
+          city_id: ownerCityId,
+          street,
+          house_number: houseNumber,
+          opening_time: openingTime,
+          closing_time: closingTime,
+        });
+      }
       setSaved(true);
     } catch (e) {
       console.error("Failed to save owner settings:", e);

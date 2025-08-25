@@ -1,125 +1,169 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import styles from "./Settings.module.css";
 
-export default function SupplierSettingsPage() {
+// חדשים — Session toggle
+import { useAuth } from "../../auth/AuthContext";
+import api from "../../api/axios";
+
+export default function StoreOwnerSettingsPage() {
   const userId = localStorage.getItem("userId");
 
-  // מצב תצוגה: לאחר שמירה מוצלחת נסתיר את הטופס
   const [saved, setSaved] = useState(false);
 
-  // פרטי ספק
+  // פרטי בעל חנות
   const [companyName, setCompanyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
 
-  // אזורי שירות
-  const [geoTree, setGeoTree] = useState([]);
-  const [selectedDistricts, setSelectedDistricts] = useState(new Set()); // לצורך UI
-  const [selectedCities, setSelectedCities] = useState(new Set());       // הערים שנשמרות בפועל
+  // כתובת ושעות
+  const [ownerCityQuery, setOwnerCityQuery] = useState("");
+  const [ownerCityId, setOwnerCityId] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [street, setStreet] = useState("");
+  const [houseNumber, setHouseNumber] = useState("");
+  const [openingTime, setOpeningTime] = useState("");
+  const [closingTime, setClosingTime] = useState("");
 
-  // טעינה
+  // עץ מחוזות/ערים
+  const [geoTree, setGeoTree] = useState([]);
+
+  // Session?
+  const { USE_SESSION_AUTH } = useAuth();
+
+  // click outside לאוטוקומפליט
+  const comboRef = useRef(null);
+  useEffect(() => {
+    function onDocMouseDown(e) {
+      if (comboRef.current && !comboRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    }
+    function onDocKeyDown(e) {
+      if (e.key === "Escape") setShowSuggestions(false);
+    }
+    document.addEventListener("mousedown", onDocMouseDown);
+    document.addEventListener("keydown", onDocKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onDocMouseDown);
+      document.removeEventListener("keydown", onDocKeyDown);
+    };
+  }, []);
+
+  // טעינת נתוני משתמש + עץ ערים
   useEffect(() => {
     const load = async () => {
       try {
-        // פרטי ספק + אזורים שמורים
-        const { data } = await axios.get("http://localhost:3000/settings/supplier", {
-          params: { userId },
-        });
+        // פרטי בעל חנות
+        let data;
+        if (USE_SESSION_AUTH) {
+          const res = await api.get("/settings/owner/my");
+          data = res.data;
+        } else {
+          const res = await axios.get("http://localhost:3000/settings/owner", {
+            params: { userId },
+          });
+            data = res.data;
+        }
+
         setCompanyName(data.company_name || "");
         setContactName(data.contact_name || "");
         setPhone(data.phone || "");
         setEmail(data.email || "");
-        // ערי שירות קיימות
-        const cityIds = new Set((data.service_city_ids || []).map(Number));
-        setSelectedCities(cityIds);
+        setStreet(data.street || "");
+        setHouseNumber(data.house_number || "");
+        setOpeningTime(data.opening_time ? String(data.opening_time).slice(0, 5) : "");
+        setClosingTime(data.closing_time ? String(data.closing_time).slice(0, 5) : "");
+        if (data.city_id) {
+          setOwnerCityId(data.city_id);
+          setOwnerCityQuery(data.city_name || "");
+        }
 
         // עץ מחוזות/ערים
-        const geo = await axios.get("http://localhost:3000/geo/districts-with-cities");
+        const geo = USE_SESSION_AUTH
+          ? await api.get("/geo/districts-with-cities")
+          : await axios.get("http://localhost:3000/geo/districts-with-cities");
         setGeoTree(geo.data || []);
-
-        // סמן מחוזות "מלאים" לפי ערים שנבחרו
-        const dist = new Set();
-        (geo.data || []).forEach((d) => {
-          const allChecked = d.cities?.length && d.cities.every((c) => cityIds.has(c.city_id));
-          if (allChecked) dist.add(d.district_id);
-        });
-        setSelectedDistricts(dist);
       } catch (e) {
-        console.error("Failed to load supplier settings:", e);
+        console.error("Failed to load owner settings:", e);
         alert("שגיאה בטעינת הנתונים");
       }
     };
-    if (userId) load();
-  }, [userId]);
+    if (USE_SESSION_AUTH || userId) load();
+  }, [USE_SESSION_AUTH, userId]);
 
-  // עזר: האם מחוז מסומן במלואו
-  const isDistrictFullySelected = (district) => {
-    if (!district?.cities?.length) return selectedDistricts.has(district.district_id);
-    return district.cities.every((c) => selectedCities.has(c.city_id));
-  };
-
-  // סימון/ביטול מחוז שלם -> מעדכן ערים בפועל (Full Replace בגישה של המשתמש)
-  const toggleDistrict = (district) => {
-    const dId = district.district_id;
-    const nextDistricts = new Set(selectedDistricts);
-    const nextCities = new Set(selectedCities);
-
-    const fully = isDistrictFullySelected(district);
-    if (fully) {
-      nextDistricts.delete(dId);
-      for (const c of district.cities) nextCities.delete(c.city_id);
-    } else {
-      nextDistricts.add(dId);
-      for (const c of district.cities) nextCities.add(c.city_id);
+  // רשימת ערים שטוחה למסנן
+  const allCities = useMemo(() => {
+    const out = [];
+    for (const d of geoTree) {
+      for (const c of d.cities) {
+        out.push({
+          city_id: c.city_id,
+          city_name: c.city_name,
+          district_name: d.district_name,
+        });
+      }
     }
-    setSelectedDistricts(nextDistricts);
-    setSelectedCities(nextCities);
-  };
+    return out.sort((a, b) => a.city_name.localeCompare(b.city_name, "he"));
+  }, [geoTree]);
 
-  // סימון/ביטול עיר אחת
-  const toggleCity = (district, city) => {
-    const next = new Set(selectedCities);
-    if (next.has(city.city_id)) next.delete(city.city_id);
-    else next.add(city.city_id);
-    setSelectedCities(next);
+  const ownerCitySuggestions = useMemo(() => {
+    const q = (ownerCityQuery || "").trim();
+    if (!q) return allCities.slice(0, 60);
+    return allCities.filter((c) => c.city_name.includes(q)).slice(0, 60);
+  }, [allCities, ownerCityQuery]);
 
-    // עדכון מצב מחוז
-    const allChecked = district.cities.every((c) => next.has(c.city_id));
-    const nextDistricts = new Set(selectedDistricts);
-    if (allChecked) nextDistricts.add(district.district_id);
-    else nextDistricts.delete(district.district_id);
-    setSelectedDistricts(nextDistricts);
+  const chooseOwnerCityById = (id) => {
+    setOwnerCityId(id);
+    const found = allCities.find((c) => c.city_id === id);
+    if (found) setOwnerCityQuery(found.city_name);
+    setShowSuggestions(false);
   };
 
   const validateAndSave = async () => {
-    if (!companyName.trim() || !contactName.trim() || !phone.trim()) {
-      return alert("שם חברה, איש קשר וטלפון — חובה");
-    }
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    if (!emailRe.test(email)) return alert("אימייל לא תקין");
+    if (!contactName.trim() || !phone.trim() || !emailRe.test(email)) {
+      return alert("בדקי: איש קשר, טלפון ואימייל תקין חובה");
+    }
+    if (!ownerCityId || !street.trim() || !houseNumber.trim()) {
+      return alert("עיר, רחוב ומספר בית — חובה");
+    }
+    const hhmm = /^[0-2]\d:[0-5]\d$/;
+    if (!hhmm.test(openingTime) || !hhmm.test(closingTime)) {
+      return alert("שעות פתיחה/סגירה חייבות להיות בפורמט HH:MM");
+    }
 
     try {
-      // 1) עדכון פרטים כלליים
-      await axios.put("http://localhost:3000/settings/supplier", {
-        userId,
-        company_name: companyName,
-        contact_name: contactName,
-        phone,
-        email,
-      });
-
-      // 2) עדכון ערי שירות — Full Replace
-      await axios.put("http://localhost:3000/settings/supplier/service-cities", {
-        userId,
-        cityIds: Array.from(selectedCities).map(Number),
-      });
-
-      // הצלחה — מעבר למסך הצלחה
+      if (USE_SESSION_AUTH) {
+        await api.put("/settings/owner/my", {
+          company_name: companyName || null,
+          contact_name: contactName,
+          phone,
+          email,
+          city_id: ownerCityId,
+          street,
+          house_number: houseNumber,
+          opening_time: openingTime,
+          closing_time: closingTime,
+        });
+      } else {
+        await axios.put("http://localhost:3000/settings/owner", {
+          userId,
+          company_name: companyName || null,
+          contact_name: contactName,
+          phone,
+          email,
+          city_id: ownerCityId,
+          street,
+          house_number: houseNumber,
+          opening_time: openingTime,
+          closing_time: closingTime,
+        });
+      }
       setSaved(true);
     } catch (e) {
-      console.error("Failed to save supplier settings:", e);
+      console.error("Failed to save owner settings:", e);
       if (e.response?.status === 409) alert("האימייל כבר בשימוש");
       else alert("שגיאה בשמירת הנתונים");
     }
@@ -139,7 +183,7 @@ export default function SupplierSettingsPage() {
                 className={`${styles.button} ${styles.secondaryBtn}`}
                 onClick={() => setSaved(false)}
               >
-                ערוך שוב
+                ערכי שוב
               </button>
             </div>
           </div>
@@ -151,17 +195,17 @@ export default function SupplierSettingsPage() {
   return (
     <div className={styles.page} dir="rtl">
       <div className={styles.card}>
-        <h2 className={styles.title}>איזור אישי — ספק</h2>
+        <h2 className={styles.title}>איזור אישי — בעל מכולת</h2>
 
         <div className={styles.formGrid}>
           <label className={styles.label}>
-            שם החברה <span className={styles.required}>*</span>
+            שם העסק
           </label>
           <input
             className={styles.input}
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            placeholder="שם החברה"
+            placeholder="שם העסק (רשות)"
           />
 
           <label className={styles.label}>
@@ -195,42 +239,85 @@ export default function SupplierSettingsPage() {
             placeholder="name@example.com"
             type="email"
           />
-        </div>
 
-        {/* אזורי שירות */}
-        <div className={styles.serviceAreasBox}>
-          <div className={styles.labelStrong}>אזורי שירות (בחר מחוזות שלמים או ערים ספציפיות):</div>
-          <div className={styles.serviceAreasScroll}>
-            {geoTree.map((d) => {
-              const districtChecked = isDistrictFullySelected(d);
-              return (
-                <div key={d.district_id} className={styles.districtBox}>
-                  <label className={styles.districtHeader}>
-                    <input
-                      type="checkbox"
-                      checked={districtChecked}
-                      onChange={() => toggleDistrict(d)}
-                    />
-                    <b>{d.district_name}</b>
-                    <span className={styles.districtCount}>({d.cities.length} ערים)</span>
-                  </label>
-
-                  <div className={styles.citiesGrid}>
-                    {d.cities.map((c) => (
-                      <label key={c.city_id} className={styles.cityItem}>
-                        <input
-                          type="checkbox"
-                          checked={selectedCities.has(c.city_id)}
-                          onChange={() => toggleCity(d, c)}
-                        />
-                        <span>{c.city_name}</span>
-                      </label>
-                    ))}
+          <label className={styles.label}>
+            עיר <span className={styles.required}>*</span>
+          </label>
+          <div className={styles.comboWrap} ref={comboRef}>
+            <input
+              className={styles.input}
+              value={ownerCityQuery}
+              onChange={(e) => {
+                setOwnerCityQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              placeholder="הקלידי שם עיר…"
+              aria-autocomplete="list"
+              aria-expanded={showSuggestions}
+            />
+            {showSuggestions && (
+              <div className={styles.suggestions} role="listbox">
+                {ownerCitySuggestions.map((c) => (
+                  <div
+                    key={c.city_id}
+                    onClick={() => chooseOwnerCityById(c.city_id)}
+                    className={`${styles.suggestionItem} ${
+                      c.city_id === ownerCityId ? styles.suggestionActive : ""
+                    }`}
+                    role="option"
+                    aria-selected={c.city_id === ownerCityId}
+                  >
+                    {c.city_name}{" "}
+                    <span className={styles.suggestionSub}>({c.district_name})</span>
                   </div>
-                </div>
-              );
-            })}
+                ))}
+                {ownerCitySuggestions.length === 0 && (
+                  <div className={styles.noResults}>אין תוצאות</div>
+                )}
+              </div>
+            )}
           </div>
+
+          <label className={styles.label}>
+            רחוב <span className={styles.required}>*</span>
+          </label>
+          <input
+            className={styles.input}
+            value={street}
+            onChange={(e) => setStreet(e.target.value)}
+            placeholder="רחוב"
+          />
+
+          <label className={styles.label}>
+            מספר בית <span className={styles.required}>*</span>
+          </label>
+          <input
+            className={styles.input}
+            value={houseNumber}
+            onChange={(e) => setHouseNumber(e.target.value)}
+            placeholder="מספר בית"
+          />
+
+          <label className={styles.label}>
+            שעת פתיחה <span className={styles.required}>*</span>
+          </label>
+          <input
+            className={styles.input}
+            type="time"
+            value={openingTime}
+            onChange={(e) => setOpeningTime(e.target.value)}
+          />
+
+          <label className={styles.label}>
+            שעת סגירה <span className={styles.required}>*</span>
+          </label>
+          <input
+            className={styles.input}
+            type="time"
+            value={closingTime}
+            onChange={(e) => setClosingTime(e.target.value)}
+          />
         </div>
 
         <div className={styles.actions}>

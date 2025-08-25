@@ -3,6 +3,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import styles from "../StoreOwnerHome/Settings.module.css"; // משתמש באותו עיצוב קיים
 
+// חדשים (Session)
+import { useAuth } from "../../auth/AuthContext";
+import api from "../../api/axios";
+
 export default function ContactForm() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail]       = useState("");
@@ -15,6 +19,8 @@ export default function ContactForm() {
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
+  const { USE_SESSION_AUTH } = useAuth();
+
   async function onSubmit(e) {
     e.preventDefault();
 
@@ -26,15 +32,26 @@ export default function ContactForm() {
 
     setSending(true);
     try {
-      await axios.post("http://localhost:3000/geo/contactForm", {
-        fullName,
-        email,
-        phone: phone || null,
-        subject,
-        message,
-        // אופציונלי: מזהה משתמש למעקב (אם קיים בלוקאל סטוראג’)
-        userId: localStorage.getItem("userId") || null,
-      });
+      if (USE_SESSION_AUTH) {
+        // Session: לא מעבירים userId מהלקוח; השרת ישלוף מה-session אם קיים
+        await api.post("/geo/contactForm", {
+          fullName,
+          email,
+          phone: phone || null,
+          subject,
+          message,
+        });
+      } else {
+        // Fallback ישן: עם userId מה-localStorage
+        await axios.post("http://localhost:3000/geo/contactForm", {
+          fullName,
+          email,
+          phone: phone || null,
+          subject,
+          message,
+          userId: localStorage.getItem("userId") || null,
+        });
+      }
       setSent(true);
     } catch (err) {
       console.error("Contact form send failed:", err);

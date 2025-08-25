@@ -7,10 +7,14 @@ import {
   replaceSupplierServiceCities,
 } from "../../database/settingsDB.js";
 
+// חדשים — אימות מבוסס Session
+import authRequired from "../middlewares/authRequired.js";
+import requireRole from "../middlewares/requireRole.js";
+
 const router = express.Router();
 
 /* =========================
- * Owner Settings
+ * Owner Settings (קיים – לפי userId מהלקוח)
  * ========================= */
 router.get("/owner", async (req, res) => {
   try {
@@ -37,7 +41,7 @@ router.put("/owner", async (req, res) => {
 });
 
 /* =========================
- * Supplier Settings
+ * Supplier Settings (קיים – לפי userId מהלקוח)
  * ========================= */
 router.get("/supplier", async (req, res) => {
   try {
@@ -72,5 +76,76 @@ router.put("/supplier/service-cities", async (req, res) => {
     res.status(500).json({ message: "Failed to update service cities" });
   }
 });
+
+/* =======================================================
+ * נתיבי Session חדשים – מזהים userId מה־session (לא מהלקוח)
+ * ======================================================= */
+
+// בעל/ת מכולת – שליפה/עדכון של הפרופיל שלי
+router.get("/owner/my", authRequired, requireRole("StoreOwner"), async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const data = await getOwnerSettingsById(userId);
+    if (!data) return res.status(404).json({ message: "Owner not found" });
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ message: "Failed to fetch owner settings" });
+  }
+});
+
+router.put("/owner/my", authRequired, requireRole("StoreOwner"), async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    await updateOwnerSettings({ ...req.body, userId });
+    res.json({ success: true });
+  } catch (e) {
+    if (e.message?.includes("ER_DUP_ENTRY")) {
+      return res.status(409).json({ message: "האימייל כבר בשימוש" });
+    }
+    res.status(500).json({ message: "Failed to update owner settings" });
+  }
+});
+
+// ספק/ית – שליפה/עדכון של הפרופיל שלי
+router.get("/supplier/my", authRequired, requireRole("Supplier"), async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const data = await getSupplierSettingsById(userId);
+    if (!data) return res.status(404).json({ message: "Supplier not found" });
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ message: "Failed to fetch supplier settings" });
+  }
+});
+
+router.put("/supplier/my", authRequired, requireRole("Supplier"), async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    await updateSupplierProfile({ ...req.body, userId });
+    res.json({ success: true });
+  } catch (e) {
+    if (e.message?.includes("ER_DUP_ENTRY")) {
+      return res.status(409).json({ message: "האימייל כבר בשימוש" });
+    }
+    res.status(500).json({ message: "Failed to update supplier profile" });
+  }
+});
+
+// ספק/ית – עדכון ערי שירות שלי
+router.put(
+  "/supplier/service-cities/my",
+  authRequired,
+  requireRole("Supplier"),
+  async (req, res) => {
+    try {
+      const userId = req.session.user.id;
+      const { cityIds } = req.body || {};
+      const count = await replaceSupplierServiceCities(userId, cityIds || []);
+      res.json({ success: true, saved_count: count });
+    } catch (e) {
+      res.status(500).json({ message: "Failed to update service cities" });
+    }
+  }
+);
 
 export default router;

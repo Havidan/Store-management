@@ -40,7 +40,7 @@
 }
 
 .input {
-  width: 100%;
+  width: 80%;
   padding: 10px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
@@ -194,6 +194,9 @@
 
   .citiesGrid {
     grid-template-columns: 1fr;
+  }
+  .input {
+    width: 95%;
   }
 }
 
