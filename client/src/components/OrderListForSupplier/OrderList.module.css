@@ -278,33 +278,62 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 .exportButton:active {
   background-color: #3d8b40;
 }
+@media (max-width: 768px) {
+  .orderHeaderRow { display: none; } /* מסתירים כותרות הטבלה */
 
-/*=========== Responsive ===========*/
-@media (max-width: 1200px) {
-  .ordersSection {
-    width: 100%;
-    padding: 0 12px;
-  }
-
-  /* עוטפים את הטבלה בגלילה אופקית */
   .orderList {
+    display: flex;
     overflow-x: auto;
-    display: block;
+    gap: 16px;
+    padding: 8px 4px;
+    scroll-snap-type: x mandatory;
   }
 
-  /* טבלאות שומרות על רוחב מינימלי - לא מתכווצות */
-  .orderHeaderRow,
+  .orderRow {
+    flex: 0 0 85%;
+    min-width: 280px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+  }
+
   .orderHeader {
-    min-width: 600px; /* או יותר לפי מספר העמודות שלך */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  /* טבלה פנימית של מוצרים */
-  .innerTableWrap {
-    width: 100%;
-    overflow-x: auto;
+  .orderHeader > span {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.95rem;
+    color: #111827;
+    font-weight: 500;
+    position: relative;
   }
 
-  .innerTable {
-    min-width: 400px; /* או כמה שצריך כדי לא לשבור */
+  /* מוסיפים את שם השדה לפי המיקום שלו */
+  .orderHeader > span:nth-child(1)::before { content: "מספר הזמנה:"; }
+  .orderHeader > span:nth-child(2)::before { content: "תאריך:"; }
+  .orderHeader > span:nth-child(3)::before { content: "חברה:"; }
+  .orderHeader > span:nth-child(4)::before { content: "סכום:"; }
+  .orderHeader > span:nth-child(5)::before { content: "סטטוס:"; }
+
+  .orderHeader > span::before {
+    font-size: 0.8rem;
+    color: #6B7280;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+
+  .orderAmount {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #50a070;
   }
 }
