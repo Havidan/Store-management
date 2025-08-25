@@ -1,0 +1,366 @@
+/* ============================
+   OrderListOwner.module.css
+   עיצוב ירקרק לרשימות הזמנה (RTL)
+   ============================ */
+
+/* Palette */
+:root {
+  --bg: #f6fbf7;
+  --card: #ffffff;
+  --border: #e3f2e7;
+  --txt: #0f3d2e;
+  --muted: #597e6d;
+  --brand: #2e7d32;
+  --brand-600: #256c28;
+  --brand-100: #e6f4ea;
+  --accent: #9ad1a4;
+  --shadow: 0 6px 24px rgba(16, 59, 45, 0.08);
+}
+
+/* כללי */
+.ordersSection {
+  direction: rtl;
+  color: var(--txt);
+  background: linear-gradient(180deg, var(--bg) 0%, #ffffff 60%);
+  min-height: 100%;
+  padding: 20px 20px 32px;
+  width: 100%;
+}
+
+/* כותרת */
+.title {
+  text-align: center;
+  color: var(--txt);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  position: relative;
+}
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 3px;
+  background: linear-gradient(90deg, #6F8B7A, #8FA79A);
+  border-radius: 2px;
+}
+
+/* ====== פילטר תאריכים ====== */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+}
+.filterGroup { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.filterLabel { font-weight:600; font-size:0.95rem; color: var(--txt); }
+.inlineLabel { display:inline-flex; align-items:center; gap:6px; font-size:0.95rem; }
+
+.dateInput {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #FFFFFF;
+  min-width: 7rem;
+  direction: ltr;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  color: var(--txt);
+}
+.dateInput:hover { border-color: #B6C1CC; }
+.dateInput:focus { border-color: #6F8B7A; box-shadow: 0 0 0 3px rgba(111,139,122,.20); }
+
+.clearFilterButton {
+  padding: 7px 12px;
+  border: 1px solid #6F8B7A;
+  background: #FFFFFF;
+  color: #3D4B44;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.15s ease, transform 0.05s ease;
+}
+.clearFilterButton:hover { background: #EEF3F1; }
+.clearFilterButton:active { transform: translateY(1px); }
+
+/* כפתורים */
+.historyButton {
+  padding: 7px 10px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: 1px solid #6F8B7A66;
+  background-color: #6F8B7A;
+  color: #F8FAFC;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(111, 139, 122, 0.22);
+}
+.historyButton:hover { background-color: #5D7668; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(111,139,122,.26); }
+
+.confirmButton {
+  background-color: var(--brand);
+  color: #ffffff;
+  border: 1px solid var(--brand);
+  padding: 8px 11px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(111,139,122,.2);
+}
+.confirmButton:hover { background-color: var(--brand-600); transform: translateY(-1px); }
+.confirmButton:disabled {
+  background-color: #D9E2DD;
+  color: #3d6953;
+  border-color: #D9E2DD;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.exportButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+.exportButton:hover { background-color: #389a3b; }
+
+/* ====== טבלת רשימת ההזמנות ====== */
+/* פריסה: 0.9fr | 0.9fr | 1.3fr | 1fr | 0.9fr | 1.2fr | 40px  */
+.orderHeaderRow {
+  display: grid;
+  grid-template-columns: 0.9fr 0.9fr 1.3fr 1fr 0.9fr 1.2fr 40px;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--brand-100);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  font-weight: 700;
+  color: var(--txt);
+  text-align: right;
+}
+
+.orderList {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  box-shadow: var(--shadow);
+}
+
+.orderRow { border-bottom: 1px solid var(--border); }
+.orderRow:last-child { border-bottom: none; }
+
+.orderHeader {
+  display: grid;
+  grid-template-columns: 0.9fr 0.9fr 1.3fr 1fr 0.9fr 1.2fr 40px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  transition: background 0.15s ease;
+  cursor: pointer;
+  background-color: #FFFFFF;
+  text-align: right;
+}
+.orderHeader:hover { background: #f2faf3; }
+
+.orderHeader span { font-size: 0.95rem; color: #1F2937; font-weight: 500; }
+
+/* סכום */
+.orderAmount {
+  display: block;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: #5D7668;
+  font-weight: 800;
+}
+
+/* סטטוס כצ'יפ */
+.orderHeader span:nth-child(5) {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f7fdf8;
+  color: var(--brand-600);
+  border: 1px dashed var(--accent);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+/* פעולה + חץ */
+.orderAction { display: flex; justify-content: flex-start; align-items: center; gap: 8px; min-height: 40px; }
+.chevron { display: flex; justify-content: center; color: #5D7668; }
+
+/* פרטים */
+.orderDetails { background-color: #fbfdfa; padding: 16px; font-size: 0.92rem; color: #374151; }
+.productsTitle { margin-top: 8px; font-weight: 700; color: var(--txt); }
+
+/* שורת פרטים אינליין */
+.detailsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+  direction: rtl;
+  margin-bottom: 8px;
+  text-align: right;
+}
+.detailItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: #374151;
+  font-size: 0.92rem;
+}
+.detailItem strong { color: var(--txt); font-weight: 700; }
+
+/* טבלה פנימית */
+.innerTableWrap {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.innerTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  direction: rtl;
+  text-align: right;
+}
+.innerTable thead th {
+  background-color: var(--brand-100);
+  color: var(--txt);
+  font-weight: 800;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.innerTable tbody td {
+  padding: 8px 10px;
+  border-top: 1px solid #F1F5F9;
+}
+.innerTable tbody tr:hover { background: #f7fcf8; }
+
+/* ===== Mobile: table -> cards (safe & scoped) ===== */
+@media (max-width: 768px) {
+  /* סקוֹפּ חזק */
+  .ordersSection .orderHeaderRow { display: none; }
+
+  .ordersSection .orderList {
+    display: flex;
+    gap: 16px;
+    padding: 8px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .ordersSection .orderRow {
+    flex: 0 0 86%;
+    min-width: 280px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 12px 14px;
+    scroll-snap-align: start;
+  }
+
+  .ordersSection .orderHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+    cursor: default;
+    background: transparent;
+  }
+
+  .ordersSection .orderHeader > span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 0.95rem;
+    color: var(--txt);
+    border: 0;
+  }
+
+  /* תוויות שדה — סדר ברירת מחדל */
+  .ordersSection .orderHeader > span:nth-child(1)::before { content: "מספר הזמנה:"; }
+  .ordersSection .orderHeader > span:nth-child(2)::before { content: "תאריך:"; }
+  .ordersSection .orderHeader > span:nth-child(3)::before { content: "חברה:"; }
+  .ordersSection .orderHeader > span:nth-child(4)::before { content: "סכום:"; }
+  .ordersSection .orderHeader > span:nth-child(5)::before { content: "סטטוס:"; }
+  .ordersSection .orderHeader > span:nth-child(6)::before { content: "פעולות:"; }
+
+  .ordersSection .orderHeader > span::before {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 700;
+    margin-left: 8px;
+  }
+
+  /* סטטוס כצ'יפ גם במובייל */
+  .ordersSection .orderHeader > span:nth-child(5) > * {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f7fdf8;
+    color: var(--brand-600);
+    border: 1px dashed var(--accent);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  .ordersSection .orderAmount {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--brand-600);
+  }
+
+  .ordersSection .orderAction {
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  /* מסתירים Chevron לפי class */
+  .ordersSection .chevron { display: none; }
+
+  .ordersSection .orderDetails {
+    margin-top: 8px;
+    background: #fbfdfa;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .ordersSection .innerTableWrap {
+    width: 100%;
+    border-radius: 10px;
+  }
+}

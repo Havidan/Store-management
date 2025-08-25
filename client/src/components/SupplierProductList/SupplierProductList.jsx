@@ -2,124 +2,139 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./SupplierProductList.module.css";
 import { useNavigate } from "react-router-dom";
-
-// חדשים (Session Auth) – שימוש זהיר בלי לשנות UI
 import { useAuth } from "../../auth/AuthContext";
 import api from "../../api/axios";
 
 function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
   const [products, setProducts] = useState([]);
-  // quantities is object of pairs productName : amount
   const [quantities, setQuantities] = useState({});
-  const [userId, setUserId] = useState(localStorage.getItem("userId"));
+  const [userId] = useState(localStorage.getItem("userId"));
   const navigate = useNavigate();
-
-  // האם Session פעיל?
   const { USE_SESSION_AUTH } = useAuth();
 
+  // שלב א: טעינת המוצרים
   useEffect(() => {
-    // get the products of specific supplier
     axios
-      .post("http://localhost:3000/products/get-products-by-supplier", {
-        supplier_id: supplier_id,
-      })
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching products:", error);
-      });
+      .post("http://localhost:3000/products/get-products-by-supplier", { supplier_id })
+      .then((response) => setProducts(response.data))
+      .catch((error) => console.error("Error fetching products:", error));
   }, [supplier_id]);
 
+  // שלב ב: טעינת טיוטה קיימת (אם יש) והזרמה ל-quantities
+  useEffect(() => {
+    if (!USE_SESSION_AUTH) return; // טיוטות יושבות על session, הגיוני רק בזרימה החדשה
+    const fetchDraft = async () => {
+      try {
+        const res = await api.get(`/order/draft/${supplier_id}`);
+        const draft = res.data;
+        if (draft?.items?.length && products?.length) {
+          // נבנה quantities לפי product_id -> product_name
+          const idToName = Object.fromEntries(products.map(p => [p.id || p.product_id, p.product_name]));
+          const q = {};
+          draft.items.forEach(it => {
+            const name = idToName[it.product_id];
+            if (name) q[name] = Number(it.quantity) || 0;
+          });
+          setQuantities(q);
+        }
+      } catch (e) {
+        // אין טיוטה/שגיאה? נתעלם בשקט
+      }
+    };
+    fetchDraft();
+  }, [USE_SESSION_AUTH, supplier_id, products]);
+
   const handleQuantityChange = (productName, quantity) => {
-    // an object of product name and quantity pairs
-    setQuantities({
-      ...quantities,
-      [productName]: quantity,
-    });
+    setQuantities(prev => ({ ...prev, [productName]: quantity }));
+  };
+
+  // שמירת טיוטה לשרת
+  const saveDraft = async () => {
+    try {
+      const items = products
+        .map(p => ({
+          product_id: p.id || p.product_id,
+          quantity: Number(quantities[p.product_name]) || 0
+        }))
+        .filter(it => it.quantity > 0);
+
+      if (USE_SESSION_AUTH) {
+        await api.post("/order/draft/save", { supplier_id, items });
+        alert("הטיוטה נשמרה.");
+      } else {
+        alert("שמירת טיוטות נתמכת רק בזרימה עם Session.");
+      }
+    } catch (err) {
+      console.error("Failed to save draft", err);
+      alert("שמירת הטיוטה נכשלה, נסי שוב.");
+    }
+  };
+
+  // ניקוי טיוטה
+  const clearDraft = async () => {
+    try {
+      if (USE_SESSION_AUTH) {
+        await api.delete(`/order/draft/${supplier_id}`);
+      }
+      setQuantities({});
+      alert("הטיוטה נמחקה.");
+    } catch (err) {
+      console.error("Failed to clear draft", err);
+      alert("מחיקת הטיוטה נכשלה.");
+    }
   };
 
   const makeOrder = async () => {
-    // avoid empty orders
-    const productsForOrder = products.filter(
-      (product) => quantities[product.product_name] > 0
-    );
-    if (productsForOrder.length == 0) {
+    const productsForOrder = products.filter(p => (quantities[p.product_name] || 0) > 0);
+    if (productsForOrder.length === 0) {
       alert("לא נבחרו מוצרים. לא ניתן לבצע הזמנה ריקה.");
       return;
     }
 
-    // בדיקת מלאי ומינימום לכל מוצר
+    // בדיקות מלאי ומינימום
     for (const product of productsForOrder) {
-      const quantity = quantities[product.product_name];
-
-      // בדיקה אם יש מספיק במלאי
+      const quantity = Number(quantities[product.product_name]) || 0;
       if (product.stock_quantity < quantity) {
-        alert(
-          `אין מספיק מלאי עבור ${product.product_name}. במלאי: ${product.stock_quantity}, מבוקש: ${quantity}`
-        );
+        alert(`אין מספיק מלאי עבור ${product.product_name}. במלאי: ${product.stock_quantity}, מבוקש: ${quantity}`);
         return;
       }
-
-      // בדיקה אם המלאי נמוך מהמינימום להזמנה
       if (product.stock_quantity < product.min_quantity) {
-        alert(
-          `לא ניתן להזמין ${product.product_name} - המלאי (${product.stock_quantity}) נמוך מהכמות המינימלית להזמנה (${product.min_quantity})`
-        );
+        alert(`לא ניתן להזמין ${product.product_name} - המלאי (${product.stock_quantity}) נמוך מהמינימום (${product.min_quantity})`);
         return;
       }
-
-      // בדיקה אם הכמות המוזמנת עומדת במינימום (אלא אם כן היא 0)
       if (quantity > 0 && quantity < product.min_quantity) {
-        alert(
-          `הכמות עבור ${product.product_name} חייבת להיות לפחות ${product.min_quantity} או 0`
-        );
+        alert(`הכמות עבור ${product.product_name} חייבת להיות לפחות ${product.min_quantity} או 0`);
         return;
       }
     }
 
-    // product list to order
-    const productsList = products.map((product) => ({
-      product_id: product.id,
-      quantity: quantities[product.product_name] || 0,
+    const productsList = products.map(p => ({
+      product_id: p.id || p.product_id,
+      quantity: Number(quantities[p.product_name]) || 0,
     }));
 
-    // more details about the order
-    const orderDataFallback = {
+    const fallbackBody = {
       supplier_id,
-      owner_id: userId, // נשאר רק לזרימה הישנה
+      owner_id: userId,
       products_list: productsList,
     };
 
     try {
       let response;
       if (USE_SESSION_AUTH) {
-        // זרימה חדשה: Session – לא שולחים owner_id מהלקוח
-        response = await api.post("/order/add", {
-          supplier_id,
-          products_list: productsList,
-        });
+        response = await api.post("/order/add", { supplier_id, products_list: productsList });
       } else {
-        // זרימה ישנה: נשאר עם ה-API ההיסטורי
-        response = await axios.post(
-          "http://localhost:3000/order/add",
-          orderDataFallback
-        );
+        response = await axios.post("http://localhost:3000/order/add", fallbackBody);
       }
 
       if (response.status === 201) {
-        console.log("Order placed successfully:", response.data);
-        // for making the separate element of the orders refreshed to see the new order
-        setRefresh((prev) => !prev);
-        onClose();
+        setRefresh?.(prev => !prev);
+        onClose?.();
         navigate("/StoreOwnerHome");
       }
     } catch (error) {
       console.error("Error placing order:", error);
-      alert(
-        "שגיאה בהזמנה: " +
-          (error.response?.data?.error || error.response?.data?.message || "נסה שוב מאוחר יותר")
-      );
+      alert("שגיאה בהזמנה: " + (error.response?.data?.error || error.response?.data?.message || "נסה שוב מאוחר יותר"));
     }
   };
 
@@ -133,7 +148,7 @@ function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
             const lowStock = product.stock_quantity < product.min_quantity;
 
             return (
-              <li key={product.product_id} className={styles.productItem}>
+              <li key={product.product_id || product.id} className={styles.productItem}>
                 <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                   {product.image_url && (
                     <div className={styles.productImageContainer}>
@@ -141,40 +156,18 @@ function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
                         src={`http://localhost:3000${product.image_url}`}
                         alt={product.product_name}
                         className={styles.productImage}
-                        onClick={() =>
-                          window.open(
-                            `http://localhost:3000${product.image_url}`,
-                            "_blank"
-                          )
-                        }
-                        style={{
-                          width: "60px",
-                          height: "60px",
-                          objectFit: "cover",
-                          borderRadius: "5px",
-                          cursor: "pointer",
-                          border: "1px solid #ddd",
-                        }}
+                        onClick={() => window.open(`http://localhost:3000${product.image_url}`, "_blank")}
+                        style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 5, cursor: "pointer", border: "1px solid #ddd" }}
                       />
                     </div>
                   )}
                   <div className={styles.productInfo}>
-                    <span className={styles.productName}>
-                      {product.product_name}
-                    </span>
+                    <span className={styles.productName}>{product.product_name}</span>
                     <span className={styles.productPrice}>₪{product.unit_price}</span>
-                    <span className={styles.productMin}>
-                      מינימום: {product.min_quantity}
-                    </span>
-                    <span className={styles.productStock}>
-                      במלאי: {product.stock_quantity}
-                    </span>
-                    {isOutOfStock && (
-                      <span className={styles.outOfStock}>אזל מהמלאי</span>
-                    )}
-                    {lowStock && !isOutOfStock && (
-                      <span className={styles.lowStock}>מלאי נמוך</span>
-                    )}
+                    <span className={styles.productMin}>מינימום: {product.min_quantity}</span>
+                    <span className={styles.productStock}>במלאי: {product.stock_quantity}</span>
+                    {isOutOfStock && <span className={styles.outOfStock}>אזל מהמלאי</span>}
+                    {lowStock && !isOutOfStock && <span className={styles.lowStock}>מלאי נמוך</span>}
                   </div>
                 </div>
                 <div className={styles.quantityInput}>
@@ -183,12 +176,7 @@ function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
                     min="0"
                     value={quantities[product.product_name] || 0}
                     disabled={isOutOfStock || lowStock}
-                    onChange={(e) =>
-                      handleQuantityChange(
-                        product.product_name,
-                        parseInt(e.target.value) || 0
-                      )
-                    }
+                    onChange={(e) => handleQuantityChange(product.product_name, parseInt(e.target.value) || 0)}
                   />
                 </div>
               </li>
@@ -196,13 +184,11 @@ function SupplierProductList({ supplierId: supplier_id, onClose, setRefresh }) {
           })}
         </ul>
 
-        <div className={styles.modalButtons}>
-          <button className={styles.placeOrderButton} onClick={makeOrder}>
-            סגור הזמנה
-          </button>
-          <button className={styles.closeButton} onClick={onClose}>
-            ביטול
-          </button>
+        <div className={styles.modalButtons} style={{ gap: 8 }}>
+          <button className={styles.placeOrderButton} onClick={makeOrder}>סגור הזמנה</button>
+          <button className={styles.placeOrderButton} type="button" onClick={saveDraft}>שמור טיוטה</button>
+          <button className={styles.closeButton} type="button" onClick={clearDraft}>נקה טיוטה</button>
+          <button className={styles.closeButton} onClick={onClose}>ביטול</button>
         </div>
       </div>
     </div>

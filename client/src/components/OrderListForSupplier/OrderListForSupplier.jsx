@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { ChevronDown, ChevronUp, Download } from "lucide-react";
 import * as XLSX from 'xlsx';
-import styles from "./OrderList.module.css";
+import styles from "./OrderListSupplier.module.css"; // ← החלפתי לשם החדש
 
 // חדשים (Session Auth)
 import { useAuth } from "../../auth/AuthContext";
@@ -26,11 +26,9 @@ function OrderListForSupplier() {
     const fetchOrders = async () => {
       try {
         if (USE_SESSION_AUTH) {
-          // זרימה חדשה: מבוסס session
-          const res = await api.get("/order/my");
+          const res = await api.get("/order/my"); // session-based
           setOrders(res.data);
         } else {
-          // זרימה ישנה: localStorage
           const res = await axios.post("http://localhost:3000/order/by-id", {
             id: supplierId,
             userType: "supplier",
@@ -41,7 +39,6 @@ function OrderListForSupplier() {
         console.error("Failed to fetch orders", err);
       }
     };
-
     fetchOrders();
   }, [USE_SESSION_AUTH, supplierId]);
 
@@ -55,7 +52,6 @@ function OrderListForSupplier() {
 
   const isExpanded = (orderId) => expandedOrders.has(orderId);
 
-  // ספק מאשר -> "בתהליך"
   const handleOrderArrivalConfirmation = async (orderId) => {
     try {
       const res = await axios.put(
@@ -70,8 +66,6 @@ function OrderListForSupplier() {
       console.error("Failed to update order status:", err);
     }
   };
-
-  const displayCompleteOrders = () => setDisplayHistory((p) => !p);
 
   // סכום הזמנה
   const toNumber = (v, fb = 0) => {
@@ -127,7 +121,7 @@ function OrderListForSupplier() {
 
   const clearDateFilter = () => setDateFilter({ from: "", to: "" });
 
-  // פונקציה לייצוא Excel
+  // ייצוא Excel
   const exportToExcel = () => {
     try {
       const ordersData = filteredOrders.map(order => ({
@@ -171,7 +165,7 @@ function OrderListForSupplier() {
 
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0];
-      let fileName = `הזמנות_${dateStr}`;
+      let fileName = `הזמנות_ספק_${dateStr}`;
       fileName += displayHistory ? '_היסטוריה' : '_פעילות';
       if (isDateFilterActive) fileName += '_מסונן';
       fileName += '.xlsx';
@@ -185,10 +179,10 @@ function OrderListForSupplier() {
   };
 
   return (
-    <div className={styles.ordersSection} dir="rtl">
+    <div className={styles.ordersSection}>
       <h2 className={styles.title}>רשימת הזמנות לספק</h2>
 
-      {/* פילטר תאריכים */}
+      {/* פילטר תאריכים + פעולות */}
       <div className={styles.filterBar}>
         <div className={styles.filterGroup}>
           <span className={styles.filterLabel}>סינון לפי תאריך:</span>
@@ -217,24 +211,22 @@ function OrderListForSupplier() {
           )}
         </div>
 
-        <div className={styles.actionButtons}>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button 
-              className={styles.exportButton} 
-              onClick={exportToExcel}
-              title={`ייצא ${filteredOrders.length} הזמנות לאקסל`}
-            >
-              <Download size={16} style={{ marginLeft: "5px" }} />
-              ייצא ל-Excel ({filteredOrders.length} הזמנות)
-            </button>
-          </div>
-          <button className={styles.historyButton} onClick={displayCompleteOrders}>
+        <div className={styles.actionButtons} style={{ display: "flex", gap: "10px" }}>
+          <button 
+            className={styles.exportButton} 
+            onClick={exportToExcel}
+            title={`ייצא ${filteredOrders.length} הזמנות לאקסל`}
+          >
+            <Download size={16} style={{ marginLeft: "5px" }} />
+            ייצא ל-Excel ({filteredOrders.length} הזמנות)
+          </button>
+          <button className={styles.historyButton} onClick={() => setDisplayHistory(p => !p)}>
             {displayHistory ? "לצפיה בהזמנות שטרם סופקו" : "לצפיה בהיסטורית ההזמנות"}
           </button>
         </div>
       </div>
 
-      {/* כותרת: [מס' הזמנה][תאריך][שם חנות][סכום ההזמנה][סטטוס][פעולה][חץ] */}
+      {/* כותרת: [מס' הזמנה][תאריך][שם חנות][סכום][סטטוס][פעולה][חץ] */}
       <div className={styles.orderHeaderRow}>
         <span>מס' הזמנה</span>
         <span>תאריך</span>
@@ -250,15 +242,15 @@ function OrderListForSupplier() {
           <div key={order.order_id} className={styles.orderRow}>
             <div className={styles.orderHeader} onClick={() => toggleExpand(order.order_id)}>
               <span>#{order.order_id}</span>
-              <span>{new Date(order.created_date).toLocaleDateString()}</span>
+              <span>{new Date(order.created_date).toLocaleDateString("he-IL")}</span>
               <span>{order.owner_company_name}</span>
               <span className={styles.orderAmount}>{formatILS(calcOrderTotal(order))}</span>
               <span>{order.status}</span>
 
-              <div className={styles.orderAction}>
+              <span className={styles.orderAction}>
                 {order.status === "בוצעה" && (
                   <button
-                    className={styles.confirmButton}
+                    className={styles.exportButton}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleOrderArrivalConfirmation(order.order_id);
@@ -268,12 +260,12 @@ function OrderListForSupplier() {
                   </button>
                 )}
                 {order.status === "בתהליך" && (
-                  <button className={styles.confirmButton} disabled>
+                  <button className={styles.exportButton} disabled>
                     ההזמנה אושרה
                   </button>
                 )}
-                {order.status === "הושלמה" && <div>ההזמנה הושלמה</div>}
-              </div>
+                {order.status === "הושלמה" && <div style={{ color: "#597e6d" }}>ההזמנה הושלמה</div>}
+              </span>
 
               <span className={styles.chevron}>
                 {isExpanded(order.order_id) ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -323,6 +315,10 @@ function OrderListForSupplier() {
             )}
           </div>
         ))}
+
+        {filteredOrders.length === 0 && (
+          <div style={{ padding: 16, color: "#6b7280" }}>לא נמצאו הזמנות בהתאם לסינון הנוכחי.</div>
+        )}
       </div>
     </div>
   );
