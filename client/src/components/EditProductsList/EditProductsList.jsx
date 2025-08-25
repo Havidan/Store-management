@@ -93,23 +93,30 @@ function EditProductList() {
   };
 
   const handleStockUpdate = async (productId) => {
+    // בדיקת ולידציה למלאי
+    const stockValue = parseInt(newStockValue);
+    if (isNaN(stockValue) || stockValue < 0) {
+      alert("כמות המלאי חייבת להיות מספר חיובי או אפס");
+      return;
+    }
+
     try {
       let response;
       if (USE_SESSION_AUTH) {
         // נתיב חדש מבוסס session
         response = await api.put(`/products/update-stock/session/${productId}`, {
-          stock_quantity: parseInt(newStockValue)
+          stock_quantity: stockValue
         });
       } else {
         // נתיב ישן
         response = await axios.put(`http://localhost:3000/products/update-stock/${productId}`, {
-          stock_quantity: parseInt(newStockValue)
+          stock_quantity: stockValue
         });
       }
 
       alert(response.data.message);
       setOldProducts((prev) =>
-        prev.map((p) => (p.id === productId ? { ...p, stock_quantity: parseInt(newStockValue) } : p))
+        prev.map((p) => (p.id === productId ? { ...p, stock_quantity: stockValue } : p))
       );
       setEditingStockId(null);
       setNewStockValue("");
@@ -134,12 +141,30 @@ function EditProductList() {
   };
 
   const handleProductUpdate = async (productId) => {
+    // בדיקת ולידציה
+    if (!editedProduct.product_name.trim()) {
+      alert("שם המוצר לא יכול להיות רק");
+      return;
+    }
+
+    const unitPrice = parseFloat(editedProduct.unit_price);
+    if (isNaN(unitPrice) || unitPrice < 0) {
+      alert("מחיר ליחידה חייב להיות מספר חיובי או אפס");
+      return;
+    }
+
+    const minQuantity = parseInt(editedProduct.min_quantity);
+    if (isNaN(minQuantity) || minQuantity < 0) {
+      alert("כמות מינימלית חייבת להיות מספר חיובי או אפס");
+      return;
+    }
+
     try {
       let response;
       const payload = {
         product_name: editedProduct.product_name,
-        unit_price: parseFloat(editedProduct.unit_price),
-        min_quantity: parseInt(editedProduct.min_quantity)
+        unit_price: unitPrice,
+        min_quantity: minQuantity
       };
 
       if (USE_SESSION_AUTH) {
@@ -157,8 +182,8 @@ function EditProductList() {
             ? {
                 ...p,
                 product_name: editedProduct.product_name,
-                unit_price: parseFloat(editedProduct.unit_price),
-                min_quantity: parseInt(editedProduct.min_quantity)
+                unit_price: unitPrice,
+                min_quantity: minQuantity
               }
             : p
         )
@@ -295,6 +320,7 @@ function EditProductList() {
                   <div className={styles.editStock}>
                     <input
                       type="number"
+                      min="0"
                       value={newStockValue}
                       onChange={(e) => setNewStockValue(e.target.value)}
                       className={styles.stockInput}
@@ -363,6 +389,7 @@ function EditProductList() {
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
                   value={editedProduct.unit_price}
                   onChange={(e) => setEditedProduct({ ...editedProduct, unit_price: e.target.value })}
                   className={styles.editInput}
@@ -374,6 +401,7 @@ function EditProductList() {
                 <label>כמות מינימלית להזמנה</label>
                 <input
                   type="number"
+                  min="0"
                   value={editedProduct.min_quantity}
                   onChange={(e) => setEditedProduct({ ...editedProduct, min_quantity: e.target.value })}
                   className={styles.editInput}

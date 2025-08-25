@@ -31,6 +31,7 @@ router.post("/login", async (req, res) => {
  * GET /auth/me
  * מחזיר את המשתמש מה-session אם מחובר
  */
+
 router.get("/me", (req, res) => {
   if (!req.session?.user) {
     return res.status(401).json({ message: "Not authenticated" });

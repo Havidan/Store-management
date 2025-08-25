@@ -35,6 +35,22 @@ function AddProductModal({ onCancel, onAdd }) {
       return;
     }
 
+    // בדיקת ערכים שליליים
+    if (parseFloat(price) <= 0) {
+      alert("מחיר חייב להיות גדול מאפס");
+      return;
+    }
+
+    if (parseInt(stock) < 0) {
+      alert("כמות מינימלית להזמנה לא יכולה להיות שלילית");
+      return;
+    }
+
+    if (parseInt(stockQuantity) < 0) {
+      alert("כמות במלאי לא יכולה להיות שלילית");
+      return;
+    }
+
     // נבנה FormData להעלאה (כולל תמונה אם קיימת)
     const formData = new FormData();
 
@@ -119,6 +135,7 @@ function AddProductModal({ onCancel, onAdd }) {
               id="price"
               type="number"
               step="0.01"
+              min="0.01"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="לדוגמא: 5.9 (המחיר בשקלים)"
@@ -132,6 +149,7 @@ function AddProductModal({ onCancel, onAdd }) {
               name="stock"
               id="stock"
               type="number"
+              min="0"
               value={stock}
               onChange={(e) => setStock(e.target.value)}
               placeholder="לדוגמא: 50 (ביחידות)"
@@ -145,6 +163,7 @@ function AddProductModal({ onCancel, onAdd }) {
               name="stockQuantity"
               id="stockQuantity"
               type="number"
+              min="0"
               value={stockQuantity}
               onChange={(e) => setStockQuantity(e.target.value)}
               placeholder="לדוגמא: 200 (ביחידות)"
