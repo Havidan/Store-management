@@ -17,6 +17,8 @@ import StoreLinksActive from "./components/StoreOwnerHome/Links/StoreLinksActive
 import StoreLinksPending from "./components/StoreOwnerHome/Links/StoreLinksPending";
 import StoreLinksDiscover from "./components/StoreOwnerHome/Links/StoreLinksDiscover";
 import StoreOwnerSettingsPage from "./components/StoreOwnerHome/StoreOwnerSettingsPage";
+import OrderDrafts from "./components/StoreOwnerHome/OrderDrafts";
+
 
 // Supplier pages
 import SupplierPage from "./components/SupplierHome/SupplierPage";
@@ -42,6 +44,7 @@ export default function AppWrapper() {
           {/* StoreOwner area with persistent Sidebar */}
           <Route element={<StoreLayout />}>
             <Route path="/StoreOwnerHome" element={<StoreOwnerPage />} />
+            <Route path="/OrderDrafts" element={<OrderDrafts />} />
             <Route path="/StoreOwnerLinks" element={<StoreOwnerLinksPage />}>
               <Route index element={<StoreLinksActive />} />
               <Route path="active" element={<StoreLinksActive />} />

@@ -22,7 +22,7 @@ export default function StoreLayout() {
 
   const sidebarItems = [
     { label: "הזמנות שבוצעו", to: "/StoreOwnerHome", end: true },
-    { label: "טיוטת הזמנות ", to: "/ContactForm" },
+    { label: "טיוטת הזמנות ", to: "/OrderDrafts" },
     { label: "קישורים עם ספקים", to: "/StoreOwnerLinks" },
     { label: "איזור אישי", to: "/StoreOwnerSettings" },
     { label: "צור קשר", to: "/ContactForm" },

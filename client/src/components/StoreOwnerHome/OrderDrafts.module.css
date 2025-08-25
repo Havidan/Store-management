@@ -1,0 +1,198 @@
+/* ============================
+   OrderDrafts.module.css
+   עיצוב ירקרק מרוכך, RTL-ready
+   ============================ */
+
+/* פלטת צבעים בסיסית */
+:root {
+  --bg: #f6fbf7;              /* רקע כללי ירקרק-בהיר */
+  --card: #ffffff;            /* כרטיסים */
+  --border: #e3f2e7;          /* קווי הפרדה עדינים */
+  --txt: #0f3d2e;             /* טקסט כהה ירקרק */
+  --muted: #597e6d;           /* טקסט משני */
+  --brand: #2e7d32;           /* ירוק ראשי (כפתור/כותרות) */
+  --brand-600: #256c28;       /* hover/active */
+  --brand-100: #e6f4ea;       /* רקע רך לאלמנטים */
+  --accent: #9ad1a4;          /* הדגשות קלות */
+  --shadow: 0 6px 24px rgba(16, 59, 45, 0.08);
+}
+
+/* מעטפת העמוד */
+.draftsWrap {
+  direction: rtl;
+  color: var(--txt);
+  background: linear-gradient(180deg, var(--bg) 0%, #ffffff 60%);
+  min-height: 100%;
+  padding: 20px 20px 32px;
+}
+
+/* כותרת */
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--brand);
+  margin: 6px 0 16px;
+  letter-spacing: 0.2px;
+}
+
+/* קונטיינר הכרטיסים */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* שורת כותרת הטבלה */
+.headerRow {
+  display: grid;
+  grid-template-columns: 1.2fr 0.6fr 1fr 1.2fr;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--brand-100);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--txt);
+}
+
+/* רשימה */
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* שורה */
+.row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.6fr 1fr 1.2fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s ease, transform 0.08s ease;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: #f2faf3;
+}
+
+/* תאים */
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* תג ספק */
+.supplierBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--brand-100);
+  color: var(--brand-600);
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+/* צ'יפ לספירת פריטים */
+.countPill {
+  background: #f7fdf8;
+  color: var(--muted);
+  border: 1px dashed var(--accent);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* תאריך/זמן */
+.timestamp {
+  color: var(--muted);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* פעולות */
+.actions {
+  display: inline-flex;
+  gap: 8px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+/* כפתורים */
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--txt);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.btn:focus-visible {
+  outline: 3px solid #bde2c3; /* נגישות */
+  outline-offset: 2px;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* כפתור ראשי – ירוק מלא */
+.btnPrimary {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+.btnPrimary:hover {
+  background: var(--brand-600);
+  border-color: var(--brand-600);
+}
+
+/* כפתור משני – מסגרת ירוקה */
+.btnGhost {
+  background: transparent;
+  color: var(--brand-600);
+  border-color: var(--accent);
+}
+.btnGhost:hover {
+  background: var(--brand-100);
+}
+
+/* הודעה ריקה */
+.empty {
+  padding: 18px 16px;
+  color: var(--muted);
+}
+
+/* התאמה למסכים קטנים */
+@media (max-width: 800px) {
+  .headerRow, .row {
+    grid-template-columns: 1fr;
+  }
+  .cell {
+    justify-content: space-between;
+  }
+  .actions {
+    justify-content: flex-end;
+  }
+}
