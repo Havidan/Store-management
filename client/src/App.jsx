@@ -26,44 +26,60 @@ import SupplierLinksActive from "./components/SupplierHome/Links/SupplierLinksAc
 import SupplierSettingsPage from "./components/SupplierHome/SupplierSettingsPage";
 import EditProductsList from "./components/EditProductsList/EditProductsList";
 
+// Auth (חדשים)
+import AuthProvider from "./auth/AuthContext";
+import { ProtectedRoute, RoleRoute } from "./auth/ProtectedRoute";
+
 export default function AppWrapper() {
   return (
-    <Router>
-      <Routes>
-        {/* Public */}
-        <Route path="/" element={<Login />} />
-        <Route path="/SignUp" element={<SignUp />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<Login />} />
+          <Route path="/SignUp" element={<SignUp />} />
 
-        {/* StoreOwner area with persistent Sidebar */}
-        <Route element={<StoreLayout />}>
-          <Route path="/StoreOwnerHome" element={<StoreOwnerPage />} />
-          <Route path="/StoreOwnerLinks" element={<StoreOwnerLinksPage />}>
-            <Route index element={<StoreLinksActive />} />
-            <Route path="active" element={<StoreLinksActive />} />
-            <Route path="pending" element={<StoreLinksPending />} />
-            <Route path="discover" element={<StoreLinksDiscover />} />
+          {/* StoreOwner area with persistent Sidebar */}
+          <Route element={<StoreLayout />}>
+            <Route path="/StoreOwnerHome" element={<StoreOwnerPage />} />
+            <Route path="/StoreOwnerLinks" element={<StoreOwnerLinksPage />}>
+              <Route index element={<StoreLinksActive />} />
+              <Route path="active" element={<StoreLinksActive />} />
+              <Route path="pending" element={<StoreLinksPending />} />
+              <Route path="discover" element={<StoreLinksDiscover />} />
+            </Route>
+            {/* הגנה מדורגת רק על דף אחד בשלב זה */}
+            <Route
+              path="/StoreOwnerSettings"
+              element={
+                <ProtectedRoute>
+                  <RoleRoute role="StoreOwner">
+                    <StoreOwnerSettingsPage />
+                  </RoleRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/ContactForm" element={<ContactForm />} />
           </Route>
-          <Route path="/StoreOwnerSettings" element={<StoreOwnerSettingsPage />} />
-          <Route path="/ContactForm" element={<ContactForm />} />
-        </Route>
 
-        {/* Supplier area with persistent Sidebar */}
-        <Route element={<SupplierLayout />}>
-          <Route path="/SupplierHome" element={<SupplierPage />} />
-          <Route path="/SupplierLinks" element={<SupplierLinksPage />}>
-            <Route index element={<SupplierLinksActive />} />
-            <Route path="pending" element={<SupplierLinksPending />} />
-            <Route path="active" element={<SupplierLinksActive />} />
+          {/* Supplier area with persistent Sidebar */}
+          <Route element={<SupplierLayout />}>
+            <Route path="/SupplierHome" element={<SupplierPage />} />
+            <Route path="/SupplierLinks" element={<SupplierLinksPage />}>
+              <Route index element={<SupplierLinksActive />} />
+              <Route path="pending" element={<SupplierLinksPending />} />
+              <Route path="active" element={<SupplierLinksActive />} />
+            </Route>
+            {/* נשאיר ללא הגנה בשלב זה (נרחיב בהמשך) */}
+            <Route path="/SupplierSettings" element={<SupplierSettingsPage />} />
+            <Route path="/ContactForm" element={<ContactForm />} />
+            <Route path="/EditProducts" element={<EditProductsList />} />
           </Route>
-          <Route path="/SupplierSettings" element={<SupplierSettingsPage />} />
-          <Route path="/ContactForm" element={<ContactForm />} />
-          <Route path="/EditProducts" element={<EditProductsList />} />
-        </Route>
 
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }

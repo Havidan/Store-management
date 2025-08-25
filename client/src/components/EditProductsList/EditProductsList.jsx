@@ -4,9 +4,13 @@ import AddProductModal from "../AddProductModal/AddProductModal";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// חדשים (Session Auth)
+import { useAuth } from "../../auth/AuthContext";
+import api from "../../api/axios";
+
 function EditProductList() {
   const [isOpen, setIsOpen] = useState(false);
-  const [products, setProducts] = useState([]);      // חדשים להוספה
+  const [products, setProducts] = useState([]);       // חדשים להוספה
   const [oldProducts, setOldProducts] = useState([]); // קיימים במערכת
 
   const [editingStockId, setEditingStockId] = useState(null);
@@ -23,14 +27,31 @@ function EditProductList() {
   const supplierId = localStorage.getItem("userId");
   const supplierUsername = localStorage.getItem("username");
 
+  // Session toggle
+  const { USE_SESSION_AUTH } = useAuth();
+
   useEffect(() => {
-    axios
-      .post("http://localhost:3000/products/get-products-by-supplier", {
-        supplier_id: supplierId,
-      })
-      .then((response) => setOldProducts(response.data))
-      .catch((error) => console.error("Error fetching products:", error));
-  }, [products, supplierId]);
+    // טעינת מוצרים קיימים
+    const load = async () => {
+      try {
+        if (USE_SESSION_AUTH) {
+          // מצב חדש: מבוסס session (לא שולחים supplier_id מהלקוח)
+          const res = await api.get("/products/my");
+          setOldProducts(res.data);
+        } else {
+          // מצב ישן: נשארים עם ה-API הקיים
+          const res = await axios.post("http://localhost:3000/products/get-products-by-supplier", {
+            supplier_id: supplierId,
+          });
+          setOldProducts(res.data);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    load();
+  }, [products, supplierId, USE_SESSION_AUTH]);
 
   // הוספת מוצר חדש (לרשימת "להוספה")
   const handleAddProduct = async (productData) => {
@@ -46,10 +67,18 @@ function EditProductList() {
   const handleDeleteProduct = async (productId) => {
     const confirmDelete = window.confirm("האם אתה בטוח שברצונך למחוק את המוצר? פעולה זו אינה ניתנת לביטול.");
     if (!confirmDelete) return;
+
     try {
-      const response = await axios.delete(`http://localhost:3000/products/delete/${productId}`, {
-        data: { supplier_id: supplierId }
-      });
+      let response;
+      if (USE_SESSION_AUTH) {
+        // נתיב חדש מבוסס session
+        response = await api.delete(`/products/delete/session/${productId}`);
+      } else {
+        // נתיב ישן (נשאר לתאימות)
+        response = await axios.delete(`http://localhost:3000/products/delete/${productId}`, {
+          data: { supplier_id: supplierId }
+        });
+      }
       alert(response.data.message);
       setOldProducts((prev) => prev.filter((p) => p.id !== productId));
     } catch (error) {
@@ -62,11 +91,22 @@ function EditProductList() {
     setEditingStockId(productId);
     setNewStockValue(String(currentStock ?? ""));
   };
+
   const handleStockUpdate = async (productId) => {
     try {
-      const response = await axios.put(`http://localhost:3000/products/update-stock/${productId}`, {
-        stock_quantity: parseInt(newStockValue)
-      });
+      let response;
+      if (USE_SESSION_AUTH) {
+        // נתיב חדש מבוסס session
+        response = await api.put(`/products/update-stock/session/${productId}`, {
+          stock_quantity: parseInt(newStockValue)
+        });
+      } else {
+        // נתיב ישן
+        response = await axios.put(`http://localhost:3000/products/update-stock/${productId}`, {
+          stock_quantity: parseInt(newStockValue)
+        });
+      }
+
       alert(response.data.message);
       setOldProducts((prev) =>
         prev.map((p) => (p.id === productId ? { ...p, stock_quantity: parseInt(newStockValue) } : p))
@@ -77,7 +117,11 @@ function EditProductList() {
       alert(error.response?.data?.message || "שגיאה בעדכון המלאי");
     }
   };
-  const cancelStockEdit = () => { setEditingStockId(null); setNewStockValue(""); };
+
+  const cancelStockEdit = () => {
+    setEditingStockId(null);
+    setNewStockValue("");
+  };
 
   // עריכת מוצר (שם/מחיר/כמות מינ')
   const handleProductEdit = (product) => {
@@ -88,13 +132,24 @@ function EditProductList() {
       min_quantity: product.min_quantity
     });
   };
+
   const handleProductUpdate = async (productId) => {
     try {
-      const response = await axios.put(`http://localhost:3000/products/update/${productId}`, {
+      let response;
+      const payload = {
         product_name: editedProduct.product_name,
         unit_price: parseFloat(editedProduct.unit_price),
         min_quantity: parseInt(editedProduct.min_quantity)
-      });
+      };
+
+      if (USE_SESSION_AUTH) {
+        // נתיב חדש מבוסס session
+        response = await api.put(`/products/update/session/${productId}`, payload);
+      } else {
+        // נתיב ישן
+        response = await axios.put(`http://localhost:3000/products/update/${productId}`, payload);
+      }
+
       alert(response.data.message);
       setOldProducts((prev) =>
         prev.map((p) =>
@@ -114,6 +169,7 @@ function EditProductList() {
       alert(error.response?.data?.message || "שגיאה בעדכון המוצר");
     }
   };
+
   const cancelProductEdit = () => {
     setEditingProductId(null);
     setEditedProduct({ product_name: "", unit_price: "", min_quantity: "" });
@@ -151,7 +207,10 @@ function EditProductList() {
             {products.map((product, index) => (
               <li key={index} className={styles.card}>
                 {product.image_url && (
-                  <div className={styles.cardMedia} onClick={() => window.open(`http://localhost:3000${product.image_url}`, "_blank")}>
+                  <div
+                    className={styles.cardMedia}
+                    onClick={() => window.open(`http://localhost:3000${product.image_url}`, "_blank")}
+                  >
                     <img
                       src={`http://localhost:3000${product.image_url}`}
                       alt={product.product_name}
@@ -199,7 +258,10 @@ function EditProductList() {
         {oldProducts.map((product) => (
           <li key={product.id} className={styles.card}>
             {product.image_url && (
-              <div className={styles.cardMedia} onClick={() => window.open(`http://localhost:3000${product.image_url}`, "_blank")}>
+              <div
+                className={styles.cardMedia}
+                onClick={() => window.open(`http://localhost:3000${product.image_url}`, "_blank")}
+              >
                 <img
                   src={`http://localhost:3000${product.image_url}`}
                   alt={product.product_name}

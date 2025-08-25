@@ -4,24 +4,46 @@ import { ChevronDown, ChevronUp, Download } from "lucide-react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 
+// חדשים (Session Auth)
+import { useAuth } from "../../auth/AuthContext";
+import api from "../../api/axios";
+
 function OrderListForOwner({ refresh }) {
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [displayHistory, setDisplayHistory] = useState(false);
   const [orders, setOrders] = useState([]);
+
+  // נשמר לתאימות לזרימה הישנה בלבד
   const [ownerId] = useState(localStorage.getItem("userId"));
+
+  // חדשים (Session Auth)
+  const { USE_SESSION_AUTH } = useAuth();
 
   // סינון טווח תאריכים
   const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
 
   useEffect(() => {
-    axios
-      .post("http://localhost:3000/order/by-id", {
-        id: ownerId,
-        userType: "owner",
-      })
-      .then((res) => setOrders(res.data))
-      .catch((err) => console.error("Failed to fetch orders", err));
-  }, [ownerId, refresh]);
+    const fetchOrders = async () => {
+      try {
+        if (USE_SESSION_AUTH) {
+          // זרימה חדשה: מבוסס session (לא שולחים id/role מהלקוח)
+          const res = await api.get("/order/my");
+          setOrders(res.data);
+        } else {
+          // זרימה ישנה (קומפטביליות מלאה)
+          const res = await axios.post("http://localhost:3000/order/by-id", {
+            id: ownerId,
+            userType: "owner",
+          });
+          setOrders(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch orders", err);
+      }
+    };
+
+    fetchOrders();
+  }, [USE_SESSION_AUTH, ownerId, refresh]);
 
   const toggleOrder = (orderId) => {
     setExpandedOrders((prev) => {
@@ -123,24 +145,18 @@ function OrderListForOwner({ refresh }) {
       return;
     }
 
-    // יצירת שם קובץ חכם
     const today = new Date().toLocaleDateString("he-IL").replace(/\./g, "-");
     const statusText = displayHistory ? "הושלמו" : "פעילות";
     let fileName = `הזמנות_${statusText}_${today}`;
-    
+
     if (isDateFilterActive) {
       const fromText = dateFilter.from ? dateFilter.from.replace(/-/g, "-") : "";
       const toText = dateFilter.to ? dateFilter.to.replace(/-/g, "-") : "";
-      if (fromText && toText) {
-        fileName += `_מ${fromText}_עד${toText}`;
-      } else if (fromText) {
-        fileName += `_מ${fromText}`;
-      } else if (toText) {
-        fileName += `_עד${toText}`;
-      }
+      if (fromText && toText) fileName += `_מ${fromText}_עד${toText}`;
+      else if (fromText) fileName += `_מ${fromText}`;
+      else if (toText) fileName += `_עד${toText}`;
     }
 
-    // הכנת נתונים לעמוד פרטי ההזמנה
     const ordersData = filteredOrders.map(order => ({
       "מס' הזמנה": order.order_id,
       "תאריך": new Date(order.created_date).toLocaleDateString("he-IL"),
@@ -151,7 +167,6 @@ function OrderListForOwner({ refresh }) {
       "טלפון": order.phone
     }));
 
-    // הכנת נתונים לעמוד פרטי המוצרים
     const productsData = [];
     filteredOrders.forEach(order => {
       if (order.products && order.products.length > 0) {
@@ -170,18 +185,12 @@ function OrderListForOwner({ refresh }) {
       }
     });
 
-    // יצירת Workbook עם שני עמודים
     const wb = XLSX.utils.book_new();
-    
-    // עמוד פרטי ההזמנות
     const ordersWs = XLSX.utils.json_to_sheet(ordersData);
     XLSX.utils.book_append_sheet(wb, ordersWs, "פרטי הזמנות");
-    
-    // עמוד פרטי המוצרים
     const productsWs = XLSX.utils.json_to_sheet(productsData);
     XLSX.utils.book_append_sheet(wb, productsWs, "פרטי מוצרים");
 
-    // שמירת הקובץ
     XLSX.writeFile(wb, `${fileName}.xlsx`);
   };
 
@@ -291,7 +300,6 @@ function OrderListForOwner({ refresh }) {
 
             {isExpanded(order.order_id) && (
               <div className={styles.orderDetails}>
-                {/* פרטי ספק בשורה אחת */}
                 <div className={styles.detailsRow}>
                   <span className={styles.detailItem}>
                     <strong>חברת אספקה:</strong> {order.company_name}
@@ -304,7 +312,6 @@ function OrderListForOwner({ refresh }) {
                   </span>
                 </div>
 
-                {/* טבלת מוצרים פנימית */}
                 {order.products?.length > 0 && (
                   <div className={styles.innerTableWrap}>
                     <table className={styles.innerTable}>

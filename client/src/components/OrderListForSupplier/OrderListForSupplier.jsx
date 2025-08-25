@@ -4,25 +4,46 @@ import { ChevronDown, ChevronUp, Download } from "lucide-react";
 import * as XLSX from 'xlsx';
 import styles from "./OrderList.module.css";
 
+// חדשים (Session Auth)
+import { useAuth } from "../../auth/AuthContext";
+import api from "../../api/axios";
+
 function OrderListForSupplier() {
+  // נשמר לתאימות לזרימה הישנה בלבד
   const supplierId = localStorage.getItem("userId");
 
   const [orders, setOrders] = useState([]);
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [displayHistory, setDisplayHistory] = useState(false);
 
+  // חדשים (Session Auth)
+  const { USE_SESSION_AUTH } = useAuth();
+
   // סינון טווח תאריכים
   const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
 
   useEffect(() => {
-    axios
-      .post("http://localhost:3000/order/by-id", {
-        id: supplierId,
-        userType: "supplier",
-      })
-      .then((res) => setOrders(res.data))
-      .catch((err) => console.error("Failed to fetch orders", err));
-  }, [supplierId]);
+    const fetchOrders = async () => {
+      try {
+        if (USE_SESSION_AUTH) {
+          // זרימה חדשה: מבוסס session
+          const res = await api.get("/order/my");
+          setOrders(res.data);
+        } else {
+          // זרימה ישנה: localStorage
+          const res = await axios.post("http://localhost:3000/order/by-id", {
+            id: supplierId,
+            userType: "supplier",
+          });
+          setOrders(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch orders", err);
+      }
+    };
+
+    fetchOrders();
+  }, [USE_SESSION_AUTH, supplierId]);
 
   const toggleExpand = (orderId) => {
     setExpandedOrders((prev) => {
@@ -109,7 +130,6 @@ function OrderListForSupplier() {
   // פונקציה לייצוא Excel
   const exportToExcel = () => {
     try {
-      // יצירת נתונים לגיליון ראשי של הזמנות
       const ordersData = filteredOrders.map(order => ({
         'מספר הזמנה': order.order_id,
         'תאריך': new Date(order.created_date).toLocaleDateString('he-IL'),
@@ -122,7 +142,6 @@ function OrderListForSupplier() {
         'מספר מוצרים': order.products ? order.products.length : 0
       }));
 
-      // יצירת נתונים לגיליון פירוט מוצרים
       const productsData = [];
       filteredOrders.forEach(order => {
         if (order.products && Array.isArray(order.products)) {
@@ -141,40 +160,23 @@ function OrderListForSupplier() {
         }
       });
 
-      // יצירת חוברת עבודה
       const workbook = XLSX.utils.book_new();
-
-      // הוספת גיליון הזמנות
       const ordersWorksheet = XLSX.utils.json_to_sheet(ordersData);
       XLSX.utils.book_append_sheet(workbook, ordersWorksheet, 'הזמנות');
 
-      // הוספת גיליון מוצרים
       if (productsData.length > 0) {
         const productsWorksheet = XLSX.utils.json_to_sheet(productsData);
         XLSX.utils.book_append_sheet(workbook, productsWorksheet, 'פירוט מוצרים');
       }
 
-      // יצירת שם קובץ עם תאריך
       const today = new Date();
       const dateStr = today.toISOString().split('T')[0];
       let fileName = `הזמנות_${dateStr}`;
-      
-      // הוספת מידע על הסינון לשם הקובץ
-      if (displayHistory) {
-        fileName += '_היסטוריה';
-      } else {
-        fileName += '_פעילות';
-      }
-      
-      if (isDateFilterActive) {
-        fileName += '_מסונן';
-      }
-      
+      fileName += displayHistory ? '_היסטוריה' : '_פעילות';
+      if (isDateFilterActive) fileName += '_מסונן';
       fileName += '.xlsx';
 
-      // הורדת הקובץ
       XLSX.writeFile(workbook, fileName);
-
       console.log(`Excel file exported: ${fileName}`);
     } catch (error) {
       console.error('Error exporting to Excel:', error);
@@ -215,20 +217,20 @@ function OrderListForSupplier() {
           )}
         </div>
 
-      <div className={styles.actionButtons}>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div className={styles.actionButtons}>
+          <div style={{ display: "flex", gap: "10px" }}>
             <button 
-                className={styles.exportButton} 
-                onClick={exportToExcel}
-                title={`ייצא ${filteredOrders.length} הזמנות לאקסל`}
-              >
-                <Download size={16} style={{ marginLeft: "5px" }} />
-                ייצא ל-Excel ({filteredOrders.length} הזמנות)
-              </button>
-            </div>
+              className={styles.exportButton} 
+              onClick={exportToExcel}
+              title={`ייצא ${filteredOrders.length} הזמנות לאקסל`}
+            >
+              <Download size={16} style={{ marginLeft: "5px" }} />
+              ייצא ל-Excel ({filteredOrders.length} הזמנות)
+            </button>
+          </div>
           <button className={styles.historyButton} onClick={displayCompleteOrders}>
             {displayHistory ? "לצפיה בהזמנות שטרם סופקו" : "לצפיה בהיסטורית ההזמנות"}
-           </button>
+          </button>
         </div>
       </div>
 
@@ -252,6 +254,7 @@ function OrderListForSupplier() {
               <span>{order.owner_company_name}</span>
               <span className={styles.orderAmount}>{formatILS(calcOrderTotal(order))}</span>
               <span>{order.status}</span>
+
               <div className={styles.orderAction}>
                 {order.status === "בוצעה" && (
                   <button
@@ -271,6 +274,7 @@ function OrderListForSupplier() {
                 )}
                 {order.status === "הושלמה" && <div>ההזמנה הושלמה</div>}
               </div>
+
               <span className={styles.chevron}>
                 {isExpanded(order.order_id) ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </span>
@@ -278,7 +282,6 @@ function OrderListForSupplier() {
 
             {isExpanded(order.order_id) && (
               <div className={styles.orderDetails}>
-                {/* פרטי קשר בשורה אחת */}
                 <div className={styles.detailsRow}>
                   <span className={styles.detailItem}>
                     <strong>שם החנות:</strong> {order.owner_company_name}
@@ -294,7 +297,6 @@ function OrderListForSupplier() {
                   </span>
                 </div>
 
-                {/* טבלת מוצרים פנימית */}
                 {order.products?.length > 0 && (
                   <div className={styles.innerTableWrap}>
                     <table className={styles.innerTable}>

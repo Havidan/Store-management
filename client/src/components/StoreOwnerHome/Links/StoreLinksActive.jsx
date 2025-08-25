@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-// ממחזרים את ה-CSS של רשימת הספקים כדי לשמור על אותו עיצוב
 import cardStyles from "./SuppliersList.module.css";
 import SupplierProductList from "../../SupplierProductList/SupplierProductList";
+
+// חדשים
+import { useAuth } from "../../../auth/AuthContext";
+import api from "../../../api/axios";
 
 export default function StoreLinksActive() {
   const ownerId = localStorage.getItem("userId");
@@ -10,14 +13,24 @@ export default function StoreLinksActive() {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // טוען ספקים מאושרים לבעל המכולת
+  const { USE_SESSION_AUTH } = useAuth();
+
   useEffect(() => {
-    if (!ownerId) return;
-    axios
-      .get(`http://localhost:3000/links/owner/active`, { params: { ownerId } })
-      .then((res) => setSuppliers(res.data || []))
-      .catch((err) => console.error("Failed to fetch active links", err));
-  }, [ownerId]);
+    (async () => {
+      try {
+        if (USE_SESSION_AUTH) {
+          const res = await api.get("/links/owner/active/my");
+          setSuppliers(res.data || []);
+        } else {
+          if (!ownerId) return;
+          const res = await axios.get("http://localhost:3000/links/owner/active", { params: { ownerId } });
+          setSuppliers(res.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch active links", err);
+      }
+    })();
+  }, [USE_SESSION_AUTH, ownerId]);
 
   const openOrderModal = (supplier) => {
     setSelectedSupplier(supplier?.id);

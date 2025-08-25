@@ -1,25 +1,36 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+// חדשים
+import { useAuth } from "../../../auth/AuthContext";
+import api from "../../../api/axios";
+
 export default function SupplierLinksActive() {
   const supplierId = localStorage.getItem("userId");
   const [rows, setRows] = useState([]);
   const [error, setError] = useState("");
 
+  const { USE_SESSION_AUTH } = useAuth();
+
   useEffect(() => {
-    if (!supplierId) return;
     (async () => {
       try {
         setError("");
-        const res = await axios.get("http://localhost:3000/links/mine", {
-          params: { role: "Supplier", status: "approved", supplierId },
-        });
-        setRows(res.data || []);
+        if (USE_SESSION_AUTH) {
+          const res = await api.get("/links/mine/session", { params: { status: "approved" } });
+          setRows(res.data || []);
+        } else {
+          if (!supplierId) return;
+          const res = await axios.get("http://localhost:3000/links/mine", {
+            params: { role: "Supplier", status: "approved", supplierId },
+          });
+          setRows(res.data || []);
+        }
       } catch (e) {
         setError(e.response?.data?.message || "Failed to load approved links");
       }
     })();
-  }, [supplierId]);
+  }, [USE_SESSION_AUTH, supplierId]);
 
   return (
     <div className="bg-white rounded-2xl shadow p-4">

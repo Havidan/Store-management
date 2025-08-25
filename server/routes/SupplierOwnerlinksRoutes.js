@@ -1,7 +1,6 @@
-// server/routes/linksRoutes.js
 import express from "express";
 import {
-  // קיימות – לא נוגעים בהן כדי לא לשבור התאמות קיימות
+  // קיימות – לא נוגעים בהן כדי לשמור תאימות
   getActiveSuppliersForOwner,
   getPendingSuppliersForOwner,
   getDiscoverSuppliersForOwner,
@@ -10,15 +9,21 @@ import {
   getSupplierLinksV2,
   setLinkStatusBySupplierV2,
 
-  // חדשות (V2) – משתמשות ב-ENUM באותיות גדולות ו-created_at/updated_at
+  // חדשות (V2) – תואמות סכמה/סטטוסים
   getDiscoverSuppliersForOwnerV2,
   createOrUpdateLinkRequestV2,
   cancelLinkRequestV2,
 } from "../../database/linksDB.js";
 
+// חדשים (Session Middleware)
+import authRequired from "../middlewares/authRequired.js";
+import requireRole from "../middlewares/requireRole.js";
+
 const router = express.Router();
 
-/** GET /links/owner/active?ownerId=###  (ללא שינוי) */
+/** =========================
+ *  קיים – בעלי חנויות (owner) עם ownerId ב-query
+ * ========================= */
 router.get("/owner/active", async (req, res) => {
   const ownerId = +req.query.ownerId;
   if (!ownerId) return res.status(400).json({ message: "ownerId required" });
@@ -31,7 +36,6 @@ router.get("/owner/active", async (req, res) => {
   }
 });
 
-/** GET /links/owner/pending?ownerId=###  (ללא שינוי) */
 router.get("/owner/pending", async (req, res) => {
   const ownerId = +req.query.ownerId;
   if (!ownerId) return res.status(400).json({ message: "ownerId required" });
@@ -44,10 +48,7 @@ router.get("/owner/pending", async (req, res) => {
   }
 });
 
-/**
- * GET /links/owner/discover?ownerId=###
- * משתמש בגרסת V2 שתואמת לסכמה (ומחזירה request_sent תואם ל-PENDING)
- */
+// גרסה קיימת מבוססת V2 לגילוי ספקים (עדיין עם ownerId)
 router.get("/owner/discover", async (req, res) => {
   const ownerId = +req.query.ownerId;
   if (!ownerId) return res.status(400).json({ message: "ownerId required" });
@@ -60,10 +61,9 @@ router.get("/owner/discover", async (req, res) => {
   }
 });
 
-/**
- * POST /links/request  { ownerId, supplierId }
- * משתמש ב-V2 כדי להכניס/לעדכן ל-PENDING עם created_at/updated_at
- */
+/** =========================
+ *  קיים – יצירת/ביטול בקשה עם ownerId/supplierId ב-body
+ * ========================= */
 router.post("/request", async (req, res) => {
   const { ownerId, supplierId } = req.body || {};
   if (!+ownerId || !+supplierId) {
@@ -79,7 +79,6 @@ router.post("/request", async (req, res) => {
   }
 });
 
-/** POST /links/cancel { ownerId, supplierId } – גרסת V2 */
 router.post("/cancel", async (req, res) => {
   const { ownerId, supplierId } = req.body || {};
   if (!+ownerId || !+supplierId) {
@@ -94,6 +93,9 @@ router.post("/cancel", async (req, res) => {
   }
 });
 
+/** =========================
+ *  קיים – צד ספק (supplier) עם supplierId ב-query
+ * ========================= */
 router.get("/mine", async (req, res) => {
   const role = String(req.query.role || "");
   const supplierId = Number(req.query.supplierId);
@@ -115,11 +117,7 @@ router.get("/mine", async (req, res) => {
   }
 });
 
-/**
- * POST /links/decision
- * body: { supplierId, ownerId, decision: "APPROVE"|"REJECT" }
- * שינוי סטטוס בקשה ע"י הספק.
- */
+// שינוי סטטוס ע"י ספק (עם supplierId ב-body)
 router.post("/decision", async (req, res) => {
   const { supplierId, ownerId, decision } = req.body || {};
 
@@ -136,5 +134,61 @@ router.post("/decision", async (req, res) => {
   }
 });
 
+/** =========================================================
+ *  חדשות (Session) – ללא ownerId/supplierId שמגיעים מהלקוח
+ * ========================================================= */
+
+// בעלי חנויות: Active/Pending/Discover לפי ה-session
+router.get("/owner/active/my", authRequired, requireRole("StoreOwner"), async (req, res) => {
+  const ownerId = req.session.user.id;
+  const rows = await getActiveSuppliersForOwner(ownerId);
+  res.json(rows);
+});
+
+router.get("/owner/pending/my", authRequired, requireRole("StoreOwner"), async (req, res) => {
+  const ownerId = req.session.user.id;
+  const rows = await getPendingSuppliersForOwner(ownerId);
+  res.json(rows);
+});
+
+router.get("/owner/discover/my", authRequired, requireRole("StoreOwner"), async (req, res) => {
+  const ownerId = req.session.user.id;
+  const rows = await getDiscoverSuppliersForOwnerV2(ownerId);
+  res.json(rows);
+});
+
+// יצירת/ביטול בקשה – owner מה-session
+router.post("/request/session", authRequired, requireRole("StoreOwner"), async (req, res) => {
+  const ownerId = req.session.user.id;
+  const { supplierId } = req.body || {};
+  if (!+supplierId) return res.status(400).json({ message: "supplierId required" });
+  const result = await createOrUpdateLinkRequestV2(ownerId, +supplierId);
+  res.status(result.code || (result.ok ? 200 : 500)).json(result);
+});
+
+router.post("/cancel/session", authRequired, requireRole("StoreOwner"), async (req, res) => {
+  const ownerId = req.session.user.id;
+  const { supplierId } = req.body || {};
+  if (!+supplierId) return res.status(400).json({ message: "supplierId required" });
+  const result = await cancelLinkRequestV2(ownerId, +supplierId);
+  res.json(result);
+});
+
+// ספקים: רשימות שלי לפי סטטוס
+router.get("/mine/session", authRequired, requireRole("Supplier"), async (req, res) => {
+  const supplierId = req.session.user.id;
+  const status = String(req.query.status || "").toUpperCase(); // optional: PENDING/APPROVED
+  const rows = await getSupplierLinksV2(supplierId, status);
+  res.json(rows);
+});
+
+// ספק מחליט (APPROVE/REJECT) – supplier מה-session
+router.post("/decision/session", authRequired, requireRole("Supplier"), async (req, res) => {
+  const supplierId = req.session.user.id;
+  const { ownerId, decision } = req.body || {};
+  if (!+ownerId || !decision) return res.status(400).json({ message: "ownerId & decision required" });
+  const result = await setLinkStatusBySupplierV2(supplierId, +ownerId, decision);
+  res.status(result.code || (result.ok ? 200 : 500)).json(result);
+});
 
 export default router;

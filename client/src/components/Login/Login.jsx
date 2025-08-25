@@ -3,12 +3,17 @@ import { useNavigate, Link } from "react-router-dom";
 import styles from "./Login.module.css";
 import axios from "axios";
 
+// חדשים (Session Auth)
+import api from "../../api/axios";
+import { useAuth } from "../../auth/AuthContext";
+
 function Login() {
+  const { USE_SESSION_AUTH, loginSession } = useAuth();
 
   localStorage.removeItem("userType");
   localStorage.removeItem("username");
   localStorage.removeItem("supplierId");
-  localStorage.removeItem("userId");  
+  localStorage.removeItem("userId");
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -17,23 +22,34 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/user/login", {
-        username,
-        password,
-      });
-
-      const { userType, id } = response.data;
-
-      //save in local storage for save the data if the user will render the page by himself
-      localStorage.setItem("userType", userType);
-      localStorage.setItem("userId", id);
-      localStorage.setItem("username", username);
-
-      //use navigate to avoid rendering the page. navigate to home page for supplier or owner.
-      if (userType == "Supplier") {
-        navigate("/SupplierHome");
+      if (USE_SESSION_AUTH) {
+        const user = await loginSession(username, password); // /auth/login עם קוקי
+        if (user?.userType === "Supplier") {
+          navigate("/SupplierHome");
+        } else {
+          navigate("/StoreOwnerHome");
+        }
+        return;
       } else {
-        navigate("/StoreOwnerHome");
+        // זרימה קיימת (קומפטביליות מלאה)
+        const response = await axios.post("http://localhost:3000/user/login", {
+          username,
+          password,
+        });
+
+        const { userType, id } = response.data;
+
+        //save in local storage for save the data if the user will render the page by himself
+        localStorage.setItem("userType", userType);
+        localStorage.setItem("userId", id);
+        localStorage.setItem("username", username);
+
+        //use navigate to avoid rendering the page. navigate to home page for supplier or owner.
+        if (userType == "Supplier") {
+          navigate("/SupplierHome");
+        } else {
+          navigate("/StoreOwnerHome");
+        }
       }
     } catch (error) {
       console.error("Error:", error);

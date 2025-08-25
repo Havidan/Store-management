@@ -1,20 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+// חדשים
+import { useAuth } from "../../../auth/AuthContext";
+import api from "../../../api/axios";
+
 export default function SupplierLinksPending() {
   const supplierId = localStorage.getItem("userId");
   const [rows, setRows] = useState([]);
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState("");
 
+  const { USE_SESSION_AUTH } = useAuth();
+
   const load = async () => {
-    if (!supplierId) return;
     try {
       setError("");
-      const res = await axios.get("http://localhost:3000/links/mine", {
-        params: { role: "Supplier", status: "pending", supplierId },
-      });
-      setRows(res.data || []);
+      if (USE_SESSION_AUTH) {
+        const res = await api.get("/links/mine/session", { params: { status: "pending" } });
+        setRows(res.data || []);
+      } else {
+        if (!supplierId) return;
+        const res = await axios.get("http://localhost:3000/links/mine", {
+          params: { role: "Supplier", status: "pending", supplierId },
+        });
+        setRows(res.data || []);
+      }
     } catch (e) {
       setError(e.response?.data?.message || "Failed to load pending requests");
     }
@@ -23,21 +34,22 @@ export default function SupplierLinksPending() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supplierId]);
+  }, [USE_SESSION_AUTH, supplierId]);
 
   const decide = async (owner_id, decision) => {
     try {
       setBusy(owner_id);
       setError("");
-      const res = await axios.post("http://localhost:3000/links/decision", {
-        supplierId,
-        ownerId: owner_id,
-        decision, // "APPROVE" | "REJECT"
-      });
-      if (res.status >= 200 && res.status < 300) {
-        // מסירים מהרשימה לאחר שינוי סטטוס
-        setRows((prev) => prev.filter((r) => r.owner_id !== owner_id));
+      if (USE_SESSION_AUTH) {
+        await api.post("/links/decision/session", { ownerId: owner_id, decision });
+      } else {
+        await axios.post("http://localhost:3000/links/decision", {
+          supplierId,
+          ownerId: owner_id,
+          decision, // "APPROVE" | "REJECT"
+        });
       }
+      setRows((prev) => prev.filter((r) => r.owner_id !== owner_id));
     } catch (e) {
       setError(e.response?.data?.message || "Failed to update request");
     } finally {

@@ -3,15 +3,23 @@ import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../Nav/SideBar";
 import styles from "./Layout.module.css";
 
+// חדשים (Session Auth)
+import { useAuth } from "../../auth/AuthContext";
+
 export default function SupplierLayout() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { USE_SESSION_AUTH, logoutSession } = useAuth();
 
   const supplierUsername = localStorage.getItem("username") || "ספק";
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
+    if (USE_SESSION_AUTH) {
+      logoutSession().finally(() => navigate("/"));
+    } else {
+      localStorage.clear();
+      navigate("/");
+    }
   };
 
   const sidebarItems = [
@@ -27,7 +35,7 @@ export default function SupplierLayout() {
       {/* Topbar קבוע */}
       <header className={styles.topbar}>
         <button className={styles.menuBtn} onClick={() => setMenuOpen(true)} aria-label="פתיחת תפריט">☰</button>
-        <div className={styles.brand}> איזור הספק: {supplierUsername}</div>
+        <div className={styles.brand}> איזור ניהול ספק</div>
         <div className={styles.topbarActions}>
           <button className={styles.ghostBtn} onClick={handleLogout}>התנתקות</button>
         </div>

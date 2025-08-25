@@ -2,20 +2,27 @@ import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../Nav/SideBar";
 import styles from "./Layout.module.css";
+import { useAuth } from "../../auth/AuthContext";
 
 export default function StoreLayout() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { USE_SESSION_AUTH, logoutSession } = useAuth();
+
   const ownerUsername = localStorage.getItem("username") || "ספק";
 
-
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
+    if (USE_SESSION_AUTH) {
+      logoutSession().finally(() => navigate("/"));
+    } else {
+      localStorage.clear();
+      navigate("/");
+    }
   };
 
   const sidebarItems = [
-    { label: "הזמנות", to: "/StoreOwnerHome", end: true },
+    { label: "הזמנות שבוצעו", to: "/StoreOwnerHome", end: true },
+    { label: "טיוטת הזמנות ", to: "/ContactForm" },
     { label: "קישורים עם ספקים", to: "/StoreOwnerLinks" },
     { label: "איזור אישי", to: "/StoreOwnerSettings" },
     { label: "צור קשר", to: "/ContactForm" },
@@ -26,7 +33,7 @@ export default function StoreLayout() {
       {/* Topbar קבוע */}
       <header className={styles.topbar}>
         <button className={styles.menuBtn} onClick={() => setMenuOpen(true)} aria-label="פתיחת תפריט">☰</button>
-        <div className={styles.brand}>איזור בעל מכולת: {ownerUsername}</div>
+        <div className={styles.brand}>איזור ניהול בעל חנות</div>
         <div className={styles.topbarActions}>
           <button className={styles.ghostBtn} onClick={handleLogout}>התנתקות</button>
         </div>

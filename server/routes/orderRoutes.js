@@ -5,11 +5,13 @@ import {
   addOrderItem,
   getOrdersById,
   updateStatusOrder,
-  getUserEmailById,       
-  getOrderParticipants,   
+  getUserEmailById,
+  getOrderParticipants,
 } from "../../database/orderDB.js";
 import { updateStockAfterOrder } from "../../database/productDB.js";
 import { sendStyledEmail } from "../emailSenderApi.js";
+import authRequired from "../middlewares/authRequired.js";
+import requireRole from "../middlewares/requireRole.js";
 
 const router = express.Router();
 
@@ -26,22 +28,41 @@ function isDelivered(status = "") {
 // עוזר קטן לשליחה אסינכרונית "ברקע" (ללא await)
 function fireAndForget(fn) {
   setImmediate(async () => {
-    try { await fn(); }
-    catch (e) { console.warn("[mail async] error:", e?.message || e); }
+    try {
+      await fn();
+    } catch (e) {
+      console.warn("[mail async] error:", e?.message || e);
+    }
   });
 }
 
-router.post("/add", async (req, res) => {
-  const { supplier_id, owner_id, products_list } = req.body;
-
+// === יצירת הזמנה (StoreOwner בלבד, עם Session) ===
+router.post("/add", authRequired, requireRole("StoreOwner"), async (req, res) => {
   try {
+    const ownerIdFromSession = req.session?.user?.id || null;
+    if (!ownerIdFromSession) {
+      return res.status(401).json({ message: "Not authenticated as StoreOwner" });
+    }
+
+    // דריסה בטוחה של owner_id כדי לא להיות תלויים בלקוח
+    req.body.owner_id = ownerIdFromSession;
+
+    const { supplier_id, owner_id, products_list } = req.body;
+
+    if (!supplier_id) {
+      return res.status(400).json({ message: "supplier_id is required" });
+    }
+    if (!Array.isArray(products_list) || products_list.length === 0) {
+      return res.status(400).json({ message: "products_list is required" });
+    }
+
     // 1) יצירת הזמנה + פריטים (ללא עדכון מלאי - יתעדכן רק כשהספק יאשר)
     const orderId = await addOrder(supplier_id, owner_id, "בוצעה", new Date());
 
-    for (const { product_id, quantity } of products_list || []) {
+    for (const { product_id, quantity } of products_list) {
       if (quantity > 0) {
         await addOrderItem(product_id, orderId, quantity);
-        // הסרתי את השורה: await updateStockAfterOrder(product_id, quantity);
+        // שימי לב: אין updateStockAfterOrder כאן (יתבצע באישור הספק)
       }
     }
 
@@ -72,7 +93,6 @@ router.post("/add", async (req, res) => {
         );
       }
     });
-
   } catch (error) {
     console.error("Error adding order:", error);
     res.status(500).json({ message: "Error adding order", error: error.message });
@@ -90,7 +110,6 @@ router.post("/by-id", async (req, res) => {
     res.status(500).json({ message: "Error retrieving orders for supplier" });
   }
 });
-
 
 router.put("/update-status/:orderId", async (req, res) => {
   const { orderId } = req.params;
@@ -126,25 +145,40 @@ router.put("/update-status/:orderId", async (req, res) => {
         );
       }
     });
-
   } catch (error) {
     console.error("Error updating order status:", error);
-    
+
     // טיפול משופר בשגיאות מלאי
-    if (error.message.includes('אין מספיק מלאי') || 
-        error.message.includes('שגיאה בעדכון המלאי')) {
-      res.status(400).json({ 
-        message: "שגיאה בעדכון המלאי", 
+    if (
+      error.message.includes("אין מספיק מלאי") ||
+      error.message.includes("שגיאה בעדכון המלאי")
+    ) {
+      res.status(400).json({
+        message: "שגיאה בעדכון המלאי",
         error: error.message,
-        success: false 
+        success: false,
       });
     } else {
-      res.status(500).json({ 
-        message: "Error updating order status", 
+      res.status(500).json({
+        message: "Error updating order status",
         error: error.message,
-        success: false 
+        success: false,
       });
     }
+  }
+});
+
+// GET /order/my - מחזיר הזמנות של המשתמש המחובר (מבוסס session)
+router.get("/my", authRequired, async (req, res) => {
+  try {
+    const { id, userType } = req.session.user || {};
+    // המרה לפורמט שה-DB מצפה לו
+    const kind = userType === "StoreOwner" ? "owner" : "supplier";
+    const orders = await getOrdersById(id, kind);
+    return res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error retrieving my orders:", error);
+    return res.status(500).json({ message: "Error retrieving my orders" });
   }
 });
 

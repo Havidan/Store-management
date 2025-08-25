@@ -2,28 +2,43 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import cardStyles from "./SuppliersList.module.css";
 
+// חדשים
+import { useAuth } from "../../../auth/AuthContext";
+import api from "../../../api/axios";
+
 export default function StoreLinksDiscover() {
   const ownerId = localStorage.getItem("userId");
   const [suppliers, setSuppliers] = useState([]);
   const [busyId, setBusyId] = useState(null);
   const [sentIds, setSentIds] = useState(new Set());
 
-  // טוען ספקים זמינים לבעל המכולת (מסוננים לפי עיר/מחוז בצד השרת)
+  const { USE_SESSION_AUTH } = useAuth();
+
   useEffect(() => {
-    if (!ownerId) return;
-    axios
-      .get(`http://localhost:3000/links/owner/discover`, { params: { ownerId } })
-      .then((res) => setSuppliers(res.data || []))
-      .catch((err) => console.error("Failed to fetch discover suppliers", err));
-  }, [ownerId]);
+    (async () => {
+      try {
+        if (USE_SESSION_AUTH) {
+          const res = await api.get("/links/owner/discover/my");
+          setSuppliers(res.data || []);
+        } else {
+          if (!ownerId) return;
+          const res = await axios.get("http://localhost:3000/links/owner/discover", { params: { ownerId } });
+          setSuppliers(res.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch discover suppliers", err);
+      }
+    })();
+  }, [USE_SESSION_AUTH, ownerId]);
 
   const sendLinkRequest = async (supplierId) => {
     try {
       setBusyId(supplierId);
-      await axios.post(`http://localhost:3000/links/request`, {
-        ownerId,
-        supplierId,
-      });
+      if (USE_SESSION_AUTH) {
+        await api.post("/links/request/session", { supplierId });
+      } else {
+        await axios.post("http://localhost:3000/links/request", { ownerId, supplierId });
+      }
       setSentIds((prev) => new Set(prev).add(supplierId));
     } catch (e) {
       console.error("Send link request failed", e);

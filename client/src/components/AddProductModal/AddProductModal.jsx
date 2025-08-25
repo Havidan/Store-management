@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import styles from "./AddProductModal.module.css";
 
+// חדשים (Session Auth)
+import { useAuth } from "../../auth/AuthContext";
+import api from "../../api/axios";
+
 function AddProductModal({ onCancel, onAdd }) {
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
@@ -8,18 +12,21 @@ function AddProductModal({ onCancel, onAdd }) {
   const [stockQuantity, setStockQuantity] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
 
+  // האם Session פעיל? (אם כן נעדיף /products/add/session)
+  const { USE_SESSION_AUTH } = useAuth();
+
   // טיפול בבחירת תמונה
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       setSelectedImage(file);
     } else {
       alert("אנא בחר קובץ תמונה תקין");
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
-  //when click to add a product
+  // שליחה
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -28,37 +35,58 @@ function AddProductModal({ onCancel, onAdd }) {
       return;
     }
 
-    // יצירת FormData להעלאת תמונה
+    // נבנה FormData להעלאה (כולל תמונה אם קיימת)
     const formData = new FormData();
-    formData.append('supplier_id', localStorage.getItem("userId"));
-    formData.append('product_name', productName);
-    formData.append('unit_price', parseFloat(price));
-    formData.append('min_quantity', parseInt(stock));
-    formData.append('stock_quantity', parseInt(stockQuantity));
-    
-    if (selectedImage) {
-      formData.append('image', selectedImage);
+
+    // בזרימה הישנה (ללא Session) יש צורך ב-supplier_id מהלקוח
+    if (!USE_SESSION_AUTH) {
+      formData.append("supplier_id", localStorage.getItem("userId"));
     }
 
-    // שליחת הנתונים כ-FormData במקום JSON
-    try {
-      const response = await fetch('http://localhost:3000/products/add', {
-        method: 'POST',
-        body: formData
-      });
+    formData.append("product_name", productName);
+    formData.append("unit_price", parseFloat(price));
+    formData.append("min_quantity", parseInt(stock));
+    formData.append("stock_quantity", parseInt(stockQuantity));
 
-      if (response.ok) {
-        const result = await response.json();
+    if (selectedImage) {
+      formData.append("image", selectedImage);
+    }
+
+    try {
+      if (USE_SESSION_AUTH) {
+        // זרימה חדשה: Session + קוקי HttpOnly → נתיב חדש
+        const response = await api.post("/products/add/session", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        // עידכון רשימה זמנית במסך העריכה (כמו שהיה עד היום)
         onAdd({
           product_name: productName,
           unit_price: parseFloat(price),
           min_quantity: parseInt(stock),
           stock_quantity: parseInt(stockQuantity),
-          image_url: result.image_url
+          image_url: response.data?.image_url || null,
         });
       } else {
-        const error = await response.json();
-        alert("שגיאה בהוספת המוצר: " + error.message);
+        // זרימה ישנה (קומפטביליות מלאה)
+        const response = await fetch("http://localhost:3000/products/add", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          onAdd({
+            product_name: productName,
+            unit_price: parseFloat(price),
+            min_quantity: parseInt(stock),
+            stock_quantity: parseInt(stockQuantity),
+            image_url: result.image_url || null,
+          });
+        } else {
+          const error = await response.json();
+          alert("שגיאה בהוספת המוצר: " + (error?.message || "Unknown error"));
+        }
       }
     } catch (error) {
       console.error("Error adding product:", error);
@@ -135,10 +163,10 @@ function AddProductModal({ onCancel, onAdd }) {
             />
             {selectedImage && (
               <div className={styles.imagePreview}>
-                <img 
-                  src={URL.createObjectURL(selectedImage)} 
-                  alt="תצוגה מקדימה" 
-                  style={{maxWidth: '100px', maxHeight: '100px', objectFit: 'cover'}}
+                <img
+                  src={URL.createObjectURL(selectedImage)}
+                  alt="תצוגה מקדימה"
+                  style={{ maxWidth: "100px", maxHeight: "100px", objectFit: "cover" }}
                 />
               </div>
             )}
@@ -158,7 +186,7 @@ function AddProductModal({ onCancel, onAdd }) {
           </div>
         </form>
       </div>
-    </div> 
+    </div>
   );
 }
 

@@ -2,27 +2,42 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import cardStyles from "./SuppliersList.module.css";
 
+// חדשים
+import { useAuth } from "../../../auth/AuthContext";
+import api from "../../../api/axios";
+
 export default function StoreLinksPending() {
   const ownerId = localStorage.getItem("userId");
   const [pending, setPending] = useState([]);
   const [busyId, setBusyId] = useState(null);
 
-  // טוען בקשות ממתינות לבעל המכולת
+  const { USE_SESSION_AUTH } = useAuth();
+
   useEffect(() => {
-    if (!ownerId) return;
-    axios
-      .get(`http://localhost:3000/links/owner/pending`, { params: { ownerId } })
-      .then((res) => setPending(res.data || []))
-      .catch((err) => console.error("Failed to fetch pending links", err));
-  }, [ownerId]);
+    (async () => {
+      try {
+        if (USE_SESSION_AUTH) {
+          const res = await api.get("/links/owner/pending/my");
+          setPending(res.data || []);
+        } else {
+          if (!ownerId) return;
+          const res = await axios.get("http://localhost:3000/links/owner/pending", { params: { ownerId } });
+          setPending(res.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch pending links", err);
+      }
+    })();
+  }, [USE_SESSION_AUTH, ownerId]);
 
   const cancelRequest = async (supplierId) => {
     try {
       setBusyId(supplierId);
-      await axios.post(`http://localhost:3000/links/cancel`, {
-        ownerId,
-        supplierId,
-      });
+      if (USE_SESSION_AUTH) {
+        await api.post("/links/cancel/session", { supplierId });
+      } else {
+        await axios.post("http://localhost:3000/links/cancel", { ownerId, supplierId });
+      }
       setPending((list) => list.filter((s) => s.id !== supplierId));
     } catch (e) {
       console.error("Cancel link request failed", e);
