@@ -280,7 +280,7 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 }
 
 /*=========== Responsive ===========*/
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .ordersSection {
     width: 100%;
     padding: 0 12px;
