@@ -9,6 +9,8 @@ function OrderListForSupplier() {
   const [orders, setOrders] = useState([]);
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [displayHistory, setDisplayHistory] = useState(false);
+
+  // סינון טווח תאריכים
   const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
 
   useEffect(() => {
@@ -31,6 +33,7 @@ function OrderListForSupplier() {
 
   const isExpanded = (orderId) => expandedOrders.has(orderId);
 
+  // ספק מאשר -> "בתהליך"
   const handleOrderArrivalConfirmation = async (orderId) => {
     try {
       const res = await axios.put(
@@ -72,7 +75,7 @@ function OrderListForSupplier() {
     new Intl.NumberFormat("he-IL", { style: "currency", currency: "ILS", maximumFractionDigits: 2 })
       .format(toNumber(num, 0));
 
-  // סינון תאריכים
+  // עזרי תאריכים
   const parseDateOnly = (str) => {
     if (!str) return null;
     const [y, m, d] = str.split("-").map(Number);
@@ -106,6 +109,7 @@ function OrderListForSupplier() {
     <div className={styles.ordersSection} dir="rtl">
       <h2 className={styles.title}>רשימת הזמנות לספק</h2>
 
+      {/* פילטר תאריכים */}
       <div className={styles.filterBar}>
         <div className={styles.filterGroup}>
           <span className={styles.filterLabel}>סינון לפי תאריך:</span>
@@ -139,10 +143,11 @@ function OrderListForSupplier() {
         </button>
       </div>
 
-      {/* כותרת: [מס' הזמנה][תאריך][סכום][סטטוס][פעולה][חץ] */}
+      {/* כותרת: [מס' הזמנה][תאריך][שם חנות][סכום ההזמנה][סטטוס][פעולה][חץ] */}
       <div className={styles.orderHeaderRow}>
         <span>מס' הזמנה</span>
         <span>תאריך</span>
+        <span>שם חנות</span>
         <span>סכום ההזמנה</span>
         <span>סטטוס</span>
         <span>פעולה</span>
@@ -155,6 +160,7 @@ function OrderListForSupplier() {
             <div className={styles.orderHeader} onClick={() => toggleExpand(order.order_id)}>
               <span>#{order.order_id}</span>
               <span>{new Date(order.created_date).toLocaleDateString()}</span>
+              <span>{order.owner_company_name}</span>
               <span className={styles.orderAmount}>{formatILS(calcOrderTotal(order))}</span>
               <span>{order.status}</span>
               <div className={styles.orderAction}>
@@ -183,21 +189,45 @@ function OrderListForSupplier() {
 
             {isExpanded(order.order_id) && (
               <div className={styles.orderDetails}>
-                <div className={styles.orderMeta}>
-                  <p><strong>שם החנות:</strong> {order.owner_company_name}</p>
-                  <p><strong>איש קשר:</strong> {order.owner_contact_name}</p>
-                  <p><strong>טלפון:</strong> {order.owner_phone}</p>
-                  <p><strong>שעות פתיחה:</strong> {order.owner_opening_time} - {order.owner_closing_time}</p>
+                {/* פרטי קשר בשורה אחת */}
+                <div className={styles.detailsRow}>
+                  <span className={styles.detailItem}>
+                    <strong>שם החנות:</strong> {order.owner_company_name}
+                  </span>
+                  <span className={styles.detailItem}>
+                    <strong>איש קשר:</strong> {order.owner_contact_name}
+                  </span>
+                  <span className={styles.detailItem}>
+                    <strong>טלפון:</strong> {order.owner_phone}
+                  </span>
+                  <span className={styles.detailItem}>
+                    <strong>שעות פתיחה:</strong> {order.owner_opening_time} - {order.owner_closing_time}
+                  </span>
                 </div>
 
-                <p className={styles.productsTitle}><strong>מוצרים:</strong></p>
-                <ul className={styles.productsList}>
-                  {order.products.map((p) => (
-                    <li key={p.product_id}>
-                      מספר מוצר: {p.product_id}, כמות: {p.quantity}, שם מוצר: {p.product_name}
-                    </li>
-                  ))}
-                </ul>
+                {/* טבלת מוצרים פנימית */}
+                {order.products?.length > 0 && (
+                  <div className={styles.innerTableWrap}>
+                    <table className={styles.innerTable}>
+                      <thead>
+                        <tr>
+                          <th>מספר מוצר</th>
+                          <th>שם מוצר</th>
+                          <th>כמות</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {order.products.map((p) => (
+                          <tr key={p.product_id}>
+                            <td>{p.product_id}</td>
+                            <td>{p.product_name}</td>
+                            <td>{p.quantity}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </div>

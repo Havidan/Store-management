@@ -1,7 +1,6 @@
-// OrderListForOwner.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import styles from "./OrderListForOwner.module.css";
+import styles from "../OrderListForSupplier/OrderListForSupplier.module.css";
 import axios from "axios";
 
 function OrderListForOwner({ refresh }) {
@@ -10,7 +9,7 @@ function OrderListForOwner({ refresh }) {
   const [orders, setOrders] = useState([]);
   const [ownerId] = useState(localStorage.getItem("userId"));
 
-  // --- סינון טווח תאריכים ---
+  // סינון טווח תאריכים
   const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
 
   useEffect(() => {
@@ -33,6 +32,7 @@ function OrderListForOwner({ refresh }) {
 
   const isExpanded = (orderId) => expandedOrders.has(orderId);
 
+  // בעל חנות מאשר -> "הושלמה"
   const handleOrderArrivalConfirmation = async (orderId) => {
     try {
       const res = await axios.put(
@@ -52,7 +52,7 @@ function OrderListForOwner({ refresh }) {
 
   const displayCompleteOrders = () => setDisplayHistory((prev) => !prev);
 
-  // --- סכום הזמנה (קולט order_total ומגבה מחישוב פריטים) ---
+  // סכום הזמנה
   const toNumber = (v, fallback = 0) => {
     if (v == null) return fallback;
     if (typeof v === "number") return Number.isFinite(v) ? v : fallback;
@@ -75,11 +75,11 @@ function OrderListForOwner({ refresh }) {
     return 0;
   };
 
-  // --- עזרי תאריכים לסינון ---
+  // עזרי תאריכים
   const parseDateOnly = (str) => {
     if (!str) return null;
     const [y, m, d] = str.split("-").map(Number);
-    return new Date(y, m - 1, d); // מקומי, חצות
+    return new Date(y, m - 1, d);
   };
 
   const toLocalMidnight = (dt) => {
@@ -161,17 +161,17 @@ function OrderListForOwner({ refresh }) {
         </button>
       </div>
 
-      {/* כותרת העמודות */}
+      {/* כותרת: [מס' הזמנה][תאריך][חברת אספקה][סכום ההזמנה][סטטוס][פעולה][חץ] */}
       <div className={styles.orderHeaderRow}>
         <span>מס' הזמנה</span>
         <span>תאריך</span>
         <span>חברת אספקה</span>
         <span>סכום ההזמנה</span>
         <span>סטטוס</span>
+        <span>פעולה</span>
         <span></span>
       </div>
 
-      {/* רשימת הזמנות */}
       <div className={styles.orderList}>
         {filteredOrders.map((order) => (
           <div key={order.order_id} className={styles.orderRow}>
@@ -184,14 +184,12 @@ function OrderListForOwner({ refresh }) {
               <span>#{order.order_id}</span>
               <span>{new Date(order.created_date).toLocaleDateString()}</span>
               <span>{order.company_name}</span>
-
-              {/* סכום ההזמנה */}
               <span className={styles.orderAmount}>{formatILS(calcOrderTotal(order))}</span>
-
               <span>{order.status}</span>
 
               <div className={styles.orderAction}>
-                {order.status === "בתהליך" ? (
+                {order.status === "בוצעה" && <div>ממתין לאישור ספק</div>}
+                {order.status === "בתהליך" && (
                   <button
                     className={styles.confirmButton}
                     onClick={(e) => {
@@ -201,9 +199,8 @@ function OrderListForOwner({ refresh }) {
                   >
                     אשר הגעת הזמנה
                   </button>
-                ) : (
-                  <div>ההזמנה הושלמה</div>
                 )}
+                {order.status === "הושלמה" && <div>ההזמנה הושלמה</div>}
               </div>
 
               <span className={styles.chevron}>
@@ -213,19 +210,23 @@ function OrderListForOwner({ refresh }) {
 
             {isExpanded(order.order_id) && (
               <div className={styles.orderDetails}>
-                <p>
-                  <strong>איש קשר:</strong> {order.contact_name}
-                </p>
-                <p>
-                  <strong>טלפון:</strong> {order.phone}
-                </p>
-                <p>
-                  <strong>:מוצרים</strong>
-                </p>
+                {/* פרטי ספק בשורה אחת */}
+                <div className={styles.detailsRow}>
+                  <span className={styles.detailItem}>
+                    <strong>חברת אספקה:</strong> {order.company_name}
+                  </span>
+                  <span className={styles.detailItem}>
+                    <strong>איש קשר:</strong> {order.contact_name}
+                  </span>
+                  <span className={styles.detailItem}>
+                    <strong>טלפון:</strong> {order.phone}
+                  </span>
+                </div>
 
+                {/* טבלת מוצרים פנימית */}
                 {order.products?.length > 0 && (
-                  <div className={styles.productsTable}>
-                    <table>
+                  <div className={styles.innerTableWrap}>
+                    <table className={styles.innerTable}>
                       <thead>
                         <tr>
                           <th>מספר מוצר</th>

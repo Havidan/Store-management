@@ -5,104 +5,81 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function EditProductList() {
-
   const [isOpen, setIsOpen] = useState(false);
-  //products is a list of products to add to the memory
-  const [products, setProducts] = useState([]);
-  //oldProducts is a list of products in the memory.
-  const [oldProducts, setOldProducts] = useState([]);
+  const [products, setProducts] = useState([]);      // חדשים להוספה
+  const [oldProducts, setOldProducts] = useState([]); // קיימים במערכת
+
   const [editingStockId, setEditingStockId] = useState(null);
   const [newStockValue, setNewStockValue] = useState("");
-  
-  // מצבים לעריכת מוצר
+
   const [editingProductId, setEditingProductId] = useState(null);
   const [editedProduct, setEditedProduct] = useState({
     product_name: "",
     unit_price: "",
     min_quantity: ""
   });
-  
+
   const navigate = useNavigate();
-  //save the supplier id to add the product to specipfic supplier
   const supplierId = localStorage.getItem("userId");
   const supplierUsername = localStorage.getItem("username");
 
   useEffect(() => {
     axios
-      //get the suppliers products in system
       .post("http://localhost:3000/products/get-products-by-supplier", {
         supplier_id: supplierId,
-      })//when the promise resolves.
-      .then((response) => {
-        setOldProducts(response.data);
-      })//when the promise rejected
-      .catch((error) => {
-        console.error("Error fetching products:", error);
-      });
+      })
+      .then((response) => setOldProducts(response.data))
+      .catch((error) => console.error("Error fetching products:", error));
   }, [products, supplierId]);
 
-  /*when adding product to memory, add it also to the list below*/
+  // הוספת מוצר חדש (לרשימת "להוספה")
   const handleAddProduct = async (productData) => {
     try {
-      setProducts([...products, productData]);
+      setProducts((prev) => [...prev, productData]);
       setIsOpen(false);
     } catch (error) {
       console.error("Error adding product:", error);
     }
   };
 
+  // מחיקה
   const handleDeleteProduct = async (productId) => {
     const confirmDelete = window.confirm("האם אתה בטוח שברצונך למחוק את המוצר? פעולה זו אינה ניתנת לביטול.");
-    
-    if (confirmDelete) {
-      try {
-        const response = await axios.delete(`http://localhost:3000/products/delete/${productId}`, {
-          data: { supplier_id: supplierId }
-        });
-        
-        alert(response.data.message);
-        
-        // עדכון הרשימה לאחר מחיקה מוצלחת
-        setOldProducts(oldProducts.filter(product => product.id !== productId));
-      } catch (error) {
-        alert(error.response?.data?.message || "שגיאה במחיקת המוצר");
-      }
+    if (!confirmDelete) return;
+    try {
+      const response = await axios.delete(`http://localhost:3000/products/delete/${productId}`, {
+        data: { supplier_id: supplierId }
+      });
+      alert(response.data.message);
+      setOldProducts((prev) => prev.filter((p) => p.id !== productId));
+    } catch (error) {
+      alert(error.response?.data?.message || "שגיאה במחיקת המוצר");
     }
   };
 
+  // עריכת מלאי
   const handleStockEdit = (productId, currentStock) => {
     setEditingStockId(productId);
-    setNewStockValue(currentStock.toString());
+    setNewStockValue(String(currentStock ?? ""));
   };
-
   const handleStockUpdate = async (productId) => {
     try {
       const response = await axios.put(`http://localhost:3000/products/update-stock/${productId}`, {
         stock_quantity: parseInt(newStockValue)
       });
-      
       alert(response.data.message);
-      
-      // עדכון הרשימה לאחר עדכון מוצלח
-      setOldProducts(oldProducts.map(product => 
-        product.id === productId 
-          ? { ...product, stock_quantity: parseInt(newStockValue) }
-          : product
-      ));
-      
+      setOldProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, stock_quantity: parseInt(newStockValue) } : p))
+      );
       setEditingStockId(null);
       setNewStockValue("");
     } catch (error) {
       alert(error.response?.data?.message || "שגיאה בעדכון המלאי");
     }
   };
+  const cancelStockEdit = () => { setEditingStockId(null); setNewStockValue(""); };
 
-  const cancelStockEdit = () => {
-    setEditingStockId(null);
-    setNewStockValue("");
-  };
-
-  // פונקציות עריכת מוצר
+  // עריכת מוצר (שם/מחיר/כמות מינ')
   const handleProductEdit = (product) => {
     setEditingProductId(product.id);
     setEditedProduct({
@@ -111,7 +88,6 @@ function EditProductList() {
       min_quantity: product.min_quantity
     });
   };
-
   const handleProductUpdate = async (productId) => {
     try {
       const response = await axios.put(`http://localhost:3000/products/update/${productId}`, {
@@ -119,59 +95,47 @@ function EditProductList() {
         unit_price: parseFloat(editedProduct.unit_price),
         min_quantity: parseInt(editedProduct.min_quantity)
       });
-      
       alert(response.data.message);
-      
-      // עדכון הרשימה לאחר עדכון מוצלח
-      setOldProducts(oldProducts.map(product => 
-        product.id === productId 
-          ? { 
-              ...product, 
-              product_name: editedProduct.product_name,
-              unit_price: parseFloat(editedProduct.unit_price),
-              min_quantity: parseInt(editedProduct.min_quantity)
-            }
-          : product
-      ));
-      
+      setOldProducts((prev) =>
+        prev.map((p) =>
+          p.id === productId
+            ? {
+                ...p,
+                product_name: editedProduct.product_name,
+                unit_price: parseFloat(editedProduct.unit_price),
+                min_quantity: parseInt(editedProduct.min_quantity)
+              }
+            : p
+        )
+      );
       setEditingProductId(null);
-      setEditedProduct({
-        product_name: "",
-        unit_price: "",
-        min_quantity: ""
-      });
+      setEditedProduct({ product_name: "", unit_price: "", min_quantity: "" });
     } catch (error) {
       alert(error.response?.data?.message || "שגיאה בעדכון המוצר");
     }
   };
-
   const cancelProductEdit = () => {
     setEditingProductId(null);
-    setEditedProduct({
-      product_name: "",
-      unit_price: "",
-      min_quantity: ""
-    });
+    setEditedProduct({ product_name: "", unit_price: "", min_quantity: "" });
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.backHomeWrapper}>
-        {/*when register cannot continue without add at least 1 product*/}
         {oldProducts.length > 0 && (
-          <button
-            className={styles.backHomeButton}
-            onClick={() => navigate("/SupplierHome")}
-          >
+          <button className={styles.backHomeButton} onClick={() => navigate("/SupplierHome")}>
             לעמוד הבית
           </button>
         )}
       </div>
+
       <h2>{supplierUsername}: הוספת מוצרים עבור</h2>
 
-      <button onClick={() => setIsOpen(true)} className={styles.addButton}>
-        הוספת מוצר
-      </button>
+      <div className={styles.toolbar}>
+        <button onClick={() => setIsOpen(true)} className={styles.addButton}>
+          הוספת מוצר
+        </button>
+      </div>
 
       {isOpen && (
         <AddProductModal
@@ -182,40 +146,40 @@ function EditProductList() {
 
       {products.length > 0 && (
         <>
-          <h3>מוצרים להוספה למערכת </h3>
-          <ul className={styles.productList}>
+          <h3>מוצרים להוספה למערכת</h3>
+          <ul className={styles.grid}>
             {products.map((product, index) => (
-              <li key={index} className={styles.productItem}>
-                <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-                  {product.image_url && (
-                    <div className={styles.productImageContainer}>
-                      <img 
-                        src={`http://localhost:3000${product.image_url}`}
-                        alt={product.product_name}
-                        className={styles.productImage}
-                        onClick={() => window.open(`http://localhost:3000${product.image_url}`, '_blank')}
-                        style={{
-                          width: '60px',
-                          height: '60px',
-                          objectFit: 'cover',
-                          borderRadius: '5px',
-                          cursor: 'pointer',
-                          border: '1px solid #ddd'
-                        }}
-                      />
+              <li key={index} className={styles.card}>
+                {product.image_url && (
+                  <div className={styles.cardMedia} onClick={() => window.open(`http://localhost:3000${product.image_url}`, "_blank")}>
+                    <img
+                      src={`http://localhost:3000${product.image_url}`}
+                      alt={product.product_name}
+                      className={styles.image}
+                    />
+                  </div>
+                )}
+                <div className={styles.cardContent}>
+                  <h4 className={styles.titleLine}>{product.product_name}</h4>
+                  <div className={styles.metaGrid}>
+                    <div className={styles.metaItem}>
+                      <span className={styles.metaLabel}>מחיר:</span>
+                      <span className={`${styles.metaValue} ${styles.price}`}>₪{product.unit_price}</span>
                     </div>
-                  )}
-                  <div className={styles.productDetails}>
-                    <h4>{product.product_name}</h4>
-                    <p>
-                      מחיר: ₪{product.unit_price} | כמות מינימלית להזמנה:{" "}
-                      {product.min_quantity} | כמות במלאי: {product.stock_quantity}
-                    </p>
+                    <div className={styles.metaItem}>
+                      <span className={styles.metaLabel}>כמות מינימלית:</span>
+                      <span className={styles.metaValue}>{product.min_quantity}</span>
+                    </div>
+                    <div className={styles.metaItem}>
+                      <span className={styles.metaLabel}>במלאי:</span>
+                      <span className={styles.metaValue}>{product.stock_quantity ?? 0}</span>
+                    </div>
                   </div>
                 </div>
               </li>
             ))}
           </ul>
+
           <div className={styles.finishButtonWrapper}>
             <button
               className={styles.finishButton}
@@ -229,87 +193,84 @@ function EditProductList() {
           </div>
         </>
       )}
+
       <h3>מוצרים שקיימים במערכת</h3>
-      <ul className={styles.productList}>
+      <ul className={styles.grid}>
         {oldProducts.map((product) => (
-          <li key={product.id} className={styles.productItem}>
-            <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-              {product.image_url && (
-                <div className={styles.productImageContainer}>
-                  <img 
-                    src={`http://localhost:3000${product.image_url}`}
-                    alt={product.product_name}
-                    className={styles.productImage}
-                    onClick={() => window.open(`http://localhost:3000${product.image_url}`, '_blank')}
-                    style={{
-                      width: '60px',
-                      height: '60px',
-                      objectFit: 'cover',
-                      borderRadius: '5px',
-                      cursor: 'pointer',
-                      border: '1px solid #ddd'
-                    }}
-                  />
+          <li key={product.id} className={styles.card}>
+            {product.image_url && (
+              <div className={styles.cardMedia} onClick={() => window.open(`http://localhost:3000${product.image_url}`, "_blank")}>
+                <img
+                  src={`http://localhost:3000${product.image_url}`}
+                  alt={product.product_name}
+                  className={styles.image}
+                />
+              </div>
+            )}
+
+            <div className={styles.cardContent}>
+              <h4 className={styles.titleLine}>{product.product_name}</h4>
+
+              <div className={styles.metaGrid}>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>מחיר:</span>
+                  <span className={`${styles.metaValue} ${styles.price}`}>₪{product.unit_price}</span>
                 </div>
-              )}
-              <div className={styles.productDetails}>
-                {/* מצב תצוגה רגיל */}
-                <h4>{product.product_name}</h4>
-                <p>
-                  מחיר: ₪{product.unit_price} | כמות מינימלית להזמנה:{" "}
-                  {product.min_quantity}
-                </p>
-                
-                <div className={styles.stockSection}>
-                  <span>כמות במלאי: </span>
-                  {editingStockId === product.id ? (
-                    <div className={styles.editStock}>
-                      <input
-                        type="number"
-                        value={newStockValue}
-                        onChange={(e) => setNewStockValue(e.target.value)}
-                        className={styles.stockInput}
-                      />
-                      <button 
-                        onClick={() => handleStockUpdate(product.id)}
-                        className={styles.saveButton}
-                      >
-                        שמור
-                      </button>
-                      <button 
-                        onClick={cancelStockEdit}
-                        className={styles.cancelButton}
-                      >
-                        ביטול
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <span>{product.stock_quantity}</span>
-                      <button 
-                        onClick={() => handleStockEdit(product.id, product.stock_quantity)}
-                        className={styles.editButton}
-                      >
-                        ערוך מלאי
-                      </button>
-                    </div>
-                  )}
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>כמות מינימלית:</span>
+                  <span className={styles.metaValue}>{product.min_quantity}</span>
                 </div>
-                
-                <div className={styles.productActions}>
-                  <button 
-                    onClick={() => handleProductEdit(product)}
-                    className={styles.editProductButton}
-                  >
-                    ערוך מוצר
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteProduct(product.id)}
-                    className={styles.deleteButton}
-                  >
-                    מחק מוצר
-                  </button>
+                <div className={styles.metaItem}>
+                  <span className={styles.metaLabel}>מלאי:</span>
+                  <span className={styles.metaValue}>{product.stock_quantity ?? 0}</span>
                 </div>
+              </div>
+
+              {/* מלאי + פעולה */}
+              <div className={styles.stockSection}>
+                <span>כמות במלאי:</span>
+                {editingStockId === product.id ? (
+                  <div className={styles.editStock}>
+                    <input
+                      type="number"
+                      value={newStockValue}
+                      onChange={(e) => setNewStockValue(e.target.value)}
+                      className={styles.stockInput}
+                    />
+                    <button onClick={() => handleStockUpdate(product.id)} className={styles.saveButton}>
+                      שמור
+                    </button>
+                    <button onClick={cancelStockEdit} className={styles.cancelButton}>
+                      ביטול
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.editStock}>
+                    <span>{product.stock_quantity ?? 0}</span>
+                    <button
+                      onClick={() => handleStockEdit(product.id, product.stock_quantity)}
+                      className={styles.editButton}
+                    >
+                      ערוך מלאי
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* פעולות כרטיס */}
+              <div className={styles.productActions}>
+                <button
+                  onClick={() => handleProductEdit(product)}
+                  className={styles.editProductButton}
+                >
+                  ערוך מוצר
+                </button>
+                <button
+                  onClick={() => handleDeleteProduct(product.id)}
+                  className={styles.deleteButton}
+                >
+                  מחק מוצר
+                </button>
               </div>
             </div>
           </li>
@@ -320,70 +281,49 @@ function EditProductList() {
       {editingProductId && (
         <div className={styles.editProductModalOverlay} onClick={cancelProductEdit}>
           <div className={styles.editProductModal} onClick={(e) => e.stopPropagation()}>
-            <button 
-              className={styles.closeModalButton}
-              onClick={cancelProductEdit}
-            >
-              ×
-            </button>
-            
+            <button className={styles.closeModalButton} onClick={cancelProductEdit}>×</button>
             <h3 className={styles.editProductModalTitle}>עריכת מוצר</h3>
-            
+
             <div className={styles.editProductForm}>
               <div className={styles.editField}>
                 <label>שם המוצר</label>
                 <input
                   type="text"
                   value={editedProduct.product_name}
-                  onChange={(e) => setEditedProduct({
-                    ...editedProduct,
-                    product_name: e.target.value
-                  })}
+                  onChange={(e) => setEditedProduct({ ...editedProduct, product_name: e.target.value })}
                   className={styles.editInput}
                   placeholder="הכנס שם מוצר"
                 />
               </div>
-              
+
               <div className={styles.editField}>
                 <label>מחיר ליחידה (₪)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={editedProduct.unit_price}
-                  onChange={(e) => setEditedProduct({
-                    ...editedProduct,
-                    unit_price: e.target.value
-                  })}
+                  onChange={(e) => setEditedProduct({ ...editedProduct, unit_price: e.target.value })}
                   className={styles.editInput}
                   placeholder="0.00"
                 />
               </div>
-              
+
               <div className={styles.editField}>
                 <label>כמות מינימלית להזמנה</label>
                 <input
                   type="number"
                   value={editedProduct.min_quantity}
-                  onChange={(e) => setEditedProduct({
-                    ...editedProduct,
-                    min_quantity: e.target.value
-                  })}
+                  onChange={(e) => setEditedProduct({ ...editedProduct, min_quantity: e.target.value })}
                   className={styles.editInput}
                   placeholder="הכנס כמות מינימלית"
                 />
               </div>
-              
+
               <div className={styles.editButtons}>
-                <button 
-                  onClick={() => handleProductUpdate(editingProductId)}
-                  className={styles.saveButton}
-                >
+                <button onClick={() => handleProductUpdate(editingProductId)} className={styles.saveButton}>
                   שמור שינויים
                 </button>
-                <button 
-                  onClick={cancelProductEdit}
-                  className={styles.cancelButton}
-                >
+                <button onClick={cancelProductEdit} className={styles.cancelButton}>
                   ביטול
                 </button>
               </div>

@@ -8,7 +8,7 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
   color: #111827; /* אפור-שחור */
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 1.2rem;
+  margin-bottom: 3rem;
   position: relative;
 }
 .title::after {
@@ -43,7 +43,7 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
   color: #ffffff;
   border: 1px solid #6F8B7A66;
   padding: 8px 11px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   border-radius: 8px;
   cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
@@ -74,9 +74,10 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
   direction: rtl;
   text-align: right;
   color: #111827;
+
 }
 .orderHeaderRow > * {
-  padding: 12px;
+  padding: 8px;
   border-inline-start: 1px solid #ECEFF3;  /* קווי הפרדה אנכיים בהירים */
   display: flex; align-items: center; justify-content: flex-start;
 }
@@ -88,7 +89,7 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 
 .orderHeader {
   display: grid;
-  grid-template-columns: 0.5fr 1fr 1fr 1fr 1.5fr auto;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr 1.5fr auto;
   column-gap: 0;
   padding: 0;
   cursor: pointer;
@@ -123,7 +124,7 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 .chevron { display: flex; justify-content: center; color: #5D7668; }
 
 /* פרטים */
-.orderDetails { background-color: #FFFFFF; padding: 12px 16px; font-size: 0.9rem; color: #374151; }
+.orderDetails { background-color: #FFFFFF; padding: 40px 16px; font-size: 0.9rem; color: #374151; }
 .productsTitle { margin-top: 8px; }
 
 /* ====== פילטר תאריכים ====== */
@@ -157,3 +158,96 @@ body::before { background-color: rgba(255, 255, 255, 0.7); }
 }
 .clearFilterButton:hover { background: #EEF3F1; }
 .clearFilterButton:active { transform: translateY(1px); }
+/* === Tight & centered rows (override) === */
+
+/* ממרכז אנכית את תאי הכותרת והשורות */
+.orderHeaderRow,
+.orderHeader {
+  align-items: center; /* vertical center */
+}
+
+/* מצמצם גובה שורות: פחות padding + line-height נמוך יותר */
+.orderHeaderRow > *,
+.orderHeader > * {
+  padding: 6px 10px;   /* היה 12px -> יותר צפוף */
+  line-height: 1.2;
+}
+
+/* טקסט מיושר לימין לרוחב + שומר יישור RTL נכון בתוך ה-flex */
+.orderHeaderRow > *,
+.orderHeader > *,
+.orderHeader span,
+.orderAmount {
+  text-align: right;          /* יישור אופקי לימין */
+  justify-content: flex-start;/* ב-RTL start = ימין */
+}
+
+/* גם אזור הכפתור ממורכז אנכית ונשאר צפוף */
+.orderAction {
+  align-items: center; /* vertical center */
+  min-height: 32px;    /* קצת יותר צפוף, אם תרצי אפשר לרדת ל-28px */
+}
+
+/* === Inline details row + inner products table (shared by Owner & Supplier) === */
+
+/* שורת פרטים אינליין */
+.detailsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;            /* רווחים יפים בין הפריטים */
+  align-items: center;        /* ממרכז אנכית */
+  direction: rtl;             /* ימין->שמאל */
+  margin-bottom: 8px;
+  text-align: right;
+}
+
+.detailItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;                   /* רווח בין התווית לערך */
+  white-space: nowrap;        /* לא ישברו מילים באמצע */
+  color: #374151;             /* אפור כהה נעים */
+  font-size: 0.92rem;
+}
+
+.detailItem strong {
+  color: #111827;             /* הדגשה עדינה */
+  font-weight: 700;
+}
+
+/* טבלה פנימית קטנה למוצרים */
+.innerTableWrap {
+  width: 50%;
+  margin-top: 8px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.innerTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.88rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.innerTable thead th {
+  background-color: #F3F4F6;
+  color: #111827;
+  font-weight: 600;
+  padding: 6px 10px;          /* קומפקטי */
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.innerTable tbody td {
+  padding: 6px 10px;          /* קומפקטי */
+  border-top: 1px solid #F1F5F9;
+}
+
+.innerTable tbody tr:nth-child(even) td {
+  background-color: #F9FAFB;
+}
